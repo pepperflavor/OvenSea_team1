@@ -19,18 +19,18 @@ $.getJSON("/getDatas3", (datas) => {
 
 const clientSocket = new ClientSocket();
 
-const setDevUser = { uid: createUid(), room: createNftId() };
+// const setDevUser = { uid: createUid(), room: createNftId() };
 
-clientSocket.initEvent({
-  uid: setDevUser.uid,
-  room: setDevUser.room,
-});
-clientSocket.initAuction({
-  uid: setDevUser.uid,
-  room: setDevUser.room,
-});
-clientSocket.initChat({
-  uid: setDevUser.uid,
-  room: setDevUser.room,
-});
+// clientSocket.initEvent({
+//   uid: setDevUser.uid,
+//   room: setDevUser.room,
+// });
+// clientSocket.initAuction({
+//   uid: setDevUser.uid,
+//   room: setDevUser.room,
+// });
+// clientSocket.initChat({
+//   uid: setDevUser.uid,
+//   room: setDevUser.room,
+// });
 

@@ -22,18 +22,22 @@ class ServerSocket {
 
   initSocket(nspName) {
     this.nsp[`${nspName}`].on("connection", (socket) => {
-      socket.on(`join_${nspName}`, (dataObj) => {
+      console.log(`@@@@@@@@@@@${nspName}`);
+      this.nsp[`${nspName}`].on(`join_${nspName}`, (dataObj) => {
         const { room, uid } = dataObj;
         socket.join(room);
         socket.to(room).emit(`join_${nspName}`, room, uid);
         console.log(`${nspName} UID:${uid} 입장`);
       });
 
-      socket.on(`leave_${nspName}`, (dataObj) => {
+      this.nsp[`${nspName}`].on(`leave_${nspName}`, (dataObj) => {
         const { room, uid } = dataObj;
         socket.leave(room);
         io.to(room).emit(`leave_${nspName}`, room, uid);
         console.log(`${nspName} UID:${uid} 퇴장`);
+      });
+      this.nsp[`${nspName}`].on(`auction_뀨`, (dataObj) => {
+        this.nsp[`${nspName}`].emit(`auction_뀨`,  "뀨뀨뀨뀨뀨뀨");
       });
     });
   }

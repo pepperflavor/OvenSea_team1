@@ -69,13 +69,13 @@ const timestamps = new Date();
 //              1초   60초 60분  24시간
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
-// 과거의 uid가 겹치는것을 방지하기위해 (24자리)
-// 하루단위의 timestamp를 앞에 추가     ( 5자리)
+// uid가 겹치는것을 방지하기위해         (24자리)
+// 과거의 하루단위의 timestamp를 앞에 추가     ( 5자리)
 const toDay = Math.floor(timestamps / ONE_DAY);
 
 // 29자리 랜덤 uid 리턴
 const createUid = () => {
-  const uid = [];
+  const uid = []//["m","m","m","m","m","m","m","m",]; -> "mmmmmm"
   for (let idx = 0; idx < UID_SIZE; idx++) {
     const random = Math.floor(Math.random() * RANDOM_SIZE);
     uid.push(RANDOM_TABLE[random]);
