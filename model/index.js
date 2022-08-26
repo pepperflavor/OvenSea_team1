@@ -8,8 +8,11 @@ const User = require("./users");
 const Nft = require("./nfts");
 const Rank = require("./ranks");
 const Report = require("./reports");
+const ChatMember = require("./chatMember");
+const FreeChat = require("./freeChat");
+const ActionChat = require("./actionChat");
+const ChatLog = require("./chatlog");
 
-// console.log(config);
 
 const { database, username, password } = config.dev;
 
@@ -24,6 +27,12 @@ db.User = User;
 db.Nft = Nft;
 db.Rank = Rank;
 db.Report = Report;
+db.ChatLog = ChatLog;
+
+// 채팅방 관련
+db.ChatMember = ChatMember;
+db.FreeChat = FreeChat;
+db.ActionChat = ActionChat;
 
 // 이 구문이 없으면 테이블이 생성되지 않는다.
 User.init(sequelize);
@@ -31,10 +40,21 @@ Nft.init(sequelize);
 Rank.init(sequelize);
 Report.init(sequelize);
 
+ChatMember.init(sequelize);
+FreeChat.init(sequelize);
+ActionChat.init(sequelize);
+ChatLog.init(sequelize);
+
+
 // 관계형을 맺어주는 함수 사용
 User.associate(db);
 Nft.associate(db);
 Rank.associate(db);
 Report.associate(db);
+
+ChatMember.associate(db);
+FreeChat.associate(db);
+ActionChat.associate(db);
+ChatLog.associate(db);
 
 module.exports = db;

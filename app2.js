@@ -3,7 +3,17 @@ const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
-const { sequelize, User, Post, Nft, Rank } = require("./model");
+const {
+  sequelize,
+  User,
+  Post,
+  Nft,
+  Rank,
+  FreeChat,
+  ChatMember,
+  ActionChat,
+  ChatLog,
+} = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
 
@@ -11,6 +21,7 @@ const app = express();
 
 const PORT = 3000;
 const SOCKET_PORT = 3030;
+
 
 // // join함수는 매개변수를 받아 주소처럼 합쳐줌
 // // path.join('a','b') => "a/b"
@@ -49,7 +60,7 @@ app.use("/static", express.static(__dirname));
 app.use(express.urlencoded({ extended: false }));
 
 sequelize
-  .sync({ force:false })
+  .sync({ force:true })
   .then(() => {
     console.log("DB연결 성공");
     // initDbMultiple();
@@ -91,7 +102,14 @@ app.get("/getDatas3", async (req, res) => {
     console.log(datas);
   }
 });
-
+app.get("/getDatas4", async (req, res) => {
+  const datas = await getAllData(ChatMember);
+  res.send(datas);
+  if (req.body.secret === "뀨") {
+    const datas = await getAllData();
+    console.log(datas);
+  }
+});
 // User.findAll({}).then((datas) => {
 //   datas.map((data) => {
 //     console.log("@@@@", data.dataValues);
@@ -108,6 +126,64 @@ async function getAllData(db, query) {
   });
 }
 
+
+//==== chat기능 관련 fk키 여러개 설정
+
+// free chat에서 유저 접속시간 비교를 위해서 시간 뽑아오기
+app.get("/freechat",  (req, res) =>{
+  FreeChat.findOne({
+    where: {
+      created_at : req.params.created_at,
+    },
+    include: [
+      {
+        model : chat_member,
+      },
+    ],
+  }).then((e)=>{
+    console.log(e.dataValues); 
+  })
+});
+
+// FreeChat.findOne({
+//   where: {
+//     created_at:"@@@@",
+//   },
+//   include: [
+//     {
+//       model: ChatMember,
+//     },
+//   ],
+// }).then((e) => {
+//   console.log(e.dataValues);
+// });
+
+
+// app.get("/view/:name", (req, res) => {
+//   chat_member.findOne({
+//     where: {
+//       uid: req.params.uid,
+//     },
+//     // 리턴값을 단일 객체로 변형해서
+//     // raw: true,
+//     // 관계형 모델 불러오기
+//     // 관계를 맺어 놓은 모델을 조회할 수 있다.
+//     // 여기서는 해당 검색된 유저와 맞는 모델
+//     // user 모델 id가 1번이면 post 모델의 user_id 키가 같은 애들을 조회
+//     include: [
+//       {
+//         model: free_chat,
+//       },
+//     ],
+//   }).then((e) => {
+//     // console.log(e);
+//     e.dataValues.Post = e.dataValues.Posts.map((i) => i.dataValues);
+//     const Posts = e.dataValues;
+//     console.log(Posts);
+//     res.render("view", { data: Posts });
+//   });
+// });
+
 // app.post("/create", (req, res) => {
 //   // create이 함수를 사용하면 해당 테이블에 컬럼을 추가할 수 이다.
 //   const { name, age, msg } = req.body;
@@ -121,6 +197,7 @@ async function getAllData(db, query) {
 // app.get("/user", (req, res) => {
 //   // 여기서는 추가된 유저를 확인해야한다.
 //   // user 전체를 조회하거나  조건으로  user 를 가져와야한다.
+
 //   User.findAll({})
 //     .then((data) => {
 //       // Post.findAll({ where: { name: data.id } });
@@ -143,31 +220,6 @@ async function getAllData(db, query) {
 //       user_id: e.id,
 //       name,
 //     });
-//   });
-// });
-
-// app.get("/view/:name", (req, res) => {
-//   User.findOne({
-//     where: {
-//       name: req.params.name,
-//     },
-//     // 리턴값을 단일 객체로 변형해서
-//     // raw: true,
-//     // 관계형 모델 불러오기
-//     // 관계를 맺어 놓은 모델을 조회할 수 있다.
-//     // 여기서는 해당 검색된 유저와 맞는 모델
-//     // user 모델 id가 1번이면 post 모델의 user_id 키가 같은 애들을 조회
-//     include: [
-//       {
-//         model: Post,
-//       },
-//     ],
-//   }).then((e) => {
-//     // console.log(e);
-//     e.dataValues.Post = e.dataValues.Posts.map((i) => i.dataValues);
-//     const Posts = e.dataValues;
-//     console.log(Posts);
-//     res.render("view", { data: Posts });
 //   });
 // });
 
@@ -211,6 +263,11 @@ function createOne() {
       createUid(),
       createUid(),
     ]),
+  });
+
+  ChatMember.create({
+    uid : createUid(),
+    roomtype : 1,
   });
 
   Nft.create({

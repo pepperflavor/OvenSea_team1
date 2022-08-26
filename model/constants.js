@@ -9,6 +9,9 @@ const constants = {
   NFT_REPORT: 0,
   USER_REPORT: 1,
 
+  // 채팅방 유형
+  NOMARL_CHAT : 1,
+  ACTION_CHAT : 2,
   
 };
 
