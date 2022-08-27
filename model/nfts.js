@@ -20,7 +20,7 @@ class Nft extends Sequelize.Model {
           // 그래서 가져온 시퀄라이즈 모듈 안에 있는 STRING 객체를 사용
           // 여기서 한거는 컬럼의 데이터 타입을 정한 것
           type: Sequelize.INTEGER,
-
+//
           // allowNull 은 값이 무조건 있어야하는지 설정하는것.
           // null 기본값을 허용한다.
           allowNull: false,
