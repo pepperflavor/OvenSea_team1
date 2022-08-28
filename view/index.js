@@ -1,36 +1,82 @@
-
-
 document.onload = () => {};
 const dbManager = new DbManager();
-$.getJSON("/getDatas", (datas) => {
-  dbManager.setData(datas);
-  dbManager.createTableEl(table, ["balance", "uid", "grade"]);
-});
-
-$.getJSON("/getDatas2", (datas) => {
-  dbManager.setData(datas);
-  dbManager.createTableEl(table2);
-});
-
-$.getJSON("/getDatas3", (datas) => {
-  dbManager.setData(datas);
-  dbManager.createTableEl(table3);
-});
-
-const clientSocket = new ClientSocket();
-
-// const setDevUser = { uid: createUid(), room: createNftId() };
-
-// clientSocket.initEvent({
-//   uid: setDevUser.uid,
-//   room: setDevUser.room,
-// });
-// clientSocket.initAuction({
-//   uid: setDevUser.uid,
-//   room: setDevUser.room,
-// });
-// clientSocket.initChat({
-//   uid: setDevUser.uid,
-//   room: setDevUser.room,
+// $.getJSON("/getDatas", (datas) => {
+//   dbManager.setData(datas);
+//   dbManager.createTableEl(table, ["balance", "uid", "grade"]);
 // });
 
+// $.getJSON("/getDatas2", (datas) => {
+//   dbManager.setData(datas);
+//   dbManager.createTableEl(table2);
+// });
+
+// $.getJSON("/getDatas3", (datas) => {
+//   dbManager.setData(datas);
+//   dbManager.createTableEl(table3);
+// });
+
+// const auction = new ClientSocket("auction");
+// auction.init();
+// auction.on({ type: "뀨" }, (data) => {
+//   console.log("뀨 이미터 전소옹!", data);
+// });
+
+// setInterval(() => {
+//   auction.emit({ type: "뀨", room: "뀨" });
+//   // console.log("@@@", auction.getNsp());
+// }, 1000);
+
+// setInterval(() => {
+//   console.log("chat & emit");
+//   chat.emit("test", { chat: "chat", otc: 123123123 });
+//   auction.emit("test", { auction: "auction", otc: 3213123123 });
+//   auction.emit("test1", { auction: "auction", otc: 3213123123 });
+// }, 888);
+
+const auction = new ClientSocket("auction");
+const chat = new ClientSocket("chat");
+const event = new ClientSocket("event");
+
+auction
+  .emit({
+    nsp: "auction",
+    emit: "send",
+    otc: 3213123123,
+    callbefore: () => {},
+  })
+  .emit({
+    nsp: "auction",
+    emit: "delete",
+    otc: 3213123123,
+    callbefore: () => {},
+  })
+  .emit({
+    nsp: "auction",
+    emit: "뀨",
+    otc: 3213123123,
+    callbefore: () => {},
+  });
+
+chat.on({
+  nsp: "chat",
+  emit: "connect",
+  callback: (data) => {
+    chat.emit({
+      nsp: "chat",
+      emit: "toEmit",
+      msg: "뀨@@@@@@@@@@@@",
+      to: [chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"],
+      callbefore: () => {
+        console.log([chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"]);
+      },
+    });
+
+    chat.on({
+      nsp: "chat",
+      emit: "toEmit",
+      callback: (data) => {
+        console.log(data, "send 감지!");
+      },
+    });
+  },
+});

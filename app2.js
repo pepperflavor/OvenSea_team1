@@ -1,4 +1,5 @@
-const SocketServer = require("./socket/server");
+const ServerSocket = require("./socket/server");
+const socketio = require("socket.io");
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
@@ -20,12 +21,99 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
+const serverSockets = new ServerSocket(server);
 
+// serverSockets.setSockets("auction", () => {
+//   serverSockets
+//     .on({
+//       nsp: "auction",
+//       emit: "send",
+//       callback: (data) => {
+//         console.log(data, "auction-send: 잘작동한다능!", new Date().getTime());
+//       },
+//     })
+//     .on({
+//       nsp: "auction",
+//       emit: "delete",
+//       callback: (data) => {
+//         console.log(
+//           data,
+//           "auction-delete: 잘작동한다능!",
+//           new Date().getTime()
+//         );
+//       },
+//     })
+//     .on({
+//       nsp: "auction",
+//       emit: "뀨",
+//       callback: (data) => {
+//         console.log(data, "auction-뀨: 잘작동한다능!", new Date().getTime());
+//       },
+//     });
+// });
 
-//socket.io 생성 및 실행
-const socketServer = new SocketServer(server)
+// serverSockets.setSockets("event", () => {
+//   serverSockets
+//     .on({
+//       nsp: "event",
+//       emit: "send",
+//       callback: (data) => {
+//         console.log(data, "event-send: 잘작동한다능!", new Date().getTime());
+//       },
+//     })
+//     .on({
+//       nsp: "event",
+//       emit: "connect",
+//       callback: (data) => {
+//         console.log(data, "들어왔다능!!!!!!!!!!!!", new Date().getTime());
+//       },
+//     }).on({
+//       nsp: "event",
+//       emit: "disconnect",
+//       callback: (data) => {
+//         console.log(data, "나갔다능!!!!!!!!!!!!!", new Date().getTime());
+//       },
+//     })
+//     .on({
+//       nsp: "event",
+//       emit: "뀨",
+//       callback: (data) => {
+//         console.log(data, "event-뀨: 잘작동한다능!", new Date().getTime());
+//       },
+//     });
+// });
 
-
+serverSockets.setSockets("chat", () => {
+  serverSockets
+    .on({
+      nsp: "chat",
+      emit: "send",
+      callback: (data) => {
+        // console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
+      },
+    })
+    .on({
+      nsp: "chat",
+      emit: "toEmit",
+      callback: (data) => {
+        console.log(data, "toEmit: 잘작동한다능!");
+        const { msg, to } = data;
+        serverSockets.toEmit({
+          nsp: "chat",
+          emit:"toEmit",
+          to: to,
+          msg: msg,
+        });
+      },
+    });
+  // .on({
+  //   nsp: "chat",
+  //   emit: "뀨",
+  //   callback: (data) => {
+  //     console.log(data, "chat-뀨: 잘작동한다능!", new Date().getTime());
+  //   },
+  // });
+});
 
 // io.sockets(server).on("connection", (socket) => {
 // });
@@ -49,7 +137,7 @@ app.use("/static", express.static(__dirname));
 app.use(express.urlencoded({ extended: false }));
 
 sequelize
-  .sync({ force:false })
+  .sync({ force: false })
   .then(() => {
     console.log("DB연결 성공");
     // initDbMultiple();
@@ -58,7 +146,7 @@ sequelize
     console.log(err);
   });
 
-app.get("/", async (req, res) => {
+app.get("/", (req, res) => {
   // const userData = await getAllData(User, {});
   // console.log(userData);
   // res.render("index");
@@ -75,6 +163,7 @@ app.get("/getDatas", async (req, res) => {
     console.log(datas);
   }
 });
+
 app.get("/getDatas2", async (req, res) => {
   const datas = await getAllData(Rank);
   res.send(datas);

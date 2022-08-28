@@ -1,0 +1,8 @@
+class Test {
+
+}
+
+Test.prototype.on = ()=>{
+  
+}
+
