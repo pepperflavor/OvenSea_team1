@@ -1,9 +1,9 @@
 document.onload = () => {};
 const dbManager = new DbManager();
-// $.getJSON("/getDatas", (datas) => {
-//   dbManager.setData(datas);
-//   dbManager.createTableEl(table, ["balance", "uid", "grade"]);
-// });
+$.getJSON("/getDatas", (datas) => {
+  dbManager.setData(datas);
+  dbManager.createTableEl(table, ["balance", "uid", "grade"]);
+});
 
 // $.getJSON("/getDatas2", (datas) => {
 //   dbManager.setData(datas);
