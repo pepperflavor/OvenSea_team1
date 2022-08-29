@@ -12,7 +12,7 @@ class ChatLog extends Sequelize.Model {
           unique: true,
         },
       },
-      {
+      {                       
         sequelize,
         underscored: false,
         timestamps: true,

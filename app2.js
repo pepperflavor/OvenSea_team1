@@ -2,6 +2,9 @@ const SocketServer = require("./socket/server");
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
+const adminRoutes = require('./routes/admin');
+const commonRoutes = require('./routes/common');
+
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
 const {
   sequelize,
@@ -36,6 +39,9 @@ const server = app.listen(PORT, () => {
 //socket.io 생성 및 실행
 const socketServer = new SocketServer(server)
 
+app.get('/chatmember', (req, res) =>{
+  res.render('data', "")
+})
 
 
 // io.sockets(server).on("connection", (socket) => {
@@ -54,7 +60,11 @@ app.engine("html", ejs.renderFile);
 
 app.set("view engine", "html");
 
+// 이경로로 들어오는 요청은 해당 라우터만 사용함
 app.use("/static", express.static(__dirname));
+
+app.use("/common", commonRoutes);
+app.use("/admin", adminRoutes.routes);
 
 //body 객체 사용
 app.use(express.urlencoded({ extended: false }));
@@ -145,109 +155,14 @@ app.get("/freechat",  (req, res) =>{
   })
 });
 
-// FreeChat.findOne({
-//   where: {
-//     created_at:"@@@@",
-//   },
-//   include: [
-//     {
-//       model: ChatMember,
-//     },
-//   ],
-// }).then((e) => {
-//   console.log(e.dataValues);
-// });
+// 404 페이지
+app.use((req, res, next)=> {
+  res.status(404).render("404", { pageTitle: "Page Not Found" });
+});
 
 
-// app.get("/view/:name", (req, res) => {
-//   chat_member.findOne({
-//     where: {
-//       uid: req.params.uid,
-//     },
-//     // 리턴값을 단일 객체로 변형해서
-//     // raw: true,
-//     // 관계형 모델 불러오기
-//     // 관계를 맺어 놓은 모델을 조회할 수 있다.
-//     // 여기서는 해당 검색된 유저와 맞는 모델
-//     // user 모델 id가 1번이면 post 모델의 user_id 키가 같은 애들을 조회
-//     include: [
-//       {
-//         model: free_chat,
-//       },
-//     ],
-//   }).then((e) => {
-//     // console.log(e);
-//     e.dataValues.Post = e.dataValues.Posts.map((i) => i.dataValues);
-//     const Posts = e.dataValues;
-//     console.log(Posts);
-//     res.render("view", { data: Posts });
-//   });
-// });
 
-// app.post("/create", (req, res) => {
-//   // create이 함수를 사용하면 해당 테이블에 컬럼을 추가할 수 이다.
-//   const { name, age, msg } = req.body;
-//   const create = User.create({
-//     name,
-//     age,
-//     msg,
-//   });
-// });
-
-// app.get("/user", (req, res) => {
-//   // 여기서는 추가된 유저를 확인해야한다.
-//   // user 전체를 조회하거나  조건으로  user 를 가져와야한다.
-
-//   User.findAll({})
-//     .then((data) => {
-//       // Post.findAll({ where: { name: data.id } });
-
-//       res.render("page", { data });
-//     })
-//     .catch((err) => {
-//       //실패하면 에러 페이지를 보여준다.
-//       res.render("err");
-//     });
-// });
-
-// app.post("/create_post", (req, res) => {
-//   const { name, text } = req.body;
-//   console.log(name, text);
-//   User.findOne({ where: { name: name } }).then((e) => {
-//     Post.create({
-//       msg: text,
-//       // foreignkey user_id 이고 유저
-//       user_id: e.id,
-//       name,
-//     });
-//   });
-// });
-
-// app.get("/del/:id", (req, res) => {
-//   //삭제 쿼리문
-//   Post.destroy({
-//     where: { id: req.params.id },
-//   }).then(() => {
-//     res.redirect("/user");
-//   });
-// });
-// app.post("/view_update", (req, res) => {
-//   const { id, msg, text } = req.body;
-//   /**
-//    * 수정 쿼리문 사용
-//    * 객체가 들어가는데
-//    * 첫번째 매개변수 : 수정할 내용
-//    * 두번째 매개변수 : 검색조건
-//    */
-//   Post.update({ msg }, { where: { id, msg: text } });
-// });
-
-//socket.io 생성 및 실행
-// const io = socketio(server);
-
-// io.sockets.on("connection", (socket) => {
-
-// });
+//========= create 구문
 
 function createOne() {
   User.create({
@@ -265,10 +180,7 @@ function createOne() {
     ]),
   });
 
-  ChatMember.create({
-    uid : createUid(),
-    roomtype : 1,
-  });
+
 
   Nft.create({
     nft_id: createNftId(),

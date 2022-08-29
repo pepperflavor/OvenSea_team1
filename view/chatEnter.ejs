@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+</head>
+<body>
+    <h1>채팅방 입장</h1>
+    <form action="../controllers/common.js">
+        <button type="submit" class="freeChat" value="1"> 자유채팅방</button>
+        <button type="submit" class="auctionChat" value="2">경매 채팅방</button>
+    </form>
+</body>
+<script>
+    const freeChat = document.querySelector(".freeChat");
+    const auctionChat =  document.querySelector(".auctionChat");
+0
+    freeChat.onclick = function(){
+        if(confirm("자유채팅방으로 입장하시겠습니까?")){
+            const roomtype = freeChat.querySelector(".freeChat").value
+        }else{
+            redirect("/");
+        }
+    }
+
+    auctionChat.onclick = function(){
+        if(confirm("자유채팅방으로 입장하시겠습니까?")){
+            const roomtype =  document.querySelector(".auctionChat").value;
+        }else{
+            redirect("/");
+        }
+    }
+</script>
+</html>
