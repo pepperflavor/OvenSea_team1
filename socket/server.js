@@ -2,54 +2,56 @@ const socketio = require("socket.io");
 
 class ServerSocket {
   constructor(server) {
-    this.io = socketio(server);
-    this.socketList = {};
-    this.socketConnection = {};
-    this.to = [];
+    this.sockets = socketio(server);
+    this.io = false;
   }
-  getSockets = () => this.socketList;
-  getConnection = () => this.socketConnection;
+  setNsp = (nsp) => {
+    this.nsp = nsp;
+    this.io = this.sockets.of(`/${nsp}`);
+    return this;
+  };
 }
-ServerSocket.prototype.setSockets = function (socketNsp, callback) {
-  this.io.of(`/${socketNsp}`).on("connection", (socket) => {
-    this.socketList[socketNsp] = socket;
+
+ServerSocket.prototype.setConnection = function (callback) {
+  this.sockets.of(`/${this.nsp}`).on("connection", (socket) => {
     callback(socket);
   });
   return this;
 };
 
 ServerSocket.prototype.on = function (inputObj) {
-  const { nsp, emit, callback, callbefore, query } = inputObj;
+  const { event, callback, callbefore, query } = inputObj;
   if (callbefore) callbefore(query);
-  this.socketList[nsp].on(`${emit}`, (data) => {
+  this.sockets.of(`/${this.nsp}`).on(`${event}`, (data) => {
     callback(data);
   });
   return this;
 };
 
 ServerSocket.prototype.emit = function (inputObj) {
-  const { nsp, emit, callbefore, query, ...data } = inputObj;
+  const { event, callbefore, query, ...data } = inputObj;
   if (callbefore) callbefore(query);
-  this.socketList[nsp].emit(`${emit}`, data);
+  this.sockets.of(`/${this.nsp}`).emit(`${event}`, data);
   return this;
 };
 
 ServerSocket.prototype.asyncEmit = async function (inputObj) {
-  const { nsp, emit, callbefore, query, ...data } = inputObj;
+  const { event, callbefore, query, ...data } = inputObj;
   if (callbefore) await callbefore(query);
-  this.socketList[nsp].emit(`${emit}`, data);
+  this.sockets.of(`/${this.nsp}`).emit(`${event}`, data);
   return this;
 };
 
 ServerSocket.prototype.toEmit = function (inputObj) {
-  const { nsp, to, emit, callbefore, query, ...data } = inputObj;
-  if (to !== "all") {
-    to.forEach((sendTo) => {
-      this.socketList[nsp].to(sendTo).emit(`${emit}`, data);
+  const { to, event, callbefore, query, ...data } = inputObj;
+  if (to === "all") {
+    this.sockets.of(`/${this.nsp}`).broadcast.emit(`${event}`, data);
+    return this;
+  } else {
+    to.forEach((element) => {
+      this.sockets.of(`/${this.nsp}`).to(element).emit(`${event}`, data);
     });
-  } else{
-    this.socketList[nsp].broadcast.emit(`${emit}`, data);
+    return this;
   }
 };
-
 module.exports = ServerSocket;

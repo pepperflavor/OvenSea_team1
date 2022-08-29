@@ -39,31 +39,26 @@ const event = new ClientSocket("event");
 
 auction
   .emit({
-    nsp: "auction",
-    emit: "send",
+    event: "send",
     otc: 3213123123,
     callbefore: () => {},
   })
   .emit({
-    nsp: "auction",
-    emit: "delete",
+    event: "delete",
     otc: 3213123123,
     callbefore: () => {},
   })
   .emit({
-    nsp: "auction",
-    emit: "뀨",
+    event: "뀨",
     otc: 3213123123,
     callbefore: () => {},
   });
 
 chat.on({
-  nsp: "chat",
-  emit: "connect",
+  event: "connect",
   callback: (data) => {
     chat.emit({
-      nsp: "chat",
-      emit: "toEmit",
+      event: "toEmit",
       msg: "뀨@@@@@@@@@@@@",
       to: [chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"],
       callbefore: () => {
@@ -72,8 +67,7 @@ chat.on({
     });
 
     chat.on({
-      nsp: "chat",
-      emit: "toEmit",
+      event: "toEmit",
       callback: (data) => {
         console.log(data, "send 감지!");
       },

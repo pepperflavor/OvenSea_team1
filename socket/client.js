@@ -1,37 +1,41 @@
 class ClientSocket {
   constructor(nsp) {
     this.io = io(`/${nsp}`);
+    this.nsp = nsp;
   }
 }
 ClientSocket.prototype.on = function (inputObj) {
-  const { emit, callback, callbefore, query } = inputObj;
+  const { event, callback, callbefore, query } = inputObj;
   if (callbefore) callbefore(query);
-  this.io.on(`${emit}`, (data) => {
+  this.io.on(`${event}`, (data) => {
     callback(data);
   });
   return this;
 };
 
 ClientSocket.prototype.emit = function (inputObj) {
-  const { emit, callbefore, query, ...data  } = inputObj;
+  const { event, callbefore, query, ...data } = inputObj;
   if (callbefore) callbefore(query);
-  this.io.emit(`${emit}`, data);
+  this.io.emit(`${event}`, data);
   return this;
 };
 
 ClientSocket.prototype.asyncEmit = async function (inputObj) {
-  const { emit, callbefore, query, ...data  } = inputObj;
+  const { event, callbefore, query, ...data } = inputObj;
   if (callbefore) await callbefore(query);
-  this.io.emit(`${emit}`, data);
+  this.io.emit(`${event}`, data);
   return this;
 };
 
-
 ClientSocket.prototype.toEmit = function (inputObj) {
-  const { nsp, to, emit, callbefore, query, ...data } = inputObj;
-  if (!this.socketList[nsp]) return;
-  to.forEach((element) => {
-    this.io.to(element);
-  });
-  this.io.emit(`${emit}`, data);
+  const { to, event, callbefore, query, ...data } = inputObj;
+  if (to === "all") {
+    this.io.broadcast.emit(`${event}`, data);
+    return this;
+  } else {
+    to.forEach((element) => {
+      this.io.to(element).emit(`${event}`, data);
+    });
+    return this;
+  }
 };

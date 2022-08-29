@@ -21,98 +21,34 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
-const serverSockets = new ServerSocket(server);
+const chat = new ServerSocket(server).setNsp("chat");
 
-// serverSockets.setSockets("auction", () => {
-//   serverSockets
-//     .on({
-//       nsp: "auction",
-//       emit: "send",
-//       callback: (data) => {
-//         console.log(data, "auction-send: 잘작동한다능!", new Date().getTime());
-//       },
-//     })
-//     .on({
-//       nsp: "auction",
-//       emit: "delete",
-//       callback: (data) => {
-//         console.log(
-//           data,
-//           "auction-delete: 잘작동한다능!",
-//           new Date().getTime()
-//         );
-//       },
-//     })
-//     .on({
-//       nsp: "auction",
-//       emit: "뀨",
-//       callback: (data) => {
-//         console.log(data, "auction-뀨: 잘작동한다능!", new Date().getTime());
-//       },
-//     });
-// });
-
-// serverSockets.setSockets("event", () => {
-//   serverSockets
-//     .on({
-//       nsp: "event",
-//       emit: "send",
-//       callback: (data) => {
-//         console.log(data, "event-send: 잘작동한다능!", new Date().getTime());
-//       },
-//     })
-//     .on({
-//       nsp: "event",
-//       emit: "connect",
-//       callback: (data) => {
-//         console.log(data, "들어왔다능!!!!!!!!!!!!", new Date().getTime());
-//       },
-//     }).on({
-//       nsp: "event",
-//       emit: "disconnect",
-//       callback: (data) => {
-//         console.log(data, "나갔다능!!!!!!!!!!!!!", new Date().getTime());
-//       },
-//     })
-//     .on({
-//       nsp: "event",
-//       emit: "뀨",
-//       callback: (data) => {
-//         console.log(data, "event-뀨: 잘작동한다능!", new Date().getTime());
-//       },
-//     });
-// });
-
-serverSockets.setSockets("chat", () => {
-  serverSockets
+chat.setConnection(() => {
+  chat
     .on({
-      nsp: "chat",
-      emit: "send",
+      event: "send",
+      callbefore: () => {
+        console.log("send뀨");
+      },
       callback: (data) => {
-        // console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
+        console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
       },
     })
     .on({
-      nsp: "chat",
-      emit: "toEmit",
+      event: "toEmit",
+      callbefore: () => {
+        console.log("toEmit뀨");
+      },
       callback: (data) => {
         console.log(data, "toEmit: 잘작동한다능!");
         const { msg, to } = data;
-        serverSockets.toEmit({
-          nsp: "chat",
-          emit:"toEmit",
+        chat_socket.toEmit({
+          event: "toEmit",
           to: to,
           msg: msg,
         });
       },
     });
-  // .on({
-  //   nsp: "chat",
-  //   emit: "뀨",
-  //   callback: (data) => {
-  //     console.log(data, "chat-뀨: 잘작동한다능!", new Date().getTime());
-  //   },
-  // });
 });
 
 // io.sockets(server).on("connection", (socket) => {
