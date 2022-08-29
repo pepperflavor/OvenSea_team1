@@ -37,40 +37,61 @@ const auction = new ClientSocket("auction");
 const chat = new ClientSocket("chat");
 const event = new ClientSocket("event");
 
-auction
-  .emit({
-    event: "send",
-    otc: 3213123123,
-    callbefore: () => {},
-  })
-  .emit({
-    event: "delete",
-    otc: 3213123123,
-    callbefore: () => {},
-  })
-  .emit({
+// chat.on({
+//   event: "connect",
+//   callback: () => {
+//     // chat.emit({
+//     //   event: "toEmit",
+//     //   msg: "뀨@@@@@@@@@@@@",
+//     //   to: [chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"],
+//     //   callbefore: () => {
+//     //     console.log("toEmit : 발송");
+//     //   },
+//     // });
+
+//     chat.on({
+//       event: "toEmit",
+//       callback: (data) => {
+//         console.log(data, "send 감지!");
+//       },
+//     });
+//   },
+// });
+auction.setConnection(() => {
+  console.log("connect");
+
+  auction.on({
+    event: "toEmit",
+    callback: (data) => {
+      console.log(data, "send 감지!");
+    },
+  });
+});
+
+chat.setConnection(() => {
+  console.log("connect");
+
+  chat.on({
+    event: "toEmit",
+    callback: (data) => {
+      console.log(data, "send 감지!");
+    },
+  });
+});
+
+setInterval(() => {
+  auction.emit({
     event: "뀨",
     otc: 3213123123,
-    callbefore: () => {},
+    callbefore: () => {
+      console.log("auction : 뀨 발송");
+    },
   });
-
-chat.on({
-  event: "connect",
-  callback: (data) => {
-    chat.emit({
-      event: "toEmit",
-      msg: "뀨@@@@@@@@@@@@",
-      to: [chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"],
-      callbefore: () => {
-        console.log([chat.io.id, "vEFoEZAwIKrm_q2DAAAJ", "2", "1"]);
-      },
-    });
-
-    chat.on({
-      event: "toEmit",
-      callback: (data) => {
-        console.log(data, "send 감지!");
-      },
-    });
-  },
-});
+  chat.emit({
+    event: "뀨",
+    otc: 123123123,
+    callbefore: () => {
+      console.log("chat : 뀨 발송");
+    },
+  });
+}, 1000);

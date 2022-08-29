@@ -1,5 +1,5 @@
 const ServerSocket = require("./socket/server");
-const socketio = require("socket.io");
+const Socketio = require("socket.io");
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
@@ -7,11 +7,11 @@ const path = require("path");
 const { sequelize, User, Post, Nft, Rank } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
+const { Server } = require("http");
 
 const app = express();
 
 const PORT = 3000;
-const SOCKET_PORT = 3030;
 
 // // join함수는 매개변수를 받아 주소처럼 합쳐줌
 // // path.join('a','b') => "a/b"
@@ -21,37 +21,43 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
-const chat = new ServerSocket(server).setNsp("chat");
+const io = Socketio(server);
 
+const auction = new ServerSocket(io, "auction");
+const chat = new ServerSocket(io, "chat");
+
+// const event = new ServerSocket(io, "event");
+
+auction.setConnection(() => {
+  auction.on({
+    event: "뀨",
+    callback: (data) => {
+      console.log(data);
+      console.log("auction_send : 뀨");
+    },
+  });
+});
 chat.setConnection(() => {
-  chat
-    .on({
-      event: "send",
-      callbefore: () => {
-        console.log("send뀨");
-      },
-      callback: (data) => {
-        console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
-      },
-    })
-    .on({
-      event: "toEmit",
-      callbefore: () => {
-        console.log("toEmit뀨");
-      },
-      callback: (data) => {
-        console.log(data, "toEmit: 잘작동한다능!");
-        const { msg, to } = data;
-        chat_socket.toEmit({
-          event: "toEmit",
-          to: to,
-          msg: msg,
-        });
-      },
-    });
+  chat.on({
+    event: "뀨",
+    callback: (data) => {
+      console.log(data);
+      console.log("chat_send : 뀨");
+    },
+  });
 });
 
-// io.sockets(server).on("connection", (socket) => {
+// chat.on({
+//   event: "connection",
+//   callback: (socket) => {
+//     console.log("chat connection");
+//     socket.on({
+//       event: "send",
+//       callback: (data) => {
+//         console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
+//       },
+//     });
+//   },
 // });
 
 // // sequelize 구성 연결 및 테이블 생성 여기가 처음 매핑

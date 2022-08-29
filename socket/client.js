@@ -4,6 +4,13 @@ class ClientSocket {
     this.nsp = nsp;
   }
 }
+ClientSocket.prototype.setConnection = function (callback) {
+  this.io.on(`connect`, (socket) => {
+    this.nsp = socket
+    callback(socket);
+  });
+  return this;
+};
 ClientSocket.prototype.on = function (inputObj) {
   const { event, callback, callbefore, query } = inputObj;
   if (callbefore) callbefore(query);
@@ -21,9 +28,12 @@ ClientSocket.prototype.emit = function (inputObj) {
 };
 
 ClientSocket.prototype.asyncEmit = async function (inputObj) {
+  let result = "";
   const { event, callbefore, query, ...data } = inputObj;
-  if (callbefore) await callbefore(query);
-  this.io.emit(`${event}`, data);
+  if (callbefore) {
+    result = await callbefore(query);
+  }
+  this.io.emit(`${event}`, data, result);
   return this;
 };
 
@@ -31,11 +41,11 @@ ClientSocket.prototype.toEmit = function (inputObj) {
   const { to, event, callbefore, query, ...data } = inputObj;
   if (to === "all") {
     this.io.broadcast.emit(`${event}`, data);
-    return this;
   } else {
     to.forEach((element) => {
       this.io.to(element).emit(`${event}`, data);
     });
-    return this;
   }
+
+  return this;
 };
