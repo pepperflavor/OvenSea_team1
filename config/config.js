@@ -10,5 +10,14 @@ const config = {
   },
 };
 
+const session_config = {
+  // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
+  secret: process.env.SESSION_KEY,
+  // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
+  resave: false,
+  // 세션에 저장할 때 초기화 여부를 설정
+  saveUninitialized: true,
+};
+
 //여러개 내보낼때는 객체로 묶어서 내보내면 된다.
-module.exports = { config };
+module.exports = { config, session_config };

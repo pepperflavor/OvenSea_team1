@@ -7,7 +7,14 @@ const path = require("path");
 const { sequelize, User, Post, Nft, Rank } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
-const { Server } = require("http");
+const session = require("express-session");
+const crypto = require("./crypto");
+const {
+  verifyAccessToken,
+  verifyRefreshToken,
+  signAccessToken,
+  signRefreshToken,
+} = require("./jwt/jwtManager");
 
 const app = express();
 
@@ -32,8 +39,8 @@ auction.setConnection(() => {
   auction.on({
     event: "뀨",
     callback: (data) => {
-      console.log(data);
-      console.log("auction_send : 뀨");
+      // console.log(data);
+      // console.log("auction_send : 뀨");
     },
   });
 });
@@ -41,8 +48,8 @@ chat.setConnection(() => {
   chat.on({
     event: "뀨",
     callback: (data) => {
-      console.log(data);
-      console.log("chat_send : 뀨");
+      // console.log(data);
+      // console.log("chat_send : 뀨");
     },
   });
 });
@@ -78,6 +85,17 @@ app.use("/static", express.static(__dirname));
 //body 객체 사용
 app.use(express.urlencoded({ extended: false }));
 
+app.use(
+  session({
+    // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
+    secret: process.env.SESSION_KEY,
+    // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
+    resave: false,
+    // 세션에 저장할 때 초기화 여부를 설정
+    saveUninitialized: true,
+  })
+);
+
 sequelize
   .sync({ force: false })
   .then(() => {
@@ -88,10 +106,42 @@ sequelize
     console.log(err);
   });
 
+const middleware = async (req, res, next) => {
+  const { access_token, refresh_token } = await req.session;
+  verifyAccessToken("access_token")
+    .then(() => next())
+    .catch(() => async () => {
+      verifyRefreshToken(refresh_token)
+        .then(async (payload) => {
+          const { uid } = payload;
+          const user = await User.findOne({ where: { uid } });
+          if (!user) res.send("저리가!");
+          const dbRefreshToken = user.refresh_token;
+          const isSame = refresh_token === dbRefreshToken;
+          if (isSame) {
+            const newAccessToken = signAccessToken({ ...payload });
+            req.session.access_token = newAccessToken;
+            next();
+          } else {
+            res.send("저리가!");
+          }
+        })
+        .catch(() => {
+          res.send("저리가!");
+        });
+    });
+};
+
+// app.get("/", (req, res) => {
+//   // const userData = await getAllData(User, {});
+//   // console.log(userData);
+//   // res.render("index");
+//   fs.readFile("view/index", (err, data) => {
+//     res.render("index");
+//   });
+// });
+
 app.get("/", (req, res) => {
-  // const userData = await getAllData(User, {});
-  // console.log(userData);
-  // res.render("index");
   fs.readFile("view/index", (err, data) => {
     res.render("index");
   });

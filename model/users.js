@@ -49,30 +49,35 @@ class User extends Sequelize.Model {
         },
         pwd: {
           type: Sequelize.STRING(255),
-          allowNull: false,
+          allowNull: true,
         },
         name: {
           type: Sequelize.STRING(255),
+          allowNull: true,
         },
         email: {
           type: Sequelize.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         balance: {
           type: Sequelize.BIGINT.UNSIGNED,
-          allowNull: false,
+          allowNull: true,
         },
         grade: {
           type: Sequelize.TINYINT,
+          allowNull: true,
         },
         gallery: {
           type: Sequelize.TEXT,
+          allowNull: true,
         },
         state: {
           type: Sequelize.TINYINT,
+          allowNull: true,
         },
         report: {
           type: Sequelize.TEXT,
+          allowNull: true,
           /**
            * [{"repoter": UID, "reason":"간식을뺏어먹음", time:"timestamp"},
            *  {"repoter": UID, "reason":"욕설", time:"timestamp"},
@@ -81,6 +86,11 @@ class User extends Sequelize.Model {
         },
         img_url: {
           type: Sequelize.STRING(255),
+          allowNull: true,
+        },
+        refresh_token:{
+          type: Sequelize.STRING(255),
+          allowNull: true,
         },
 
         // 생성한 시간이 필요하다 할때 사용하면 됨 테이블 자체에 timestamps : true 도 쓸수 있음.
