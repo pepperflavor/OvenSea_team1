@@ -5,6 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= pageTitle %></title>
+</head>
+<body>
+    <h1>채팅방 입장</h1>
+    <form action="/chat/add-chatmember" method="post">
+        <button type="submit" class="freeChat" 
+        name="roomType"
+        value="1"> 자유채팅방</button>
+    </form>
        <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -19,9 +27,18 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-</head>
-<body>
-    <h1>옥션 채팅방입니다.</h1>
-    
 </body>
+<script>
+    const freeChat = document.querySelector(".freeChat");
+
+    // 버튼 밸류값 못 보내면 태그하나 hidden 해서 값 보내기
+    freeChat.onclick = function(){
+        if(confirm("자유채팅방으로 입장하시겠습니까?")){
+            const roomtype = freeChat.querySelector(".freeChat").value
+        }else{
+            redirect("/");
+        }
+    }
+
+</script>
 </html>

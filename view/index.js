@@ -17,6 +17,8 @@ $.getJSON("/getDatas3", (datas) => {
   dbManager.createTableEl(table3);
 });
 
+
+
 const clientSocket = new ClientSocket();
 
 const setDevUser = { uid: createUid(), room: createNftId() };

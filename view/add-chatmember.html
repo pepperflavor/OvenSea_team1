@@ -92,6 +92,21 @@
         </div>
       </div>
     </header>
-    <h1>Page Not Found!</h1>
+    <h1> 채팅방 입장 마당 </h1>
+    <form action="../controllers/common.js">
+        <button type="submit" class="freeChat" value="1"> 자유채팅방</button>
+        <button type="submit" value="2">경매 채팅방</button>
+    </form>
+    
 </body>
+<script>
+    const freeChat = document.querySelector(".freeChat");
+
+    freeChat.onclick = function(){
+        const roomtype =  document.querySelector(".freeChat").value;
+        if(confirm(" 자유 채팅방으로 입장하시겠습니까?")){
+            redirct('./chatEnter');
+        }
+    }
+</script>
 </html>
