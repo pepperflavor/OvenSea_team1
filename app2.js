@@ -2,8 +2,8 @@ const SocketServer = require("./socket/server");
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
-const adminRoutes = require('./routes/admin');
-const commonRoutes = require('./routes/common');
+const adminRoutes = require("./routes/admin");
+const commonRoutes = require("./routes/common");
 
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
 const {
@@ -25,7 +25,6 @@ const app = express();
 const PORT = 3000;
 const SOCKET_PORT = 3030;
 
-
 // // join함수는 매개변수를 받아 주소처럼 합쳐줌
 // // path.join('a','b') => "a/b"
 // // views 폴더까지의 경로가 기본값 렌더링할 파일을 모아둔 폴더
@@ -34,15 +33,22 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
-
-
 //socket.io 생성 및 실행
-const socketServer = new SocketServer(server)
+const socketServer = new SocketServer(server);
 
-app.get('/chatmember', (req, res) =>{
-  res.render('data', "")
-})
+app.get("/chatmember", (req, res) => {
+  res.render("data", "");
+});
 
+app.get("/chat/add-chatmember", (req, res) => {
+  const { roomType } = req.body;
+  console.log(roomType);
+});
+
+app.get("/getChatmember", async (req, res) => {
+  const datas = await getAllData(Nft);
+  res.send(datas);
+});
 
 // io.sockets(server).on("connection", (socket) => {
 // });
@@ -64,13 +70,13 @@ app.set("view engine", "html");
 app.use("/static", express.static(__dirname));
 
 app.use("/common", commonRoutes);
-app.use("/admin", adminRoutes.routes);
+app.use("/admin", adminRoutes);
 
 //body 객체 사용
 app.use(express.urlencoded({ extended: false }));
 
 sequelize
-  .sync({ force:true })
+  .sync({ force: true })
   .then(() => {
     console.log("DB연결 성공");
     // initDbMultiple();
@@ -78,6 +84,23 @@ sequelize
   .catch((err) => {
     console.log(err);
   });
+
+// NFT 등록
+
+app.post("/createNFT", async (req, res) => {
+  // const userData = await getAllData(User, {});
+  // console.log(userData);
+  // res.render("index");
+  const { title, detail } = req.body;
+  Nft.create({
+    title,
+    detail,
+  });
+
+  fs.readFile("view/index", (err, data) => {
+    res.render("index");
+  });
+});
 
 app.get("/", async (req, res) => {
   // const userData = await getAllData(User, {});
@@ -136,31 +159,23 @@ async function getAllData(db, query) {
   });
 }
 
-
 //==== chat기능 관련 fk키 여러개 설정
 
 // free chat에서 유저 접속시간 비교를 위해서 시간 뽑아오기
-app.get("/freechat",  (req, res) =>{
+app.get("/freechat", (req, res) => {
   FreeChat.findOne({
     where: {
-      created_at : req.params.created_at,
+      created_at: req.params.created_at,
     },
     include: [
       {
-        model : chat_member,
+        model: chat_member,
       },
     ],
-  }).then((e)=>{
-    console.log(e.dataValues); 
-  })
+  }).then((e) => {
+    console.log(e.dataValues);
+  });
 });
-
-// 404 페이지
-app.use((req, res, next)=> {
-  res.status(404).render("404", { pageTitle: "Page Not Found" });
-});
-
-
 
 //========= create 구문
 
@@ -179,8 +194,6 @@ function createOne() {
       createUid(),
     ]),
   });
-
-
 
   Nft.create({
     nft_id: createNftId(),
