@@ -19,6 +19,28 @@
     ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <style>
+      .form-signin {
+        max-width: 330px;
+        padding: 15px;
+      }
+
+      .form-signin .form-floating:focus-within {
+        z-index: 2;
+      }
+
+      .form-signin input[type="email"] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+
+      .form-signin input[type="password"] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+    </style>
   </head>
   <body class="bg-dark">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -34,6 +56,14 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+        
+        <img
+          class="rounded-circle m-auto center me-3"
+          src="/static/image/brand.gif"
+          alt=""
+          width="55"
+          height="55"
+        />
         <a class="navbar-brand" href="#">Ovensea</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -61,28 +91,151 @@
         </div>
       </div>
     </nav>
-    
-  <div class="container-fluid pb-3">
-    <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr;">
-      <div class="bg-gray border rounded-3" id="rooms">
-      </div>
-      <div class="bg-gray border rounded-3" id="content">
+
+    <div class="container-fluid pb-3 text-center">
+      <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr">
+        <div class="bg-gray border rounded-3" id="rooms"></div>
+        <div class="bg-gray border rounded-3" id="content"></div>
       </div>
     </div>
-  </div>
     <table
       id="table"
-      class="table table-dark table-striped table-hover my-2"
+      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
     ></table>
     <table
       id="table2"
-      class="table table-dark table-striped table-hover my-2"
+      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
     ></table>
     <table
       id="table3"
-      class="table table-dark table-striped table-hover my-2"
+      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
     ></table>
     <button class="btn btn-outline-secondary block" id="">Search</button>
+
+    <div
+      class="modal modal-signin position-static d-block bg-secondary py-5"
+      tabindex="-1"
+      role="dialog"
+      id="modalSignin"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-4 shadow">
+          <div class="modal-header p-5 pb-4 border-bottom-0">
+            <!-- <h5 class="modal-title">Modal title</h5> -->
+            <h2 class="fw-bold mb-0">Sign up for free</h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body p-5 pt-0">
+            <form class="">
+              <div class="form-floating mb-3">
+                <input
+                  type="email"
+                  class="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder="name@example.com"
+                />
+                <label for="floatingInput">Email address</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input
+                  type="password"
+                  class="form-control rounded-3"
+                  id="floatingPassword"
+                  placeholder="Password"
+                />
+                <label for="floatingPassword">Password</label>
+              </div>
+              <button
+                class="w-100 mb-2 btn btn-lg rounded-3 btn-primary"
+                type="submit"
+              >
+                Sign up
+              </button>
+              <small class="text-muted"
+                >By clicking Sign up, you agree to the terms of use.</small
+              >
+              <hr class="my-4" />
+              <h2 class="fs-5 fw-bold mb-3">Or use a third-party</h2>
+              <button
+                class="w-100 py-2 mb-2 btn btn-outline-dark rounded-3"
+                type="submit"
+              >
+                <svg class="bi me-1" width="16" height="16">
+                  <use xlink:href="#twitter"></use>
+                </svg>
+                Sign up with Twitter
+              </button>
+              <button
+                class="w-100 py-2 mb-2 btn btn-outline-primary rounded-3"
+                type="submit"
+              >
+                <svg class="bi me-1" width="16" height="16">
+                  <use xlink:href="#facebook"></use>
+                </svg>
+                Sign up with Facebook
+              </button>
+              <button
+                class="w-100 py-2 mb-2 btn btn-outline-secondary rounded-3"
+                type="submit"
+              >
+                <svg class="bi me-1" width="16" height="16">
+                  <use xlink:href="#github"></use>
+                </svg>
+                Sign up with GitHub
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form class="m-auto w-100" style="max-width: 330px; padding: 15px">
+      <div class="text-center">
+        <img
+          class="mb-4 rounded-circle m-auto center"
+          src="/static/image/brand.gif"
+          alt=""
+          width="72"
+          height="72"
+        />
+        <h1 class="h3 mb-3 fw-normal text-white">Please sign in</h1>
+      </div>
+
+      <div class="form-floating">
+        <input
+          type="email"
+          class="form-control mb-3"
+          id="floatingInput"
+          placeholder="name@example.com"
+        />
+        <label for="floatingInput">Email address</label>
+      </div>
+      <div class="form-floating">
+        <input
+          type="password"
+          class="form-control mb-3"
+          id="floatingPassword"
+          placeholder="Password"
+        />
+        <label for="floatingPassword">Password</label>
+      </div>
+      
+
+      <!-- <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me" /> Remember me
+        </label>
+      </div> -->
+      <button class="w-100 btn btn-lg btn-primary" type="submit">
+        Sign in
+      </button>
+      <p class="mt-5 mb-3 text-muted">© 2017–2022</p>
+    </form>
   </body>
   <script src="static/util/client_createRandom.js"></script>
   <script src="static/model/dbManager.js"></script>
