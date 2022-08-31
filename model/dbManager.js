@@ -69,5 +69,3 @@ class DbManager {
     return { trs: trs };
   };
 }
-
-// module.exports = DbManager;

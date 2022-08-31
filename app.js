@@ -9,12 +9,10 @@ const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
 const session = require("express-session");
 const crypto = require("./crypto");
-const {
-  verifyAccessToken,
-  verifyRefreshToken,
-  signAccessToken,
-  signRefreshToken,
-} = require("./jwt/jwtManager");
+const cookie = require("cookie-parser");
+const { sign, verify } = require("./util/jwt_util");
+const { promisify } = require("util");
+const { ERROR_CODE } = require("./config/config");
 
 const app = express();
 
@@ -23,7 +21,7 @@ const PORT = 3000;
 // // join함수는 매개변수를 받아 주소처럼 합쳐줌
 // // path.join('a','b') => "a/b"
 // // views 폴더까지의 경로가 기본값 렌더링할 파일을 모아둔 폴더
-// // app.set express에 값을 저장가능 밑에 구문은 view키에 주소값을 넣은 부분
+// // app.set express에 값을 저장가능 밑에 구문은 view키에 주소값의 부분
 const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
@@ -80,6 +78,8 @@ app.engine("html", ejs.renderFile);
 
 app.set("view engine", "html");
 
+app.use(cookie());
+
 app.use("/static", express.static(__dirname));
 
 //body 객체 사용
@@ -98,7 +98,7 @@ app.use(
 
 sequelize
   .sync({ force: false })
-  .then(() => {
+  .then(async () => {
     console.log("DB연결 성공");
     // initDbMultiple();
   })
@@ -320,12 +320,13 @@ function createOne() {
 function initDbMultiple() {
   User.bulkCreate([
     {
-      uid: createUid(),
-      pwd: "쀼쀼쀼쀼쀼",
+      uid: "123",
+      pwd: "123",
       name: "유저_1 뀨뀨",
       email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
       balance: 987654321098765,
       grade: 0,
+      refresh_token: "1",
       gallery: JSON.stringify([
         createUid(),
         createUid(),
@@ -340,6 +341,7 @@ function initDbMultiple() {
       email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
       balance: 987654321098765,
       grade: 0,
+      refresh_token: "1",
       gallery: JSON.stringify([
         createUid(),
         createUid(),
@@ -354,6 +356,7 @@ function initDbMultiple() {
       email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
       balance: 987654321098765,
       grade: 0,
+      refresh_token: "1",
       gallery: JSON.stringify([
         createUid(),
         createUid(),
@@ -368,6 +371,7 @@ function initDbMultiple() {
       email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
       balance: 987654321098765,
       grade: 0,
+      refresh_token: "1",
       gallery: JSON.stringify([
         createUid(),
         createUid(),

@@ -4,13 +4,15 @@ class ClientSocket {
     this.nsp = nsp;
   }
 }
+
 ClientSocket.prototype.setConnection = function (callback) {
   this.io.on(`connect`, (socket) => {
-    this.nsp = socket
+    this.nsp = socket;
     callback(socket);
   });
   return this;
 };
+
 ClientSocket.prototype.on = function (inputObj) {
   const { event, callback, callbefore, query } = inputObj;
   if (callbefore) callbefore(query);
