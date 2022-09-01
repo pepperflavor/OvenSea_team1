@@ -51,7 +51,7 @@
         border-top-left-radius: 0;
         border-top-right-radius: 0;
       }
-      .dropdown-menu.show {    transform: translate(-100px, 20px);}
+      .dropdown-menu.show {transform: translate(-100px, 20px);}
     </style>
   </head>
   <body class="bg-dark">
@@ -106,7 +106,7 @@
             
           </li>
         </ul>
-        <div class="dropdown text-end ms-4 me-1" id="userDiv">
+        <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
@@ -124,8 +124,15 @@
     <div class="container">
     <div class="container-fluid pb-3 text-center">
       <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr">
-        <div class="bg-gray border rounded-3" id="rooms"></div>
-        <div class="bg-gray border rounded-3" id="content"></div>
+        <div class="bg-gray border rounded-3" id="rooms">
+        </div>
+        <div class="bg-gray border rounded-3" id="msg">
+
+          <div class="container w-50 bg-secondary m-2 rounded-3">1111111111111111111111111122222211111111</div>
+          <div class="container w-50 bg-secondary m-2 rounded-3">1111111111111111111111111122222211111111</div>
+          <div class="container w-50 bg-secondary m-2 rounded-3">1111111111111111111111111122222211111111</div>
+          <div class="container w-50 bg-secondary m-2 rounded-3">1111111111111111111111111122222211111111</div>
+        </div>
       </div>
     </div>
     <table
@@ -153,12 +160,6 @@
           <div class="modal-header p-5 pb-4 border-bottom-0">
             <!-- <h5 class="modal-title">Modal title</h5> -->
             <h2 class="fw-bold mb-0">회원가입 페이지</h2>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
           </div>
 
           <div class="modal-body p-5 pt-0">

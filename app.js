@@ -32,13 +32,35 @@ const io = Socketio(server);
 
 const auction = new ServerSocket(io, "auction");
 const chat = new ServerSocket(io, "chat");
+const event = new ServerSocket(io, "event");
 
 // const event = new ServerSocket(io, "event");
 
 auction.setConnection(() => {
   auction
     .on({
-      event: "뀨",
+      event: "bid",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    })
+    .on({
+      event: "check",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    })
+    .on({
+      event: "ask",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    })
+    .on({
+      event: "",
       callback: (data) => {
         // console.log(data);
         // console.log("auction_send : 뀨");
@@ -47,30 +69,116 @@ auction.setConnection(() => {
     .on({
       event: "뀨",
       callback: (data) => {
-        // console.log(data);
-        // console.log("auction_send : 뀨");
+        // console.log(data)
+        // console.log("auction_send : 뀨")
       },
     })
     .on({
-      event: "뀨",
+      event: "tiemOut",
       callback: (data) => {
-        // console.log(data);
-        // console.log("auction_send : 뀨");
+        // console.log(data)
+        // console.log("auction_send : 뀨")
+      },
+    })
+    .on({
+      event: "sell",
+      callback: (data) => {
+        // console.log(data)
+        // console.log("auction_send : 뀨")
+      },
+    })
+    .on({
+      event: "buy",
+      callback: (data) => {
+        // console.log(data)
+        // console.log("auction_send : 뀨")
       },
     });
 });
 
-
-
-
 chat.setConnection(() => {
-  chat.on({
-    event: "뀨",
-    callback: (data) => {
-      // console.log(data);
-      // console.log("chat_send : 뀨");
-    },
-  });
+  chat
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "leave",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    });
+});
+
+event.setConnection(() => {
+  event
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    })
+    .on({
+      event: "join",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("chat_send : 뀨");
+      },
+    });
 });
 
 // chat.on({
@@ -209,7 +317,6 @@ app.post("/login", async (req, res) => {
 
 app.post("/existEmail", async (req, res) => {
   const { user_email } = req.body;
-  console.log("!!!!!!!!!!!!", req.body, user_email);
   const exist = await User.findOne({ where: { email: user_email } });
   if (exist)
     res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
