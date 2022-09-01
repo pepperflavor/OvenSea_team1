@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/product.css">
+    <title><%= pageTitle %></title>
+</head>
+<body>
+                <main>
+                <% if (nft.length > 0) { %>
+                    <div class="grid">
+                        <% for (let nft of nfts) { %>
+                            <article class="card nft-item">
+                                <header class="card__header">
+                                    <h1 class="nft__title">
+                                        <%= nft.title %>
+                                    </h1>
+                                </header>
+                                <div class="card__image">
+                                    <!-- db에서 이미지 주소 끌어다가 붙여주기 수정
+                                    -->
+                                    <img src="<%= nft.imageUrl %>" alt="<%= nft.title %>">
+                                </div>
+                                <div class="card__content">
+                                    <h2 class="nft__price">$
+                                        <%= nft.price %>
+                                    </h2>
+                                    <p class="product__description">
+                                        <%= nft.content %>
+                                    </p>
+                                </div>
+                                <div class="card__actions">
+                                    <a href="/admin/edit-nft/<%= nft._id %>?edit=true" class="btn">Edit</a>
+                                    <form action="/admin/delete-nft" method="POST">
+                                        <input type="hidden" value="<%= nft._id %>" name="nftId">
+                                        <button class="btn" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </article>
+                            <% } %>
+                    </div>
+                    <% } else { %>
+                        <h1>No NFT Found!</h1>
+                        <% } %>
+            </main>
+    
+</body>
+</html>
