@@ -36,14 +36,33 @@ const chat = new ServerSocket(io, "chat");
 // const event = new ServerSocket(io, "event");
 
 auction.setConnection(() => {
-  auction.on({
-    event: "뀨",
-    callback: (data) => {
-      // console.log(data);
-      // console.log("auction_send : 뀨");
-    },
-  });
+  auction
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    })
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    })
+    .on({
+      event: "뀨",
+      callback: (data) => {
+        // console.log(data);
+        // console.log("auction_send : 뀨");
+      },
+    });
 });
+
+
+
+
 chat.setConnection(() => {
   chat.on({
     event: "뀨",
@@ -189,10 +208,11 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/existEmail", async (req, res) => {
-  const { user_email } =req.body
+  const { user_email } = req.body;
   console.log("!!!!!!!!!!!!", req.body, user_email);
   const exist = await User.findOne({ where: { email: user_email } });
-  if (exist) res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
+  if (exist)
+    res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
   else res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아" }));
 });
 
@@ -239,6 +259,10 @@ app.post("/signup", async (req, res) => {
 
 app.get("/main", (req, res) => {
   res.send(req.cookies?.refresh);
+});
+
+app.get("/editNft", (req, res) => {
+  res.render("editNft");
 });
 
 async function getAllData(db, query) {

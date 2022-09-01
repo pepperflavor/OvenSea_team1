@@ -88,7 +88,7 @@
             aria-label="Search"
           ></input>
         </div>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5 fw-bold">
+        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold">
           <li class="nav-item ms-4">
             <a class="nav-link active " aria-current="page" href="#">Home</a>
           </li>
@@ -101,26 +101,27 @@
           <li class="nav-item ms-4">
             <a class="nav-link" href="#">Chat</a>
           </li>
-          <li class="nav-item" id="login">
+          <li class="nav-item hidden" id="loginDiv">
             <a href="#" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
             
           </li>
         </ul>
-        <div class="dropdown text-end ms-4 me-1">
+        <div class="dropdown text-end ms-4 me-1" id="userDiv">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
           <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
-            <li><a class="dropdown-item" href="#">New project...</a></li>
-            <li><a class="dropdown-item" href="#">Settings</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="/profile">내정보</a></li>
+            <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
+            <li><a class="dropdown-item" href="/chat">채팅창</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Sign out</a></li>
+            <li><a class="dropdown-item" href="/signOut">로그아웃</a></li>
           </ul>
         </div>
       </div>
     </nav>
 
+    <div class="container">
     <div class="container-fluid pb-3 text-center">
       <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr">
         <div class="bg-gray border rounded-3" id="rooms"></div>
@@ -142,16 +143,16 @@
     <button class="btn btn-outline-secondary block" id="">Search</button>
 
     <div
-      class="modal modal-signin position-static d-block bg-secondary py-5"
+      class="modal modal-signin position-static d-block bg-dark py-5"
       tabindex="-1"
       role="dialog"
       id="modalSignin"
     >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content rounded-4 shadow">
+      <div class="modal-dialog " role="document">
+        <div class="modal-content rounded-4 shadow" style="background-color:rgba(255, 255, 255, 0.425)">
           <div class="modal-header p-5 pb-4 border-bottom-0">
             <!-- <h5 class="modal-title">Modal title</h5> -->
-            <h2 class="fw-bold mb-0">Sign up for free</h2>
+            <h2 class="fw-bold mb-0">회원가입 페이지</h2>
             <button
               type="button"
               class="btn-close"
@@ -161,6 +162,9 @@
           </div>
 
           <div class="modal-body p-5 pt-0">
+            <div class="w-100">
+            <img class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt="" width="72" height="72">
+            </div>
             <form action="/signup" method="post">
               <div class="form-floating mb-3">
                 <input
@@ -168,31 +172,32 @@
                   class="form-control rounded-3"
                   id="signup_email"
                   placeholder="name@example.com"
-                  name="user_email"
+                  name="user_email"style="background-color:rgba(255, 255, 255, 0.425)"
                 />
-                <label for="floatingInput">Email address</label>
+                <label for="floatingInput">이메일</label>
               </div>
               <div id="email_exist"></div>
               <div class="form-floating mb-3">
                 <input
                   type="password"
+                  style="background-color:rgba(255, 255, 255, 0.425)"
                   class="form-control rounded-3"
                   id="floatingPassword"
                   placeholder="Password"
                   name="user_pwd"
                 />
-                <label for="floatingPassword">Password</label>
+                <label for="floatingPassword">비밀번호</label>
               </div>
               <button
                 class="w-100 mb-2 btn btn-lg rounded-3 btn-primary"
                 type="submit"
               >
-                Sign up
+                회원가입하기
               </button>
-              <small class="text-muted"
+              <small class="fw-bold"
                 >By clicking Sign up, you agree to the terms of use.</small
               >
-              <hr class="my-4" />
+              <!-- <hr class="my-4" />
               <h2 class="fs-5 fw-bold mb-3">Or use a third-party</h2>
               <button
                 class="w-100 py-2 mb-2 btn btn-outline-dark rounded-3"
@@ -220,7 +225,7 @@
                   <use xlink:href="#github"></use>
                 </svg>
                 Sign up with GitHub
-              </button>
+              </button> -->
             </form>
           </div>
         </div>
@@ -240,7 +245,7 @@
           width="72"
           height="72"
         />
-        <h1 class="h3 mb-3 fw-normal text-white">Please sign in</h1>
+        <h1 class="h3 mb-3 fw-normal text-white">로그인 페이지</h1>
       </div>
 
       <div class="form-floating">
@@ -248,20 +253,22 @@
           type="email"
           class="form-control mb-3"
           id="floatingInput"
+          style="background-color:rgba(255, 255, 255, 0.425)"
           placeholder="name@example.com"
           name="user_email"
         />
-        <label for="floatingInput">Email address</label>
+        <label for="floatingInput">이메일</label>
       </div>
       <div class="form-floating">
         <input
           type="password"
           class="form-control mb-3"
           id="floatingPassword"
-          placeholder="Password"
+          style="background-color:rgba(255, 255, 255, 0.425)"
+          placeholder="비밀번호"
           name="user_pwd"
         />
-        <label for="floatingPassword">Password</label>
+        <label for="floatingPassword">비밀번호</label>
       </div>
 
       <!-- <div class="checkbox mb-3">
@@ -270,10 +277,11 @@
         </label>
       </div> -->
       <button class="w-100 btn btn-lg btn-primary" type="submit">
-        Sign in
+        로그인하기
       </button>
       <p class="mt-5 mb-3 text-muted">©2017–2022</p>
     </form>
+  </div>
   </body>
   <script src="static/util/client_createRandom.js"></script>
   <script src="static/util/request.js"></script>
