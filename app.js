@@ -309,11 +309,25 @@ app.post("/login", async (req, res) => {
   const { pwd } = user?.dataValues;
   const ok = await compare(user_pwd, pwd);
   if (ok) {
-    res.render("auction");
+    res.redirect("main");
   } else {
     res.redirect("/");
   }
 });
+
+app.post("/main", async (req, res) => {
+  const { user_email, user_pwd } = req.body;
+  console.log(user_email, user_pwd);
+  const user = await User.findOne({ where: { email: user_email } });
+  const { pwd } = user?.dataValues;
+  const ok = await compare(user_pwd, pwd);
+  if (ok) {
+    res.render("main");
+  } else {
+    res.redirect("/");
+  }
+});
+
 
 app.post("/existEmail", async (req, res) => {
   const { user_email } = req.body;
