@@ -1,47 +1,55 @@
 const socketio = require("socket.io");
 
 class ServerSocket {
-  constructor(server) {
-    this.io = socketio(server);
-    this.nsp = {
-      auction: this.io.of("/auction"),
-      event: this.io.of("/event"),
-      chat: this.io.of("/chat"),
-    };
-    this.init();
-    this.initSocket("auction");
-    this.initSocket("chat");
-    this.initSocket("event");
+  constructor(sockets, nsp) {
+    this.sockets = sockets;
+    this.nsp = nsp;
+    this.io = this.sockets.of(`/${this.nsp}`);
+    this.connectionSocket;
   }
-
-  init() {
-    this.io.on("connection", (socket) => {
-      console.log("Socket 작동중");
-    });
-  }
-
-  initSocket(nspName) {
-    this.nsp[`${nspName}`].on("connection", (socket) => {
-      socket.on(`join_${nspName}`, (dataObj) => {
-        const { room, uid } = dataObj;
-        socket.join(room);
-        socket.to(room).emit(`join_${nspName}`, room, uid);
-        console.log(`${nspName} UID:${uid} 입장`);
-      });
-
-      socket.on(`leave_${nspName}`, (dataObj) => {
-        const { room, uid } = dataObj;
-        socket.leave(room);
-        io.to(room).emit(`leave_${nspName}`, room, uid);
-        console.log(`${nspName} UID:${uid} 퇴장`);
-      });
-    });
-  }
-  registerOn = (inputObj, callback) => {
-    callback(inputObj)
-  };
-  
-  
 }
 
+ServerSocket.prototype.setConnection = function (callback) {
+  this.io.on("connection", (socket) => {
+    this.connectionSocket = socket;
+    callback(socket);
+  });
+  return this;
+};
+
+ServerSocket.prototype.on = function (inputObj) {
+  const { event, callback, callbefore, query } = inputObj;
+  if (callbefore) callbefore(query);
+  this.connectionSocket.on(event, (data) => {
+    callback(data);
+  });
+  return this;
+};
+
+ServerSocket.prototype.emit = function (inputObj) {
+  const { event, callbefore, query, ...data } = inputObj;
+  if (callbefore) callbefore(query);
+  this.connectionSocket.emit(event, data);
+  return this;
+};
+
+ServerSocket.prototype.asyncEmit = async function (inputObj) {
+  const { event, callbefore, query, ...data } = inputObj;
+  if (callbefore) await callbefore(query);
+  this.connectionSocket.emit(event, data);
+  return this;
+};
+
+ServerSocket.prototype.toEmit = function (inputObj) {
+  const { to, event, callbefore, query, ...data } = inputObj;
+  if (to === "all") {
+    this.connectionSocket.broadcast.emit(event, data);
+    return this;
+  } else {
+    to.forEach((element) => {
+      this.connectionSocket.to(element).emit(event, data);
+    });
+    return this;
+  }
+};
 module.exports = ServerSocket;

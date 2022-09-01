@@ -1,97 +1,53 @@
 class ClientSocket {
-  constructor() {
-    this.nsp = {};
-    this.curr = null;
+  constructor(nsp) {
+    this.io = io(`/${nsp}`);
+    this.nsp = nsp;
   }
-
-  initAuction(dataObj) {
-    const nspName = "auction";
-    this.setNsp(nspName)
-      .connect(nspName)
-      .then((nspName) => {
-        this.sendEmit({
-          nsp: "auction",
-          emit: "join",
-          ...dataObj,
-        });
-      });
-  }
-  initChat(dataObj) {
-    const nspName = "chat";
-    this.setNsp(nspName)
-      .connect(nspName)
-      .then((nspName) => {
-        this.sendEmit({
-          nsp: "chat",
-          emit: "join",
-          ...dataObj,
-        });
-      });
-  }
-  initEvent(dataObj) {
-    const nspName = "event";
-    this.setNsp(nspName)
-      .connect(nspName)
-      .then((nspName) => {
-        this.sendEmit({
-          nsp: "event",
-          emit: "join",
-          ...dataObj,
-        });
-      });
-  }
-
-  /**
-   *
-   * @param {String} name
-   * @returns {ClientSocket}
-   */
-  setNsp = (name) => {
-    this.nsp[name] = io(`/${name}`);
-    this.curr = name;
-    return this;
-  };
-
-  /**
-   *
-   * @returns {Object}
-   */
-  getNsp = () => {
-    return this.nsp;
-  };
-
-  /**
-   *
-   * @param {String} name
-   * @returns {Promise}
-   */
-  connect = (name) => {
-    return new Promise((resolve, reject) => {
-      this.nsp[name].on("connect", () => {
-        resolve(name);
-      });
-    });
-  };
-
-  // dataObj = {emit, ...input}
-  sendEmit = (dataObj) => {
-    const { nsp, emit, ...inputData } = dataObj;
-    console.log(`${emit}_${nsp}`, inputData);
-    this.nsp[nsp].emit(`${emit}_${nsp}`, inputData);
-  };
-
-  // connectAuction(room) {
-  //   this.nsp["auction"] = io("/auction");
-  //   this.nsp["auction"].on("connect", (socket) => {
-  //     this.nsp["auction"].emit("joinAuction", "옥션룸", "uid 나나나");
-  //   });
-  //   this.nsp["auction"].on("join_auction", () => {
-  //     console.log("엣헴");
-  //   });
-  //   this.nsp["auction"].on("leave_auction", () => {
-  //     console.log("엣헴");
-  //   });
-  // }
-
-  registerEmit = () => {};
 }
+
+ClientSocket.prototype.setConnection = function (callback) {
+  this.io.on(`connect`, (socket) => {
+    this.nsp = socket;
+    callback(socket);
+  });
+  return this;
+};
+
+ClientSocket.prototype.on = function (inputObj) {
+  const { event, callback, callbefore, query } = inputObj;
+  if (callbefore) callbefore(query);
+  this.io.on(`${event}`, (data) => {
+    callback(data);
+  });
+  return this;
+};
+
+ClientSocket.prototype.emit = function (inputObj) {
+  const { event, callbefore, query, ...data } = inputObj;
+  if (callbefore) callbefore(query);
+  this.io.emit(`${event}`, data);
+  return this;
+};
+
+ClientSocket.prototype.asyncEmit = async function (inputObj) {
+  let result = "";
+  const { event, callbefore, query, ...data } = inputObj;
+  if (callbefore) {
+    result = await callbefore(query);
+  }
+  this.io.emit(`${event}`, data, result);
+  return this;
+};
+
+ClientSocket.prototype.toEmit = function (inputObj) {
+  const { to, event, callbefore, query, ...data } = inputObj;
+  if (to === "all") {
+    this.io.broadcast.emit(`${event}`, data);
+  } else {
+    to.forEach((element) => {
+      this.io.to(element).emit(`${event}`, data);
+    });
+  }
+
+  return this;
+};
