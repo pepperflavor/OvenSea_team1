@@ -9,7 +9,18 @@ try {
   fs.mkdirSync("uploads"); // 폴더 생성
 }
 
+// 이미지 받았을 때 필터링
+const imageFilter = (req, file, cb) => {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    const tag = file.originalname.split('.')[1];
+    console.log(tag);
+    return cb(new Error("Only image files are allowed!"));
+  }
+  cb(null, true);
+};
+
 const upload = multer({
+  fileFilter: imageFilter,
   storage: multer.diskStorage({
     // 저장한공간 정보 : 하드디스크에 저장
     destination(req, file, done) {
@@ -25,4 +36,4 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5메가로 용량 제한
 });
 
-module.exports = {upload};
+module.exports = { upload };
