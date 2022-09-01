@@ -11,9 +11,8 @@ const ONE_DAY = 24 * 60 * 60 * 1000;
  */
 module.exports = {
   sign: (user, token_type = "access", expiresIn = "5m") => {
-    const payload = {
-      id: user.id,
-    };
+    const { uid, name, balance, grade, email, img_url } = user;
+    const payload = { uid, name, balance, grade, email, img_url };
     const secretKey = token_type === "access" ? ACCESS_TOKEN : REFRESH_TOKEN;
     return jwt.sign(payload, secretKey, {
       algorithm: "HS256",

@@ -7,12 +7,14 @@ const path = require("path");
 const { sequelize, User, Post, Nft, Rank } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
+const constance = require("./model/constants");
 const session = require("express-session");
-const crypto = require("./crypto");
+const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 const { promisify } = require("util");
 const { ERROR_CODE } = require("./config/config");
+const { stringify } = require("querystring");
 
 const app = express();
 
@@ -173,11 +175,71 @@ app.get("/getDatas3", async (req, res) => {
   }
 });
 
-// User.findAll({}).then((datas) => {
-//   datas.map((data) => {
-//     console.log("@@@@", data.dataValues);
-//   });
-// });
+app.post("/login", async (req, res) => {
+  const { user_email, user_pwd } = req.body;
+  console.log(user_email, user_pwd);
+  const user = await User.findOne({ where: { email: user_email } });
+  const { pwd } = user?.dataValues;
+  const ok = await compare(user_pwd, pwd);
+  if (ok) {
+    res.render("auction");
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.post("/existEmail", async (req, res) => {
+  const { user_email } =req.body
+  console.log("!!!!!!!!!!!!", req.body, user_email);
+  const exist = await User.findOne({ where: { email: user_email } });
+  if (exist) res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
+  else res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아" }));
+});
+
+app.post("/signup", async (req, res) => {
+  try {
+    const { user_email, user_pwd } = req.body;
+
+    const uid = createUid();
+    const user = {
+      uid: uid,
+      name: user_email,
+      balance: 50000,
+      grade: constance.NORMAL_GRADE,
+      email: user_email,
+      gallery: stringify([]),
+      img_url:
+        "https://firebasestorage.googleapis.com/v0/b/kyoungil-f459e.appspot.com/o/1%20(1).gif?alt=media&token=857b466c-fa52-4b49-b998-bb5068f8d57a",
+    };
+    const hashedPwd = await encrypt(user_pwd);
+    user["pwd"] = hashedPwd;
+
+    const accessToken = sign(user, (expiresIn = "1d"));
+    // refresh token 발급
+    const refreshToken = sign(
+      user,
+      (token_type = "refresh"),
+      (expiresIn = "1w")
+    );
+    user["refresh_token"] = refreshToken;
+
+    res.cookie("accessToken", accessToken, { maxAge: constance.ONE_DAY });
+
+    res.cookie("refreshToken", refreshToken, { maxAge: constance.ONE_WEEK });
+
+    await User.create(user);
+
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+
+    res.redirect("/");
+  }
+});
+
+app.get("/main", (req, res) => {
+  res.send(req.cookies?.refresh);
+});
 
 async function getAllData(db, query) {
   return new Promise((resolve, reject) => {
@@ -629,3 +691,60 @@ function initDbMultiple() {
     },
   ]);
 }
+
+const setImage = () => {
+  return [
+    {
+      id: 0,
+      title: "이미지1",
+      content: "설명1",
+      img_url: "/뀨쀼뀨쀼뀨.",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+    },
+    {
+      id: 0,
+      title: "이미지2",
+      content: "설명2",
+      img_url: "/뀨쀼뀨쀼뀨.",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+    },
+    {
+      id: 0,
+      title: "이미지3",
+      content: "설명3",
+      img_url: "/뀨쀼뀨쀼뀨.",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+    },
+    {
+      id: 0,
+      title: "이미지4",
+      content: "설명4",
+      img_url: "/뀨쀼뀨쀼뀨.",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+    },
+  ];
+};

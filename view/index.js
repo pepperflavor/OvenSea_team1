@@ -10,6 +10,38 @@ $.getJSON("/getDatas2", (datas) => {
   dbManager.createTableEl(table2);
 });
 
+const emailExist = document.getElementById("email_exist");
+const signupEmail = document.getElementById("signup_email");
+
+signupEmail.addEventListener("change", (e) => {
+  const params = new URLSearchParams();
+  const headers = {
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    Accept: "*/*",
+  };
+  params.append("user_email", e.target.value);
+  axios
+    .post("/existEmail", params, {
+      headers,
+    })
+    .then(function (response) {
+      const { data:{msg} } = response;
+      emailExist.innerHTML = msg
+    });
+
+  // $.ajax({
+  //   url: "/existEmail",
+  //   method: "POST",
+  //   data: sendData,
+  //   contentType: "application/json; charset=UTF-8",
+  //   dataType: "json",
+  //   success: function (datas) {
+  //     console.log("@@@@@@@@", datas);
+  //     emailExist.innerHTML = datas.msg;
+  //   },
+  // });
+});
+
 // $.getJSON("/getDatas3", (datas) => {
 //   dbManager.setData(datas);
 //   dbManager.createTableEl(table3);

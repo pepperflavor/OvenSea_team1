@@ -1,10 +1,12 @@
 const bcrypt = require("bcrypt");
 
-const REPEAT_NUM = 50;
+const REPEAT_NUM = 10;
 
-const encrypt = function (pwd, encrypted) {
+const encrypt = function (pwd) {
+  
   return new Promise((resolve, reject) => {
     bcrypt.hash(pwd, REPEAT_NUM, (err, hashedPwd) => {
+      if (err) reject(err)
       resolve(hashedPwd);
     });
   });

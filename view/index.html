@@ -17,9 +17,20 @@
       integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
       crossorigin="anonymous"
     ></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js"
+      integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w=="
+      crossorigin="anonymous"
+    ></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <style>
+      .dropdown-toggle {
+  outline: 0;
+}
       .form-signin {
         max-width: 330px;
         padding: 15px;
@@ -40,11 +51,12 @@
         border-top-left-radius: 0;
         border-top-right-radius: 0;
       }
+      .dropdown-menu.show {    transform: translate(-100px, 20px);}
     </style>
   </head>
   <body class="bg-dark">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fs-5">
+      <div class="container-fluid fs-5">
         <button
           class="navbar-toggler"
           type="button"
@@ -56,38 +68,55 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        
+
         <img
-          class="rounded-circle m-auto center me-3"
+          class="rounded-circle m-auto center me-3 ms-1"
           src="/static/image/brand.gif"
           alt=""
           width="55"
           height="55"
         />
-        <a class="navbar-brand" href="#">Ovensea</a>
+        <a class="navbar-brand fs-2 fw-bold" href="#">Ovensea</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled">Disabled</a>
-            </li>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+          </svg>
+          <input
+            class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          ></input>
+        </div>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5 fw-bold">
+          <li class="nav-item ms-4">
+            <a class="nav-link active " aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item ms-4">
+            <a class="nav-link "href="#">Gallery</a>
+          </li>
+          <li class="nav-item ms-4">
+            <a class="nav-link" href="#">Auction</a>
+          </li>
+          <li class="nav-item ms-4">
+            <a class="nav-link" href="#">Chat</a>
+          </li>
+          <li class="nav-item" id="login">
+            <a href="#" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
+            
+          </li>
+        </ul>
+        <div class="dropdown text-end ms-4 me-1">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
+            <li><a class="dropdown-item" href="#">New project...</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Sign out</a></li>
           </ul>
-          <form class="d-flex" role="search">
-            <input
-              class="form-control me-3 bg-dark text-white"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-outline-secondary" type="submit">
-              Search
-            </button>
-          </form>
         </div>
       </div>
     </nav>
@@ -100,15 +129,15 @@
     </div>
     <table
       id="table"
-      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
+      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
     ></table>
     <table
       id="table2"
-      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
+      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
     ></table>
     <table
       id="table3"
-      class="table table-dark table-striped table-hover my-2 w-75  m-auto "
+      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
     ></table>
     <button class="btn btn-outline-secondary block" id="">Search</button>
 
@@ -132,22 +161,25 @@
           </div>
 
           <div class="modal-body p-5 pt-0">
-            <form class="">
+            <form action="/signup" method="post">
               <div class="form-floating mb-3">
                 <input
                   type="email"
                   class="form-control rounded-3"
-                  id="floatingInput"
+                  id="signup_email"
                   placeholder="name@example.com"
+                  name="user_email"
                 />
                 <label for="floatingInput">Email address</label>
               </div>
+              <div id="email_exist"></div>
               <div class="form-floating mb-3">
                 <input
                   type="password"
                   class="form-control rounded-3"
                   id="floatingPassword"
                   placeholder="Password"
+                  name="user_pwd"
                 />
                 <label for="floatingPassword">Password</label>
               </div>
@@ -194,7 +226,12 @@
         </div>
       </div>
     </div>
-    <form class="m-auto w-100" style="max-width: 330px; padding: 15px">
+    <form
+      action="/login"
+      method="post"
+      class="m-auto w-100"
+      style="max-width: 330px; padding: 15px"
+    >
       <div class="text-center">
         <img
           class="mb-4 rounded-circle m-auto center"
@@ -212,6 +249,7 @@
           class="form-control mb-3"
           id="floatingInput"
           placeholder="name@example.com"
+          name="user_email"
         />
         <label for="floatingInput">Email address</label>
       </div>
@@ -221,10 +259,10 @@
           class="form-control mb-3"
           id="floatingPassword"
           placeholder="Password"
+          name="user_pwd"
         />
         <label for="floatingPassword">Password</label>
       </div>
-      
 
       <!-- <div class="checkbox mb-3">
         <label>
@@ -238,8 +276,8 @@
     </form>
   </body>
   <script src="static/util/client_createRandom.js"></script>
+  <script src="static/util/request.js"></script>
   <script src="static/model/dbManager.js"></script>
   <script src="static/socket/client.js"></script>
   <script src="static/view/index.js"></script>
 </html>
-
