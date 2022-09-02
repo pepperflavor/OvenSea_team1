@@ -3,7 +3,7 @@ const Sequelize = require("sequelize");
 // User 클래스에서 시퀄라이즈 모듈객체의 기능을 상속시켜주기위해
 // User 클래스에서 Sequelize.Model 기능을 준다.
 
-class Rank extends Sequelize.Model {
+class Chat extends Sequelize.Model {
   // static init 매서드에서 테이블을 생성해준다.
   // 사용하면 테이블을 생성 및 연결까지(매핑까지) 구성
   static init(sequelize) {
@@ -33,7 +33,7 @@ class Rank extends Sequelize.Model {
           // 주민번호나 전화번호 겹치지 않는 값들 혹여나 안겹치게
           autoIncrement: true,
         },
-        score:{
+        msg:{
           type: Sequelize.INTEGER,
           allowNull: false,
         },
@@ -63,8 +63,8 @@ class Rank extends Sequelize.Model {
 
         underscored: false, // false : createdAt , true : created_at
         // 모델의 이름을 설정할 수 있다.
-        modelName: "Rank", // 관계형으로 구성할 때 사용한다.
-        tableName: "ranks", // 데이터베이스의 테이블 이름을 설정한다.
+        modelName: "Chat", // 관계형으로 구성할 때 사용한다.
+        tableName: "chats", // 데이터베이스의 테이블 이름을 설정한다.
 
         // 삭제했을때 삭제하는 대신 deletedAt 이 추가가 되고 숨긴다.
         paranoid: false,
@@ -87,8 +87,8 @@ class Rank extends Sequelize.Model {
     // 첫번째 매개변수로 연결할 테이블
     //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
-    db.Rank.belongsTo(db.User, { foreignKey: "user_uid", targetKey: "uid" });
+    db.Chat.belongsTo(db.User, { foreignKey: "user_uid", targetKey: "uid" });
   }
 }
 
-module.exports = Rank;
+module.exports = Chat;

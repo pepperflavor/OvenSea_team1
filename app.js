@@ -3,6 +3,7 @@ const Socketio = require("socket.io");
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
+// const {authMW} = require("./middleware/authMiddleware");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
 const { sequelize, User, Post, Nft, Rank } = require("./model");
 const fs = require("fs");
@@ -12,7 +13,6 @@ const session = require("express-session");
 const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
-const { promisify } = require("util");
 const { ERROR_CODE } = require("./config/config");
 const { stringify } = require("querystring");
 
@@ -181,25 +181,21 @@ event.setConnection(() => {
     });
 });
 
-// chat.on({
-//   event: "connection",
-//   callback: (socket) => {
-//     console.log("chat connection");
-//     socket.on({
-//       event: "send",
-//       callback: (data) => {
-//         console.log(data, "chat-send: 잘작동한다능!", new Date().getTime());
-//       },
-//     });
-//   },
-// });
+const authMW = (req, res, next) => {
+  const accessVerify = verify(req.cookies?.accessToken);
 
-// // sequelize 구성 연결 및 테이블 생성 여기가 처음 매핑
-// // sync 함수는 데이터베이스 동기화하고 필요한 테이블을 생성해준다.
-// // 필요한 테이블들이 생기고 매핑된다.
-// // 테이블 내용이 다르면 먼저 오류를 뱉어냄s
-// // CREATE TABLE 구문이 여기서 실행됨.
-// // force 강제실행 초기화 시킬것인지(테이블 초기화 할것인지)
+  if (!accessVerify.ok) {
+    const refreshVerify = verify(req.cookies?.refreshToken, "refresh");
+
+    if (!refreshVerify.ok) res.render("login");
+
+    const newAccessToken = sign(refreshVerify.uid);
+    console.log("엑세스토큰 새로발급");
+    req.session.accessToken = newAccessToken;
+    next();
+  }
+  next();
+};
 
 app.set("views", path.join(__dirname, "view"));
 
@@ -221,7 +217,7 @@ app.use(
     // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
     resave: false,
     // 세션에 저장할 때 초기화 여부를 설정
-    saveUninitialized: true,
+    saveUninitialized: false,
   })
 );
 
@@ -229,46 +225,12 @@ sequelize
   .sync({ force: false })
   .then(async () => {
     console.log("DB연결 성공");
+    // createAdmin()
     // initDbMultiple();
   })
   .catch((err) => {
     console.log(err);
   });
-
-const middleware = async (req, res, next) => {
-  const { access_token, refresh_token } = await req.session;
-  verifyAccessToken("access_token")
-    .then(() => next())
-    .catch(() => async () => {
-      verifyRefreshToken(refresh_token)
-        .then(async (payload) => {
-          const { uid } = payload;
-          const user = await User.findOne({ where: { uid } });
-          if (!user) res.send("저리가!");
-          const dbRefreshToken = user.refresh_token;
-          const isSame = refresh_token === dbRefreshToken;
-          if (isSame) {
-            const newAccessToken = signAccessToken({ ...payload });
-            req.session.access_token = newAccessToken;
-            next();
-          } else {
-            res.send("저리가!");
-          }
-        })
-        .catch(() => {
-          res.send("저리가!");
-        });
-    });
-};
-
-// app.get("/", (req, res) => {
-//   // const userData = await getAllData(User, {});
-//   // console.log(userData);
-//   // res.render("index");
-//   fs.readFile("view/index", (err, data) => {
-//     res.render("index");
-//   });
-// });
 
 app.get("/", (req, res) => {
   fs.readFile("view/index", (err, data) => {
@@ -276,48 +238,66 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/getDatas", async (req, res) => {
-  const datas = await getAllData(User);
-  res.send(datas);
-  if (req.body.secret === "뀨") {
-    const datas = await getAllData();
-    console.log(datas);
-  }
-});
+// app.get("/getDatas", async (req, res) => {
+//   const datas = await getAllData(User);
+//   res.send(datas);
+//   if (req.body.secret === "뀨") {
+//     const datas = await getAllData();
+//     console.log(datas);
+//   }
+// });
 
-app.get("/getDatas2", async (req, res) => {
-  const datas = await getAllData(Rank);
-  res.send(datas);
-  if (req.body.secret === "뀨") {
-    const datas = await getAllData();
-    console.log(datas);
-  }
-});
-app.get("/getDatas3", async (req, res) => {
-  const datas = await getAllData(Nft);
-  res.send(datas);
-  if (req.body.secret === "뀨") {
-    const datas = await getAllData();
-    console.log(datas);
-  }
-});
+// app.get("/getDatas2", async (req, res) => {
+//   const datas = await getAllData(Rank);
+//   res.send(datas);
+//   if (req.body.secret === "뀨") {
+//     const datas = await getAllData();
+//     console.log(datas);
+//   }
+// });
+// app.get("/getDatas3", async (req, res) => {
+//   const datas = await getAllData(Nft);
+//   res.send(datas);
+//   if (req.body.secret === "뀨") {
+//     const datas = await getAllData();
+//     console.log(datas);
+//   }
+// });
 
 app.post("/login", async (req, res) => {
-  const { user_email, user_pwd } = req.body;
-  console.log(user_email, user_pwd);
-  const user = await User.findOne({ where: { email: user_email } });
-  const { pwd } = user?.dataValues;
-  const ok = await compare(user_pwd, pwd);
-  if (ok) {
+  try {
+    const { user_email, user_pwd } = req.body;
+    const user = await User.findOne({ where: { email: user_email } });
+    const queryResult = user?.dataValues;
+    const compareOk = await compare(user_pwd, queryResult?.pwd);
+
+    if (!compareOk) throw Error("아이디나 비밀번호가 잘못됨");
+
+    const accessToken = sign(user);
+    const refreshToken = sign(user, "refresh");
+
+    res.cookie("uid", user?.uid, { maxAge: constance.ONE_DAY });
+    res.cookie("accessToken", accessToken, { maxAge: constance.ONE_DAY });
+    res.cookie("refreshToken", refreshToken, { maxAge: constance.ONE_WEEK });
+
     res.redirect("main");
-  } else {
-    res.redirect("/");
+  } catch (error) {
+    res.send(error.message);
   }
 });
 
-app.post("/main", async (req, res) => {
+app.get("/loginpage", (req, res) => {
+  res.render("login");
+});
+
+app.post("/logout"),
+  (req, res) => {
+    res.render("index");
+  };
+
+app.post("/main", authMW, async (req, res) => {
   const { user_email, user_pwd } = req.body;
-  console.log(user_email, user_pwd);
+  console.log("@@@@@main_post", user_email, user_pwd);
   const user = await User.findOne({ where: { email: user_email } });
   const { pwd } = user?.dataValues;
   const ok = await compare(user_pwd, pwd);
@@ -327,7 +307,6 @@ app.post("/main", async (req, res) => {
     res.redirect("/");
   }
 });
-
 
 app.post("/existEmail", async (req, res) => {
   const { user_email } = req.body;
@@ -365,24 +344,32 @@ app.post("/signup", async (req, res) => {
     user["refresh_token"] = refreshToken;
 
     res.cookie("accessToken", accessToken, { maxAge: constance.ONE_DAY });
-
     res.cookie("refreshToken", refreshToken, { maxAge: constance.ONE_WEEK });
 
     await User.create(user);
 
     res.redirect("/");
   } catch (error) {
-    console.log(error);
+    console.log("@@@signup", error);
 
     res.redirect("/");
   }
 });
 
-app.get("/main", (req, res) => {
-  res.send(req.cookies?.refresh);
+app.get("/logOut", (req, res) => {
+  // res.cookie("accessToken",res.session.accessToken);
+  res.redirect("/");
+});
+
+app.get("/main", authMW, (req, res) => {
+  const ref = verify(req.cookies?.accessToken);
+  console.log("@@@main", ref);
+  // res.cookie("accessToken",res.session.accessToken);
+  res.render("main");
 });
 
 app.get("/editNft", (req, res) => {
+  console.log("@@@editNft", ref);
   res.render("editNft");
 });
 
@@ -485,42 +472,79 @@ async function getAllData(db, query) {
 
 // });
 
-function createOne() {
+function createAdmin() {
+  const Nfts = [createUid(), createUid(), createUid(), createUid()];
   User.create({
-    uid: createUid(),
-    pwd: "쀼쀼쀼쀼쀼",
-    name: "name",
-    email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
+    uid: "admin",
+    pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+    name: "admin",
+    email: "test@naver.com",
     balance: 987654321098765,
     grade: 0,
-    gallery: JSON.stringify([
-      createUid(),
-      createUid(),
-      createUid(),
-      createUid(),
-    ]),
-  });
-
-  Nft.create({
-    nft_id: createNftId(),
-    title: "쀼쀼쀼쀼쀼",
-    content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-    img_url: "/뀨쀼뀨쀼뀨.",
-    history: JSON.stringify([
-      { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-      { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-      { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-      { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-      { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-    ]),
-  });
-
-  Rank.create({
-    nft_id: createNftId(),
-    score: 1231231231,
-    nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-    img_url: "/뀨쀼뀨쀼뀨.",
-    user_id: createUid(),
+    refresh_token: sign("admin"),
+    gallery: JSON.stringify([...Nfts]),
+  }).then(() => {
+    Nft.bulkCreate([
+      {
+        nft_id: Nfts[0],
+        title: "NFT제목1",
+        content: "NFT내용1",
+        img_url:
+          "https://trboard.game.onstove.com/Data/TR/20170718/20/636360060838331309.jpg",
+        history: JSON.stringify([
+          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+        ]),
+        onwer: "admin",
+      },
+      {
+        nft_id: Nfts[1],
+        title: "NFT제목2",
+        content: "NFT내용2",
+        img_url:
+          "https://s3.orbi.kr/data/file/united/995556963_B6vl079m_8F223DF0-FEDE-434A-9439-8DF090FC8A66-5388-000005FED6FDB041_file.gif",
+        history: JSON.stringify([
+          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+        ]),
+        onwer: "admin",
+      },
+      {
+        nft_id: Nfts[2],
+        title: "NFT제목3",
+        content: "NFT내용3",
+        img_url: "https://cdn.cashfeed.co.kr/attachments/d070572048.jpg",
+        history: JSON.stringify([
+          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+        ]),
+        onwer: "admin",
+      },
+      {
+        nft_id: Nfts[3],
+        title: "NFT제목4",
+        content: "NFT내용4",
+        img_url:
+          "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
+        history: JSON.stringify([
+          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+        ]),
+        onwer: "admin",
+      },
+    ]);
   });
 }
 

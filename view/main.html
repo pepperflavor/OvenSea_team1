@@ -125,7 +125,7 @@
             aria-label="Search"
           ></input>
         </div>
-        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold">
+        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
           <li class="nav-item ms-4">
             <a class="nav-link active " aria-current="page" href="#">Home</a>
           </li>
@@ -143,11 +143,11 @@
             
           </li>
         </ul>
-        <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
+        <div class="dropdown text-end ms-4 me-1 float-end"  id="userDiv">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
-          <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
+          <ul class="dropdown-menu text-small" style="transform: translate(-92px, 10px);" style="transition: 1s all ease-in-out;">
             <li><a class="dropdown-item" href="/profile">내정보</a></li>
             <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
             <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
@@ -159,22 +159,32 @@
       </div>
     </nav>
     <main>
-      <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-          <div class="col-lg-6 col-md-8 mx-auto">
-            <h1 class="fw-light">Album example</h1>
-            <p class="lead text-muted">
-              Something short and leading about the collection below—its
-              contents, the creator, etc. Make it short and sweet, but not too
-              short so folks don’t simply skip over it entirely.
-            </p>
-            <p>
-              <a href="#" class="btn btn-primary my-2">Main call to action</a>
-              <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-            </p>
+      <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img src="..." class="d-block w-100" alt="...">
+          </div>
+          <div class="carousel-item">
+            <img src="..." class="d-block w-100" alt="...">
+          </div>
+          <div class="carousel-item">
+            <img src="..." class="d-block w-100" alt="...">
           </div>
         </div>
-      </section>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
 
       <div class="album py-5 bg-light">
         <div class="container">

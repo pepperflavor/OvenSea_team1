@@ -1,8 +1,11 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../model");
 const { ACCESS_TOKEN, REFRESH_TOKEN, ERR } = require("../config/config");
+const { ONE_DAY, ONE_WEEK } = require("../model/constants");
 require("dotenv").config();
-const ONE_DAY = 24 * 60 * 60 * 1000;
+
+const EXPIRE = { ONE_DAY: "2w", ONE_WEEK: "2w" };
+// const EXPIRE = { ONE_DAY: "1d", ONE_WEEK: "1w" };
 
 /**
  * @param {Object} payload
@@ -10,13 +13,12 @@ const ONE_DAY = 24 * 60 * 60 * 1000;
  * @returns
  */
 module.exports = {
-  sign: (user, token_type = "access", expiresIn = "5m") => {
-    const { uid, name, balance, grade, email, img_url } = user;
-    const payload = { uid, name, balance, grade, email, img_url };
+  sign: (uid, token_type = "access", expiresIn = EXPIRE.ONE_DAY) => {
+    const payload = { uid };
     const secretKey = token_type === "access" ? ACCESS_TOKEN : REFRESH_TOKEN;
     return jwt.sign(payload, secretKey, {
       algorithm: "HS256",
-      expiresIn: expiresIn,
+      expiresIn,
     });
   },
 
@@ -36,11 +38,11 @@ module.exports = {
       };
     }
   },
-  refresh: () => {
+  refresh: (expiresIn = EXPIRE.ONE_WEEK) => {
     const secretKey = REFRESH_TOKEN;
     return jwt.sign({}, secretKey, {
       algorithm: "HS256",
-      expiresIn: "14d",
+      expiresIn,
     });
   },
 

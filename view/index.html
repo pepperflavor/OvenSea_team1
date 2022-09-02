@@ -93,7 +93,7 @@
             aria-label="Search"
           ></input>
         </div>
-        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold">
+        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
           <li class="nav-item ms-4">
             <a class="nav-link active " aria-current="page" href="#">Home</a>
           </li>
@@ -107,7 +107,7 @@
             <a class="nav-link" href="#">Chat</a>
           </li>
           <li class="nav-item hidden" id="loginDiv">
-            <a href="#" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
+            <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
             
           </li>
         </ul>
@@ -121,7 +121,7 @@
             <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
             <li><a class="dropdown-item" href="/chat">채팅창</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/signOut">로그아웃</a></li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
           </ul>
         </div>
       </div>
@@ -129,16 +129,16 @@
 
     <div class="container" >
     <div class="container-fluid pb-3 ">
-      <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr; height: 90vh; max-height: 90vh;">
+      <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr; height: 90%; max-height:90%;">
         <!-- Users box-->
     <div class="px-0 bg-dark">
       <div class="bg-dark">
-        <div class="bg-gray px-4 py-2 bg-dark">
-          <p class="h5 mb-0 py-1">Recent</p>
+        <div class="bg-gray py-2 bg-dark">
+          <p class="h5 mb-0 py-1 text-white">채팅방</p>
         </div>
 
-        <div class="messages-box">
-          <div class="list-group rounded-0">
+        <div class="messages-box" >
+          <div class="list-group rounded-0" >
             <a
               class="list-group-item list-group-item-action active text-white rounded my-1"
             >
@@ -221,11 +221,11 @@
         </div>
       </div>
     </div>
-        <!-- Chat Box-->
-    <div class=" px-0 bg-dark">
-      <div class="px-4 py-5 chat-box bg-dark" style="height: 90%; max-height: 90%;">
+    <!-- Chat Box start-->
+    <div class="bg-dark">
+      <div class="py-5 chat-box bg-dark d-flex flex-column" style="overflow-y: scroll; height: 85vh;">
         <!-- Sender Message-->
-        <div class="media w-50 mb-3 d-flex">
+        <div class="media w-75 mb-3 d-flex me-auto">
           <img
             src="/static/image/brand.gif"
             alt="user"
@@ -233,10 +233,10 @@
             height="50"
             class="rounded-circle mx-3"
           />
-          <div class="media-body ml-3">
+          <div class="media-body">
             <div class="bg-info rounded py-2 px-3 mb-2">
               <p class="text-small mb-0 text-white">
-                너 메세지1
+                너 메세지1너 
               </p>
             </div>
             <p class="small text-muted fw-bold">10분전</p> 
@@ -244,14 +244,13 @@
           <p class="small text-muted fw-bold ms-2 text-warning">1</p> 
         </div>
         <!-- Reciever Message-->
-        <div class="media w-50 ml-auto mb-3 float-end d-flex">
-          
-          <p class="small text-muted fw-bold 
-          me-2 ms-auto text-warning">1</p> 
+        <div class="media w-75 mb-3 float-end d-flex ms-auto ">
+          <p class="small text-muted fw-bold me-2 ms-auto text-warning">1</p> 
+
           <div class="media-body">
             <div class="bg-primary rounded py-2 px-3 mb-2 ">
               <p class="text-small mb-0 text-white">
-                내 메세지2
+                너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 
               </p>
             </div>
             <p class="small text-muted fw-bold">방금전</p>
@@ -265,9 +264,11 @@
             class="rounded-circle mx-3"
           />
         </div>  
-              
+
       </div>
 
+    <!-- Chat Box end-->
+    
       <!-- Typing area -->
       <form action="/sendMsg" class="bg-dark" method="post">
         <div class="input-group">
@@ -302,7 +303,6 @@
       id="table3"
       class="table table-dark table-striped table-hover my-2 w-75 m-auto"
     ></table>
-    <button class="btn btn-outline-secondary block" id="">Search</button>
 
     <div
       class="modal modal-signin position-static d-block bg-dark py-5"
