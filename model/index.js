@@ -8,6 +8,8 @@ const User = require("./users");
 const Nft = require("./nfts");
 const Chat = require("./chats");
 const Report = require("./reports");
+const NftBrand = require("./nftBrands")
+const Room = require("./rooms")
 
 // console.log(config);
 
@@ -24,17 +26,23 @@ db.User = User;
 db.Nft = Nft;
 db.Chat = Chat;
 db.Report = Report;
+db.NftBrand = NftBrand;
+db.Room = Room;
 
 // 이 구문이 없으면 테이블이 생성되지 않는다.
 User.init(sequelize);
 Nft.init(sequelize);
 Chat.init(sequelize);
 Report.init(sequelize);
+NftBrand.init(sequelize)
+Room.init(sequelize)
 
 // 관계형을 맺어주는 함수 사용
 User.associate(db);
 Nft.associate(db);
 Chat.associate(db);
 Report.associate(db);
+NftBrand.associate(db);
+Room.associate(db);
 
 module.exports = db;

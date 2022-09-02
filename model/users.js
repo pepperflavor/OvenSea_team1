@@ -135,7 +135,8 @@ class User extends Sequelize.Model {
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
     // db.User.hasMany(db.Rank, { foreignKey: "user_uid", sourceKey: "uid" });
     db.User.hasMany(db.Nft, { foreignKey: "owner", sourceKey: "uid" });
-    db.User.hasMany(db.Report, { foreignKey: "user_uid", sourceKey: "uid" });
+    db.User.hasMany(db.Report, { foreignKey: "principle", sourceKey: "uid" });
+    db.User.hasMany(db.Report, { foreignKey: "reporter", sourceKey: "uid" });
   }
 }
 

@@ -34,14 +34,24 @@ class Report extends Sequelize.Model {
           autoIncrement: true,
         },
 
-        reporter: {
-          type: Sequelize.STRING(255),
-          allowNull: false,
+//        reporter: {
+//          type: Sequelize.STRING(255), //uid
+//          allowNull: true,
+//        },
+
+//        principle: {
+//          type: Sequelize.STRING(255), //uid
+//          allowNull: true,
+//        },
+
+        desposal: {
+          type: Sequelize.TEXT,   //{type:[chat, auction] ,date: ,period: 1일}
+        },
+        reason: {
+          type: Sequelize.TEXT,   //욕설, 부적절한 컨텐츠공유
         },
 
-        reason: {
-          type: Sequelize.TEXT,
-        },
+
         /**
          * [{"repoter": UID, "target": "NFT_REPORT or USER_REPORT","reason":"비방", time:"timestamp"},
          *  {"repoter": UID, "reason":"욕설", time:"timestamp"},
@@ -82,13 +92,11 @@ class Report extends Sequelize.Model {
   }
   // 1:N (foreignKey) 외래키
   static associate(db) {
-    // 1:N 관계 (hasMany, belongsTo)
-    // 시퀄라이즈에서 1:N 관계를 hasMany 함수로 정의한다.
-    // hasMany 함수를 이용해서 테이블의 관계를 정의해준다.
-    // 첫번째 매개변수로 연결할 테이블
-    //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
-    // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고)
-    db.Report.belongsTo(db.User, { foreignKey: "user_uid", targetKey: "uid" });
+    db.Report.belongsTo(db.User, { foreignKey: "principle", targetKey: "uid" });
+    db.Report.belongsTo(db.User, { foreignKey: "reporter", targetKey: "uid" });
+    db.Report.hasMany(db.Nft, { foreignKey: "report_id", sourceKey: "id" });
+    db.Report.hasMany(db.NftBrand, { foreignKey: "report_id", sourceKey: "id" });
+    db.Report.hasMany(db.Chat, { foreignKey: "report_id", sourceKey: "id" });
   }
 }
 

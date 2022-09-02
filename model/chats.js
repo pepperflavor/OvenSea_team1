@@ -38,14 +38,20 @@ class Chat extends Sequelize.Model {
           allowNull: false,
         },
 
+        img_content: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+        },
+        
         nickname: {
           type: Sequelize.TEXT,
         },
-
-        img_url: {
-          type: Sequelize.STRING(255),
-          allowNull: false,
+        
+        link_content: {
+          type: Sequelize.TEXT,
+          allowNull: true,
         },
+
 
         // 생성한 시간이 필요하다 할때 사용하면 됨 테이블 자체에 timestamps : true 도 쓸수 있음.
         // created_at: {
@@ -88,6 +94,8 @@ class Chat extends Sequelize.Model {
     //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
     db.Chat.belongsTo(db.User, { foreignKey: "user_uid", targetKey: "uid" });
+    db.Chat.belongsTo(db.Report, { foreignKey: "report_id", targetKey: "id" });
+    db.Chat.belongsTo(db.Room, { foreignKey: "room_id", targetKey: "room_id" });
   }
 }
 
