@@ -12,6 +12,7 @@ const ChatMember = require("./chatMember");
 const FreeChat = require("./freeChat");
 const ActionChat = require("./actionChat");
 const ChatLog = require("./chatlog");
+const Editor = require("./editor");
 
 
 const { database, username, password } = config.dev;
@@ -28,6 +29,7 @@ db.Nft = Nft;
 db.Rank = Rank;
 db.Report = Report;
 db.ChatLog = ChatLog;
+db.Editor = Editor;
 
 // 채팅방 관련
 db.ChatMember = ChatMember;
@@ -39,18 +41,19 @@ User.init(sequelize);
 Nft.init(sequelize);
 Rank.init(sequelize);
 Report.init(sequelize);
+Editor.init(sequelize);
 
 ChatMember.init(sequelize);
 FreeChat.init(sequelize);
 ActionChat.init(sequelize);
 ChatLog.init(sequelize);
 
-
 // 관계형을 맺어주는 함수 사용
 User.associate(db);
 Nft.associate(db);
 Rank.associate(db);
 Report.associate(db);
+Editor.associate(db);
 
 ChatMember.associate(db);
 FreeChat.associate(db);

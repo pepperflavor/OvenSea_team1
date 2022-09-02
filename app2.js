@@ -1,14 +1,33 @@
 const SocketServer = require("./socket/server");
+const Sequelize = require("sequelize"); ;
 const express = require("express");
 const ejs = require("ejs");
 const path = require("path");
+const config = require("./config/config");
 
+
+const session = require("express-session");
+const { encrypt, compare } = require("./crypto");
+const cookie = require("cookie-parser");
 const {upload} = require("./routers/upload");
+const { sign, verify } = require("./util/jwt_util");
+const { promisify } = require("util");
+const { ERROR_CODE } = require("./config/config");
+const { stringify } = require("querystring");
+
+
+
 const adminRouters = require("./routers/admin");
+const editorRouter = require("./routers/editor");
 
-// 로그인 관련
+// const connect = require("connect");
 
+
+
+// 로그인 관련 router
 const authRouters = require("./routers/auth");
+
+
 
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
 const {
@@ -21,15 +40,106 @@ const {
   ChatMember,
   ActionChat,
   ChatLog,
+  Editor,
 } = require("./models");
 
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
+const db = require("./models");
 
 const app = express();
 app.use(express.urlencoded({extended : false}));
 const PORT = 3000;
 const SOCKET_PORT = 3030;
+
+//========== 제호 오빠가 해놓은 세션
+// app.use(
+//   session({
+//     store : ,
+//     // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
+//     secret: process.env.SESSION_KEY,
+//     // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
+//     resave: false,
+//     // 세션에 저장할 때 초기화 여부를 설정
+//     saveUninitialized: true,
+//   })
+// );
+///=================================
+
+
+
+// ================== 세션 설정 시작
+// config에 쓴 db "database", "username", "password" 전달해주면됨
+var _sequelize = new Sequelize(config.database, config.username, config.password, {
+  dialect: "sqlite",
+  storage: "./session.sqlite",
+});
+
+// 익스프레스를 사용할시 
+// const SequelizeStore = require("connect-session-sequelize")(
+//   connect.session.Store
+// );
+// 말고 아래처럼 선언해주면 된다
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+// connect().use(
+//   connect.session({
+//     store: new SequelizeStore(db),
+//     secret: "CHANGEME",
+//   })
+// );
+
+//======= 세션 db 관련
+
+// express-session에서 임포트하는 세션 객체는 함수로 산출되며 산출물은 db에 저장된다
+// const SequelizeStore = require("connect-session-sequelize")(
+//   connect.session.Store
+// );
+
+
+// app.use(
+//   session({
+//     secret: "my secret",
+//     store: new SequelizeStore({
+//       db: _sequelize,
+//     }),
+//     resave: false, // we support the touch method so per the express-session docs this should be set to false
+//     proxy: true, // if you do SSL outside of node.
+//   })
+// );
+
+const sessionStore = new SequelizeStore({
+  // ...??? 이게 왜 빨간줄인지...
+  db: db.sequelize,
+  checkExpirationInterval: 15 * 60 * 1000,
+  // The interval at which to cleanup expired sessions in milliseconds.
+  expiration: 24 * 60 * 60 * 1000,
+  // The maximum age (in milliseconds) of a valid session.
+});
+
+app.use(
+  session({
+    store : sessionStore,
+    // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
+    secret: process.env.SESSION_KEY,
+    // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
+    resave: false,
+    // 세션에 저장할 때 초기화 여부를 설정
+    saveUninitialized: true,
+    proxy: true,
+  })
+);
+
+
+
+// new SequelizeStore({
+//   checkExpirationInterval: 15 * 60 * 1000,
+//   // 만료된 세션을 정리하는 간격(밀리초). 만료 : 24 * 60 * 60 * 1000 // 유효한 세션의 최대 수명(밀리초)
+// });
+       
+
+//============= 세션 설정 끝 ========================
+
 
 //// join함수는 매개변수를 받아 주소처럼 합쳐줌
 //// path.join('a','b') => "a/b"
@@ -40,7 +150,7 @@ const server = app.listen(PORT, () => {
 });
 
 //socket.io 생성 및 실행
-const socketServer = new SocketServer(server);
+// const socketServer = new SocketServer(server);
 
 app.get("/admin/edit-nft-page", (req, res) => {
   res.render("admin/edit-nft", { isAuthenticated: true, editing : true });
@@ -53,6 +163,7 @@ app.get("/admin/edit-nft-page", (req, res) => {
   //   res.redirect("login");
 });
 
+// nft 등록 데이터 받기
 app.post("/admin/edit-nft", upload.single("image"), (req, res) => {
   console.log(req);
   const nftTitle = req.body.title;
@@ -62,6 +173,21 @@ app.post("/admin/edit-nft", upload.single("image"), (req, res) => {
   res.end();
   console.log();
 });
+
+
+//=====editor 신청받기 session으로 사요ㅕㅇ자 정보 받아오기
+app.get("/editor/editor-apply", (req, res) => {
+  res.render("/editor/editor-apply", {
+  });
+});
+
+
+
+
+
+
+
+
 
 // app.get("/chatmember", (req, res) => {
 //   res.render("data", "");
@@ -105,6 +231,8 @@ app.use(authRouters);
 
 app.use(express.static(path.join(__dirname, "/public"))); // 정적 파일 설정 (미들웨어) 3
 app.use("/uploadimg", express.static(__dirname + "/uploadImg"));
+//========= 파일 업로드 설정 끝
+
 
 //body 객체 사용
 app.use(express.urlencoded({ extended: false }));
@@ -119,6 +247,8 @@ sequelize
     console.log(err);
   });
 
+
+  
   app.post("/admin/edit-nft-page",upload.single('file'),(req, res) => {
     // const { nft_title, nft_img, nft_owner, nft_content } = req.body;
     // res.send({ nft_title, nft_img, nft_owner, nft_content });
@@ -149,31 +279,6 @@ sequelize
     );
     res.redirect("/index.html");
   });
-// app.use((req, res, next) => {
-//   User.findById("5bab316ce0a7c75f783cb8a8")
-//     .then((user) => {
-//       req.user = user;
-//       next();
-//     })
-//     .catch((err) => console.log(err));
-// });
-
-// NFT 등록
-
-// app.post("/createNFT", async (req, res) => {
-//   // const userData = await getAllData(User, {});
-//   // console.log(userData);
-//   // res.render("index");
-//   const { title, detail } = req.body;
-//   Nft.create({
-//     title,
-//     detail,
-//   });
-
-//   fs.readFile("view/index", (err, data) => {
-//     res.render("index");
-//   });
-// });
 
 app.get("/", (req, res) => {
   // const userData = await getAllData(User, {});
@@ -216,11 +321,6 @@ app.get("/getDatas4", async (req, res) => {
     console.log(datas);
   }
 });
-// User.findAll({}).then((datas) => {
-//   datas.map((data) => {
-//     console.log("@@@@", data.dataValues);
-//   });
-// });
 
 async function getAllData(db, query) {
   return new Promise((resolve, reject) => {

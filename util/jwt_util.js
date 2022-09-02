@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../model");
+const { User } = require("../models");
 const { ACCESS_TOKEN, REFRESH_TOKEN, ERR } = require("../config/config");
 require("dotenv").config();
 const ONE_DAY = 24 * 60 * 60 * 1000;
