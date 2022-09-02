@@ -43,8 +43,13 @@ class Chat extends Sequelize.Model {
           allowNull: true,
         },
         
-        nickname: {
-          type: Sequelize.TEXT,
+        checker: {
+          type: Sequelize.TEXT, //[{uid,notread}]
+          allowNull: true,
+        },
+        
+        cancel: {
+          type: Sequelize.TINYINT, // 0, 1
         },
         
         link_content: {
@@ -93,7 +98,7 @@ class Chat extends Sequelize.Model {
     // 첫번째 매개변수로 연결할 테이블
     //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
-    db.Chat.belongsTo(db.User, { foreignKey: "user_uid", targetKey: "uid" });
+    db.Chat.belongsTo(db.User, { foreignKey: "sender", targetKey: "uid" });
     db.Chat.belongsTo(db.Report, { foreignKey: "report_id", targetKey: "id" });
     db.Chat.belongsTo(db.Room, { foreignKey: "room_id", targetKey: "room_id" });
   }

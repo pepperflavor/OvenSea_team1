@@ -137,6 +137,7 @@ class User extends Sequelize.Model {
     db.User.hasMany(db.Nft, { foreignKey: "owner", sourceKey: "uid" });
     db.User.hasMany(db.Report, { foreignKey: "principle", sourceKey: "uid" });
     db.User.hasMany(db.Report, { foreignKey: "reporter", sourceKey: "uid" });
+    db.User.hasMany(db.Chat, { foreignKey: "sender", sourceKey: "uid" });
   }
 }
 
