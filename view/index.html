@@ -1,315 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
-      crossorigin="anonymous"
-    ></script>
+<head>
+  <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="776561034070-qu3sg4ssgrhv4jtvo89r105ho412s4td.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
 
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js"
-      integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w=="
-      crossorigin="anonymous"
-    ></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous" />
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <style>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js"
+    integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w=="
+    crossorigin="anonymous"></script>
 
-      /* chat-css */
-      .my-msg {
-        float: left;
-      }
-      .dropdown-toggle {
-        outline: 0;
-      }
-      .form-signin {
-        max-width: 330px;
-        padding: 15px;
-      }
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <style>
+    /* chat-css */
+    .my-msg {
+      float: left;
+    }
 
-      .form-signin .form-floating:focus-within {
-        z-index: 2;
-      }
+    .dropdown-toggle {
+      outline: 0;
+    }
 
-      .form-signin input[type="email"] {
-        margin-bottom: -1px;
-        border-bottom-right-radius: 0;
-        border-bottom-left-radius: 0;
-      }
+    .form-signin {
+      max-width: 330px;
+      padding: 15px;
+    }
 
-      .form-signin input[type="password"] {
-        margin-bottom: 10px;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-      }
-      .dropdown-menu.show {transform: translate(-100px, 20px);}
-    </style>
-  </head>
-  <body class="bg-dark">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fs-5">
-      <div class="container-fluid fs-5">
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarTogglerDemo03"
-          aria-controls="navbarTogglerDemo03"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+    .form-signin .form-floating:focus-within {
+      z-index: 2;
+    }
 
-        <img
-          class="rounded-circle m-auto center me-3 ms-1"
-          src="/static/image/brand.gif"
-          alt=""
-          width="55"
-          height="55"
-        />
-        <a class="navbar-brand fs-2 fw-bold" href="/">Ovensea</a>
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-          </svg>
-          <input
-            class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          ></input>
-        </div>
-        <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold">
-          <li class="nav-item ms-4">
-            <a class="nav-link active " aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item ms-4">
-            <a class="nav-link "href="#">Gallery</a>
-          </li>
-          <li class="nav-item ms-4">
-            <a class="nav-link" href="#">Auction</a>
-          </li>
-          <li class="nav-item ms-4">
-            <a class="nav-link" href="#">Chat</a>
-          </li>
-          <li class="nav-item hidden" id="loginDiv">
-            <a href="#" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
-            
-          </li>
-        </ul>
-        <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
-          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
-          </a>
-          <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
-            <li><a class="dropdown-item" href="/profile">내정보</a></li>
-            <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
-            <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
-            <li><a class="dropdown-item" href="/chat">채팅창</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/signOut">로그아웃</a></li>
-          </ul>
-        </div>
+    .form-signin input[type="email"] {
+      margin-bottom: -1px;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .form-signin input[type="password"] {
+      margin-bottom: 10px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    .dropdown-menu.show {
+      transform: translate(-100px, 20px);
+    }
+  </style>
+</head>
+
+<body class="bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fs-5">
+    <div class="container-fluid fs-5">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+        aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <img class="rounded-circle m-auto center me-3 ms-1" src="/static/image/brand.gif" alt="" width="55" height="55" />
+      <a class="navbar-brand fs-2 fw-bold" href="/">Ovensea</a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+          viewBox="0 0 16 16">
+          <path
+            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+        </svg>
+        <input class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold" type="search"
+          placeholder="Search" aria-label="Search"></input>
       </div>
-    </nav>
+      <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold">
+        <li class="nav-item ms-4">
+          <a class="nav-link active " aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link " href="#">Gallery</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link" href="#">Auction</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link" href="#">Chat</a>
+        </li>
+        <li class="nav-item hidden" id="loginDiv">
+          <a href="#" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
 
-    <div class="container" >
+        </li>
+      </ul>
+      <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
+        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+        </a>
+        <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
+          <li><a class="dropdown-item" href="/profile">내정보</a></li>
+          <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
+          <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
+          <li><a class="dropdown-item" href="/chat">채팅창</a></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><a class="dropdown-item" href="/signOut">로그아웃</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
     <div class="container-fluid pb-3 ">
       <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr; height: 90vh; max-height: 90vh;">
         <!-- Users box-->
-    <div class="px-0 bg-dark">
-      <div class="bg-dark">
-        <div class="bg-gray px-4 py-2 bg-dark">
-          <p class="h5 mb-0 py-1">Recent</p>
-        </div>
+        <div class="px-0 bg-dark">
+          <div class="bg-dark">
+            <div class="bg-gray px-4 py-2 bg-dark">
+              <p class="h5 mb-0 py-1">Recent</p>
+            </div>
 
-        <div class="messages-box">
-          <div class="list-group rounded-0">
-            <a
-              class="list-group-item list-group-item-action active text-white rounded my-1"
-            >
-              <div class="media">
-                <img
-                  src="/static/image/brand.gif"
-                  alt="user"
-                  width="50"
-                  height="50"
-                  class="rounded-circle"
-                />
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                  <h6 class="mb-0">유저1</h6>
-                  <small class="small font-weight-bold">날짜1</small>
-                </div>
-                <p class="font-italic text-white mb-0 text-small">
-                  내용1 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                  </p>
-                </div>
-              </div>
-            </a>
-
-            <a
-              href="#"
-              class="list-group-item list-group-item-action list-group-item-dark rounded my-1"
-            >
-              <div class="media">
-                <img
-                  src="/static/image/brand.gif"
-                  alt="user"
-                  width="50"
-                  height="50"
-                  class="rounded-circle"
-                />
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                    <h6 class="mb-0">유저2</h6>
-                    <small class="small font-weight-bold">날짜2</small>
+            <div class="messages-box">
+              <div class="list-group rounded-0">
+                <a class="list-group-item list-group-item-action active text-white rounded my-1">
+                  <div class="media">
+                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
+                    <div class="media-body ml-4">
+                      <div class="d-flex align-items-center justify-content-between mb-1">
+                        <h6 class="mb-0">유저1</h6>
+                        <small class="small font-weight-bold">날짜1</small>
+                      </div>
+                      <p class="font-italic text-white mb-0 text-small">
+                        내용1 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
+                      </p>
+                    </div>
                   </div>
-                  <p class="font-italic text-muted mb-0 text-small">
-                    내용2 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                  </p>
-                </div>
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action list-group-item-dark rounded my-1">
+                  <div class="media">
+                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
+                    <div class="media-body ml-4">
+                      <div class="d-flex align-items-center justify-content-between mb-1">
+                        <h6 class="mb-0">유저2</h6>
+                        <small class="small font-weight-bold">날짜2</small>
+                      </div>
+                      <p class="font-italic text-muted mb-0 text-small">
+                        내용2 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
+                      </p>
+                    </div>
+                  </div>
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action list-group-item-dark rounded my-1">
+                  <div class="media">
+                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
+                    <div class="media-body ml-4">
+                      <div class="d-flex align-items-center justify-content-between mb-1">
+                        <h6 class="mb-0">유저3</h6>
+                        <small class="small font-weight-bold">날짜3</small>
+                      </div>
+                      <p class="font-italic text-muted mb-0 text-small">
+                        내용3 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
+                      </p>
+                    </div>
+                  </div>
+                </a>
+
+
               </div>
-            </a>
-
-            <a
-              href="#"
-              class="list-group-item list-group-item-action list-group-item-dark rounded my-1"
-            >
-              <div class="media">
-                <img
-                  src="/static/image/brand.gif"
-                  alt="user"
-                  width="50"
-                  height="50"
-                  class="rounded-circle"
-                />
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                  <h6 class="mb-0">유저3</h6>
-                  <small class="small font-weight-bold">날짜3</small>
-                </div>
-                <p class="font-italic text-muted mb-0 text-small">
-                  내용3 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                  </p>
-                </div>
-              </div>
-            </a>
-
-
+            </div>
           </div>
         </div>
-      </div>
-    </div>
         <!-- Chat Box-->
-    <div class=" px-0 bg-dark">
-      <div class="px-4 py-5 chat-box bg-dark" style="height: 90%; max-height: 90%;">
-        <!-- Sender Message-->
-        <div class="media w-50 mb-3 d-flex">
-          <img
-            src="/static/image/brand.gif"
-            alt="user"
-            width="50"
-            height="50"
-            class="rounded-circle mx-3"
-          />
-          <div class="media-body ml-3">
-            <div class="bg-info rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-white">
-                너 메세지1
-              </p>
+        <div class=" px-0 bg-dark">
+          <div class="px-4 py-5 chat-box bg-dark" style="height: 90%; max-height: 90%;">
+            <!-- Sender Message-->
+            <div class="media w-50 mb-3 d-flex">
+              <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle mx-3" />
+              <div class="media-body ml-3">
+                <div class="bg-info rounded py-2 px-3 mb-2">
+                  <p class="text-small mb-0 text-white">
+                    너 메세지1
+                  </p>
+                </div>
+                <p class="small text-muted fw-bold">10분전</p>
+              </div>
+              <p class="small text-muted fw-bold ms-2 text-warning">1</p>
             </div>
-            <p class="small text-muted fw-bold">10분전</p> 
-          </div>
-          <p class="small text-muted fw-bold ms-2 text-warning">1</p> 
-        </div>
-        <!-- Reciever Message-->
-        <div class="media w-50 ml-auto mb-3 float-end d-flex">
-          
-          <p class="small text-muted fw-bold 
-          me-2 ms-auto text-warning">1</p> 
-          <div class="media-body">
-            <div class="bg-primary rounded py-2 px-3 mb-2 ">
-              <p class="text-small mb-0 text-white">
-                내 메세지2
-              </p>
-            </div>
-            <p class="small text-muted fw-bold">방금전</p>
-          </div>
-          
-          <img
-            src="/static/image/brand.gif"
-            alt="user"
-            width="50"
-            height="50"
-            class="rounded-circle mx-3"
-          />
-        </div>  
-              
-      </div>
+            <!-- Reciever Message-->
+            <div class="media w-50 ml-auto mb-3 float-end d-flex">
 
-      <!-- Typing area -->
-      <form action="/sendMsg" class="bg-dark" method="post">
-        <div class="input-group">
-          <input
-            type="text"
-            placeholder="내용을 입력해주때요"
-            aria-describedby="button-addon2"
-            class="form-control rounded-0 border-0 py-4 bg-dark text-white"
-          />
-          <div class="input-group-append align-self-center">
-            <button id="button-addon2" type="submit" class="btn btn-link text-decoration-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-send me-2" viewBox="0 0 16 16">
-                <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
-              </svg>
-              보내버리기
-            </button>
+              <p class="small text-muted fw-bold 
+          me-2 ms-auto text-warning">1</p>
+              <div class="media-body">
+                <div class="bg-primary rounded py-2 px-3 mb-2 ">
+                  <p class="text-small mb-0 text-white">
+                    내 메세지2
+                  </p>
+                </div>
+                <p class="small text-muted fw-bold">방금전</p>
+              </div>
+
+              <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle mx-3" />
+            </div>
+
           </div>
+
+          <!-- Typing area -->
+          <form action="/sendMsg" class="bg-dark" method="post">
+            <div class="input-group">
+              <input type="text" placeholder="내용을 입력해주때요" aria-describedby="button-addon2"
+                class="form-control rounded-0 border-0 py-4 bg-dark text-white" />
+              <div class="input-group-append align-self-center">
+                <button id="button-addon2" type="submit" class="btn btn-link text-decoration-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                    class="bi bi-send me-2" viewBox="0 0 16 16">
+                    <path
+                      d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
+                  </svg>
+                  보내버리기
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
       </div>
     </div>
-    <table
-      id="table"
-      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
-    ></table>
-    <table
-      id="table2"
-      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
-    ></table>
-    <table
-      id="table3"
-      class="table table-dark table-striped table-hover my-2 w-75 m-auto"
-    ></table>
+    <table id="table" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
+    <table id="table2" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
+    <table id="table3" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
     <button class="btn btn-outline-secondary block" id="">Search</button>
 
-    <div
-      class="modal modal-signin position-static d-block bg-dark py-5"
-      tabindex="-1"
-      role="dialog"
-      id="modalSignin"
-    >
+    <div class="modal modal-signin position-static d-block bg-dark py-5" tabindex="-1" role="dialog" id="modalSignin">
       <div class="modal-dialog " role="document">
         <div class="modal-content rounded-4 shadow" style="background-color:rgba(255, 255, 255, 0.425)">
           <div class="modal-header p-5 pb-4 border-bottom-0">
@@ -319,109 +249,63 @@
 
           <div class="modal-body p-5 pt-0">
             <div class="w-100">
-            <img class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt="" width="72" height="72">
+              <img class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt="" width="72"
+                height="72">
             </div>
             <form action="/signup" method="post">
               <div class="form-floating mb-3">
-                <input
-                  type="email"
-                  class="form-control rounded-3"
-                  id="signup_email"
-                  placeholder="name@example.com"
-                  name="user_email"style="background-color:rgba(255, 255, 255, 0.425)"
-                />
+                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
+                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
                 <label for="floatingInput">이메일</label>
               </div>
               <div id="email_exist"></div>
               <div class="form-floating mb-3">
-                <input
-                  type="password"
-                  style="background-color:rgba(255, 255, 255, 0.425)"
-                  class="form-control rounded-3"
-                  id="floatingPassword"
-                  placeholder="Password"
-                  name="user_pwd"
-                />
+                <input type="password" style="background-color:rgba(255, 255, 255, 0.425)"
+                  class="form-control rounded-3" id="floatingPassword" placeholder="Password" name="user_pwd" />
                 <label for="floatingPassword">비밀번호</label>
               </div>
-              <button
-                class="w-100 mb-2 btn btn-lg rounded-3 btn-primary"
-                type="submit"
-              >
+              <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">
                 회원가입하기
               </button>
-              <small class="fw-bold"
-                >By clicking Sign up, you agree to the terms of use.</small
-              >
+              <small class="fw-bold">By clicking Sign up, you agree to the terms of use.</small>
               <hr class="my-4" />
               <h2 class="fs-5 fw-bold mb-3">소셜 로그인</h2>
-              <button
-                id="naver_btn"
-                class="w-100 py-2 mb-2 btn btn-outline-success fw-bold rounded-3"
-              >
-              <svg enable-background="new 0 0 512 512" width="16" height="16" fill="currentColor" viewBox="0 0 512 512" width="512px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><circle cx="255.999" cy="256" r="246.455"/></g><g><path d="M124.152,139.41h91.746c0,0,83.332,125.871,85.793,129.246c2.52,3.41,2.812,0,2.812,0   c-3.844-19.477-8.016-28.219-8.016-59.379V139.41h91.359v233.18h-91.359c0,0-81.621-119.156-84.082-122.449   c-2.473-3.316-2.801,0-2.801,0c3.141,16.078,5.918,18.762,5.918,46.688v75.762h-91.371V139.41L124.152,139.41z" fill="#FFFFFF"/></g></svg>
-                네이버 뀨
-              </button>
-              <button
-                class="w-100 py-2 mb-2 btn btn-outline-warning fw-bold rounded-3"
-                type="submit"
-              >
-              <svg xmlns="http://www.w3.org/2000/svg"  width="16" height="16" fill="currentColor"  viewBox="0 0 208 191.94"><g><polygon class="cls-1" points="76.01 89.49 87.99 89.49 87.99 89.49 82 72.47 76.01 89.49"/><path class="cls-1" d="M104,0C46.56,0,0,36.71,0,82c0,29.28,19.47,55,48.75,69.48-1.59,5.49-10.24,35.34-10.58,37.69,0,0-.21,1.76.93,2.43a3.14,3.14,0,0,0,2.48.15c3.28-.46,38-24.81,44-29A131.56,131.56,0,0,0,104,164c57.44,0,104-36.71,104-82S161.44,0,104,0ZM52.53,69.27c-.13,11.6.1,23.8-.09,35.22-.06,3.65-2.16,4.74-5,5.78a1.88,1.88,0,0,1-1,.07c-3.25-.64-5.84-1.8-5.92-5.84-.23-11.41.07-23.63-.09-35.23-2.75-.11-6.67.11-9.22,0-3.54-.23-6-2.48-5.85-5.83s1.94-5.76,5.91-5.82c9.38-.14,21-.14,30.38,0,4,.06,5.78,2.48,5.9,5.82s-2.3,5.6-5.83,5.83C59.2,69.38,55.29,69.16,52.53,69.27Zm50.4,40.45a9.24,9.24,0,0,1-3.82.83c-2.5,0-4.41-1-5-2.65l-3-7.78H72.85l-3,7.78c-.58,1.63-2.49,2.65-5,2.65a9.16,9.16,0,0,1-3.81-.83c-1.66-.76-3.25-2.86-1.43-8.52L74,63.42a9,9,0,0,1,8-5.92,9.07,9.07,0,0,1,8,5.93l14.34,37.76C106.17,106.86,104.58,109,102.93,109.72Zm30.32,0H114a5.64,5.64,0,0,1-5.75-5.5V63.5a6.13,6.13,0,0,1,12.25,0V98.75h12.75a5.51,5.51,0,1,1,0,11Zm47-4.52A6,6,0,0,1,169.49,108L155.42,89.37l-2.08,2.08v13.09a6,6,0,0,1-12,0v-41a6,6,0,0,1,12,0V76.4l16.74-16.74a4.64,4.64,0,0,1,3.33-1.34,6.08,6.08,0,0,1,5.9,5.58A4.7,4.7,0,0,1,178,67.55L164.3,81.22l14.77,19.57A6,6,0,0,1,180.22,105.23Z"/></g></svg>
+              <div id="button_area">
+                <div id="naverIdLogin"></div>
+              </div>
+              <button id="kakao_btn" class="w-100 py-2 mb-2 btn btn-outline-warning fw-bold rounded-3" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  viewBox="0 0 208 191.94">
+                  <g>
+                    <polygon class="cls-1" points="76.01 89.49 87.99 89.49 87.99 89.49 82 72.47 76.01 89.49" />
+                    <path class="cls-1"
+                      d="M104,0C46.56,0,0,36.71,0,82c0,29.28,19.47,55,48.75,69.48-1.59,5.49-10.24,35.34-10.58,37.69,0,0-.21,1.76.93,2.43a3.14,3.14,0,0,0,2.48.15c3.28-.46,38-24.81,44-29A131.56,131.56,0,0,0,104,164c57.44,0,104-36.71,104-82S161.44,0,104,0ZM52.53,69.27c-.13,11.6.1,23.8-.09,35.22-.06,3.65-2.16,4.74-5,5.78a1.88,1.88,0,0,1-1,.07c-3.25-.64-5.84-1.8-5.92-5.84-.23-11.41.07-23.63-.09-35.23-2.75-.11-6.67.11-9.22,0-3.54-.23-6-2.48-5.85-5.83s1.94-5.76,5.91-5.82c9.38-.14,21-.14,30.38,0,4,.06,5.78,2.48,5.9,5.82s-2.3,5.6-5.83,5.83C59.2,69.38,55.29,69.16,52.53,69.27Zm50.4,40.45a9.24,9.24,0,0,1-3.82.83c-2.5,0-4.41-1-5-2.65l-3-7.78H72.85l-3,7.78c-.58,1.63-2.49,2.65-5,2.65a9.16,9.16,0,0,1-3.81-.83c-1.66-.76-3.25-2.86-1.43-8.52L74,63.42a9,9,0,0,1,8-5.92,9.07,9.07,0,0,1,8,5.93l14.34,37.76C106.17,106.86,104.58,109,102.93,109.72Zm30.32,0H114a5.64,5.64,0,0,1-5.75-5.5V63.5a6.13,6.13,0,0,1,12.25,0V98.75h12.75a5.51,5.51,0,1,1,0,11Zm47-4.52A6,6,0,0,1,169.49,108L155.42,89.37l-2.08,2.08v13.09a6,6,0,0,1-12,0v-41a6,6,0,0,1,12,0V76.4l16.74-16.74a4.64,4.64,0,0,1,3.33-1.34,6.08,6.08,0,0,1,5.9,5.58A4.7,4.7,0,0,1,178,67.55L164.3,81.22l14.77,19.57A6,6,0,0,1,180.22,105.23Z" />
+                  </g>
+                </svg>
 
                 카카오톡 뀨
               </button>
-              <button
-                id="google_btn"
-                class="w-100 py-2 mb-2 btn btn-outline-info fw-bold rounded-3"
-              >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
-                <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"></path>
-              </svg>
-                뀨글 
-              </button>
+              <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
 
             </form>
           </div>
         </div>
       </div>
     </div>
-    <form
-      action="/login"
-      method="post"
-      class="m-auto w-100"
-      style="max-width: 330px; padding: 15px"
-    >
+    <form action="/login" method="post" class="m-auto w-100" style="max-width: 330px; padding: 15px">
       <div class="text-center">
-        <img
-          class="mb-4 rounded-circle m-auto center"
-          src="/static/image/brand.gif"
-          alt=""
-          width="72"
-          height="72"
-        />
+        <img class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt="" width="72" height="72" />
         <h1 class="h3 mb-3 fw-normal text-white">로그인 페이지</h1>
       </div>
 
       <div class="form-floating">
-        <input
-          type="email"
-          class="form-control mb-3"
-          id="floatingInput"
-          style="background-color:rgba(255, 255, 255, 0.425)"
-          placeholder="name@example.com"
-          name="user_email"
-        />
+        <input type="email" class="form-control mb-3" id="floatingInput"
+          style="background-color:rgba(255, 255, 255, 0.425)" placeholder="name@example.com" name="user_email" />
         <label for="floatingInput">이메일</label>
       </div>
       <div class="form-floating">
-        <input
-          type="password"
-          class="form-control mb-3"
-          id="floatingPassword"
-          style="background-color:rgba(255, 255, 255, 0.425)"
-          placeholder="비밀번호"
-          name="user_pwd"
-        />
+        <input type="password" class="form-control mb-3" id="floatingPassword"
+          style="background-color:rgba(255, 255, 255, 0.425)" placeholder="비밀번호" name="user_pwd" />
         <label for="floatingPassword">비밀번호</label>
       </div>
 
@@ -436,10 +320,110 @@
       <p class="mt-5 mb-3 text-muted">©2017–2022</p>
     </form>
   </div>
-  </body>
-  <script src="static/util/client_createRandom.js"></script>
-  <script src="static/util/request.js"></script>
-  <script src="static/model/dbManager.js"></script>
-  <script src="static/socket/client.js"></script>
-  <script src="static/view/index.js"></script>
+</body>
+<script>
+  function saveToDos(token) { //item을 localStorage에 저장합니다. 
+    typeof (Storage) !== 'undefined' && sessionStorage.setItem('AccessKEY', JSON.stringify(token));
+  };
+
+  window.Kakao.init('6b42791fc44a857d48857f6dddbbcd29');
+
+  function kakao_call() {
+    window.Kakao.Auth.login({
+      scope: 'profile_nickname, account_email', //동의항목 페이지에 있는 개인정보 보호 테이블의 활성화된 ID값을 넣습니다.
+      success: function (response) {
+        saveToDos(response.access_token)  // 로그인 성공하면 사용자 엑세스 토큰 sessionStorage에 저장
+        window.Kakao.API.request({ // 사용자 정보 가져오기 
+          url: '/v2/user/me',
+          success: (res) => {
+            const kakao_account = res.kakao_account;
+            alert('로그인 성공');
+            window.location.href = '/kakaoLogin/kakao_login.html'
+          }
+        });
+      },
+      fail: function (error) {
+        console.log(error);
+      }
+    });
+  };
+
+  const login = document.querySelector('#kakao_btn');
+  login.addEventListener('click', () => {
+    console.log("@@@@@@@@@@@@@@@@@")
+    kakao_call()
+  });
+
+</script>
+<script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+  <script type="text/javascript">
+const naverLogin = new naver.LoginWithNaverId(
+  {
+   clientId: "B3TtvkDfkI8KezxzKS01",
+   callbackUrl: "http://localhost:3000",
+   loginButton: {color: "green", type: 3, height: 40}
+   }
+  );
+ 
+
+   naverLogin.init();
+   naverLogin.getLoginStatus(function (status) {
+     if (status) {
+         const nickName=naverLogin.user.getNickName();
+         const age=naverLogin.user.getAge();
+         const birthday=naverLogin.user.getBirthday();
+
+         if(nickName===null||nickName===undefined ){
+           alert("별명이 필요합니다. 정보제공을 동의해주세요.");
+           naverLogin.reprompt();
+           return ;  
+        }else{
+         setLoginStatus();
+        }
+ }
+   });
+   console.log(naverLogin);
+
+   function setLoginStatus(){
+   
+     const message_area=document.getElementById('message');
+     message_area.innerHTML=`
+     <h3> Login 성공 </h3>
+     <div>user Nickname : ${naverLogin.user.nickname}</div>
+     <div>user Age(범위) : ${naverLogin.user.age}</div>
+     <div>user Birthday : ${naverLogin.user.birthday}</div>
+     `;
+    
+     const button_area=document.getElementById('button_area');
+     button_area.innerHTML="<button id='btn_logout'>로그아웃</button>";
+
+     const logout=document.getElementById('btn_logout');
+     logout.addEventListener('click',(e)=>{
+       naverLogin.logout();
+ location.replace("http://localhost:3000");
+     })
+   }
+ </script>
+ <script>
+  function onSignIn(googleUser) {
+    // Useful data for your client-side scripts:
+    var profile = googleUser.getBasicProfile();
+    console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+    console.log('Full Name: ' + profile.getName());
+    console.log('Given Name: ' + profile.getGivenName());
+    console.log('Family Name: ' + profile.getFamilyName());
+    console.log("Image URL: " + profile.getImageUrl());
+    console.log("Email: " + profile.getEmail());
+
+    // The ID token you need to pass to your backend:
+    var id_token = googleUser.getAuthResponse().id_token;
+    console.log("ID Token: " + id_token);
+  }
+</script>
+<script src="static/util/client_createRandom.js"></script>
+<script src="static/util/request.js"></script>
+<script src="static/model/dbManager.js"></script>
+<script src="static/socket/client.js"></script>
+<script src="static/view/index.js"></script>
+
 </html>
