@@ -46,6 +46,7 @@ signupEmail.addEventListener("change", (e) => {
   //     emailExist.innerHTML = datas.msg;
   //   },
   // });
+  
 });
 
 // $.getJSON("/getDatas3", (datas) => {
