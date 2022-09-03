@@ -75,6 +75,10 @@ class User extends Sequelize.Model {
           type: Sequelize.TINYINT,
           allowNull: true,
         },
+        rooms: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+        },
         report: {
           type: Sequelize.TEXT,
           allowNull: true,

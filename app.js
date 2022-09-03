@@ -8,7 +8,7 @@ const path = require("path");
 const { sequelize, User, Post, Nft, Room, Chat, NftBrand } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
-const constance = require("./model/constants");
+const constant = require("./model/constants");
 const session = require("express-session");
 const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
@@ -29,12 +29,12 @@ const server = app.listen(PORT, () => {
 });
 
 sequelize
-  .sync({ force: true })
+  .sync({ force: false })
   .then(async () => {
     console.log("DB연결 성공");
     // createAdmin()
     // initDbMultiple();
-    initDb();
+    // initDb();
   })
   .catch((err) => {
     console.log(err);
@@ -229,15 +229,20 @@ app.use(
     // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
     resave: false,
     // 세션에 저장할 때 초기화 여부를 설정
-    saveUninitialized: false,
+    saveUninitialized: true,
   })
 );
-
 
 app.get("/", (req, res) => {
   fs.readFile("view/index", (err, data) => {
     res.render("index");
   });
+});
+
+app.get("/getRooms", (req, res) => {
+  const { accessToken } = req.session;
+  console.log(accessToken);
+  res.send(accessToken);
 });
 
 // app.get("/getDatas", async (req, res) => {
@@ -269,6 +274,7 @@ app.get("/", (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { user_email, user_pwd } = req.body;
+
     const user = await User.findOne({ where: { email: user_email } });
     const queryResult = user?.dataValues;
     const compareOk = await compare(user_pwd, queryResult?.pwd);
@@ -278,13 +284,17 @@ app.post("/login", async (req, res) => {
     const accessToken = sign(user);
     const refreshToken = sign(user, "refresh");
 
-    res.cookie("uid", user?.uid, { maxAge: constance.ONE_DAY });
-    res.cookie("accessToken", accessToken, { maxAge: constance.ONE_DAY });
-    res.cookie("refreshToken", refreshToken, { maxAge: constance.ONE_WEEK });
+    res.cookie("uid", user?.uid, { maxAge: constant.ONE_DAY });
+    res.cookie("accessToken", accessToken, { maxAge: constant.ONE_DAY });
+    res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
+
+    req.session.uid = user?.uid
+    req.session.accessToken = accessToken
+    req.session.refreshToken = refreshToken
 
     res.redirect("main");
   } catch (error) {
-    res.send(error.message);
+    res.redirect("/");
   }
 });
 
@@ -327,7 +337,7 @@ app.post("/signup", async (req, res) => {
       uid: uid,
       name: user_email,
       balance: 50000,
-      grade: constance.NORMAL_GRADE,
+      grade: constant.NORMAL_GRADE,
       email: user_email,
       gallery: stringify([]),
       img_url:
@@ -345,8 +355,8 @@ app.post("/signup", async (req, res) => {
     );
     user["refresh_token"] = refreshToken;
 
-    res.cookie("accessToken", accessToken, { maxAge: constance.ONE_DAY });
-    res.cookie("refreshToken", refreshToken, { maxAge: constance.ONE_WEEK });
+    res.cookie("accessToken", accessToken, { maxAge: constant.ONE_DAY });
+    res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
 
     await User.create(user);
 
@@ -478,6 +488,7 @@ async function initDb() {
   const nfts = [createUid(), createUid(), createUid(), createUid()];
   const userNfts = [createUid(), createUid(), createUid(), createUid()];
   const rooms = [createNftId(), createNftId(), createNftId(), createNftId()];
+
   await User.bulkCreate([
     {
       uid: "admin1",
@@ -485,8 +496,9 @@ async function initDb() {
       name: "admin1",
       email: "admin@naver.com",
       balance: 987654321098765,
-      grade: 2,
+      grade: constant.ADMIN_GRADE,
       state: 0,
+      rooms: JSON.stringify([...rooms]),
       refresh_token: sign("admin1"),
       gallery: JSON.stringify([...nfts]),
     },
@@ -496,8 +508,9 @@ async function initDb() {
       name: "user1",
       email: "user1@naver.com",
       balance: 987654321098765,
-      grade: 1,
+      grade: constant.EDITOR_GRADE,
       state: 0,
+      rooms: JSON.stringify([rooms[0], rooms[2]]),
       refresh_token: sign("user1"),
       gallery: JSON.stringify([...userNfts]),
     },
@@ -507,8 +520,9 @@ async function initDb() {
       name: "user2",
       email: "user2@naver.com",
       balance: 987654321098765,
-      grade: 1,
+      grade: constant.NORMAL_GRADE,
       state: 0,
+      rooms: JSON.stringify([rooms[0], rooms[1]]),
       refresh_token: sign("user2"),
       gallery: JSON.stringify([]),
     },
@@ -518,8 +532,9 @@ async function initDb() {
       name: "user3",
       email: "user3@naver.com",
       balance: 987654321098765,
-      grade: 1,
+      grade: constant.NORMAL_GRADE,
       state: 0,
+      rooms: JSON.stringify([rooms[0], rooms[2]]),
       refresh_token: sign("user3"),
       gallery: JSON.stringify([]),
     },
@@ -529,7 +544,7 @@ async function initDb() {
       name: "user4",
       email: "user3@naver.com",
       balance: 987654321098765,
-      grade: 1,
+      grade: constant.NORMAL_GRADE,
       state: 0,
       refresh_token: sign("user4"),
       gallery: JSON.stringify([]),
@@ -540,13 +555,12 @@ async function initDb() {
       name: "user5",
       email: "user3@naver.com",
       balance: 987654321098765,
-      grade: 1,
+      grade: constant.NORMAL_GRADE,
       state: 0,
       refresh_token: sign("user5"),
       gallery: JSON.stringify([]),
     },
   ]);
-
   await NftBrand.bulkCreate([
     {
       brand_id: "펭귄조아",
@@ -554,7 +568,7 @@ async function initDb() {
       img_url:
         "https://lh3.googleusercontent.com/13g3FRwKuCmawyeH_rN5VwYbQZ8KrWdN8IZf4_uKJ3IeLjligIY7ZZ_HR7b48RKUJuUfevFTMzxFJcBWdn51TyZVoAXNPqh1TCIprw=h600",
       content:
-        "펭귄만 그림 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아",
+        "펭귄만 그림 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아",
       editor_uid: "user1",
     },
     {
@@ -563,11 +577,10 @@ async function initDb() {
       img_url:
         "https://lh3.googleusercontent.com/2yxEzSzTzCzRwhi9HE5vZMI-2seqe0koChnBkuTBZ4q-N8O5whASxH0U2Y92ISrcc_wBqYR8usrFSoJ0QnRvKg8fM1UAyf4l3ArULQ=h600",
       content:
-        "피닐리아 귀여웡 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아",
+        "피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡",
       editor_uid: "user2",
     },
   ]);
-
   await Nft.bulkCreate([
     {
       nft_id: nfts[0],
@@ -691,12 +704,12 @@ async function initDb() {
   await Room.bulkCreate([
     {
       room_id: rooms[0],
-      event: JSON.stringify([]),
+      event: JSON.stringify([{ uid: "user1", msg: "방1 테스트1" }]), //[{uid, msg, not_read}]
       member: JSON.stringify(["admin1", "user1", "user2", "user3"]),
     },
     {
       room_id: rooms[1],
-      event: JSON.stringify([]),
+      event: JSON.stringify([{}]),
       member: JSON.stringify(["admin1", "user2"]),
     },
     {
@@ -710,7 +723,6 @@ async function initDb() {
       member: JSON.stringify(["admin1", "user1"]),
     },
   ]);
-
   await Chat.bulkCreate([
     {
       room_id: rooms[0],
