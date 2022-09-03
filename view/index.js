@@ -1,5 +1,6 @@
 document.onload = () => {};
 const dbManager = new DbManager();
+
 $.getJSON("/getDatas", (datas) => {
   dbManager.setData(datas);
   dbManager.createTableEl(table, ["balance", "uid", "grade"]);
@@ -35,17 +36,6 @@ signupEmail.addEventListener("change", (e) => {
     e.target.value = "";
   }
 
-  // $.ajax({
-  //   url: "/existEmail",
-  //   method: "POST",
-  //   data: sendData,
-  //   contentType: "application/json; charset=UTF-8",
-  //   dataType: "json",
-  //   success: function (datas) {
-  //     console.log("@@@@@@@@", datas);
-  //     emailExist.innerHTML = datas.msg;
-  //   },
-  // });
   
 });
 
@@ -118,19 +108,19 @@ chat.setConnection(() => {
   });
 });
 
-setInterval(() => {
-  auction.emit({
-    event: "뀨",
-    otc: 3213123123,
-    callbefore: () => {
-      console.log("auction : 뀨 발송");
-    },
-  });
-  chat.emit({
-    event: "뀨",
-    otc: 123123123,
-    callbefore: () => {
-      console.log("chat : 뀨 발송");
-    },
-  });
-}, 1000);
+// setInterval(() => {
+//   auction.emit({
+//     event: "뀨",
+//     otc: 3213123123,
+//     callbefore: () => {
+//       console.log("auction : 뀨 발송");
+//     },
+//   });
+//   chat.emit({
+//     event: "뀨",
+//     otc: 123123123,
+//     callbefore: () => {
+//       console.log("chat : 뀨 발송");
+//     },
+//   });
+// }, 1000);

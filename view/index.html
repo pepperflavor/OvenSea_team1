@@ -107,7 +107,7 @@
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+          <li><a class="dropdown-item" href="http://localhost:5000/">로그아웃</a></li>
         </ul>
       </div>
     </div>
@@ -178,36 +178,6 @@
         <!-- Chat Box start-->
         <div class="bg-dark">
           <div id = "chatBox" class="py-5 chat-box bg-dark d-flex flex-column" style="overflow-y: scroll; height: 85vh;">
-
-            <!-- Sender Message-->
-            <div class="media w-75 mb-3 d-flex me-auto">
-              <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle mx-3" />
-              <div class="media-body">
-                <div class="bg-info rounded py-2 px-3 mb-2">
-                  <p class="text-small mb-0 text-white">
-                    너 메세지1너
-                  </p>
-                </div>
-                <p class="small text-muted fw-bold">10분전</p>
-              </div>
-              <p class="small text-muted fw-bold ms-2 text-warning">1</p>
-            </div>
-
-            <!-- Reciever Message-->
-            <div class="media w-75 mb-3 float-end d-flex ms-auto ">
-              <p class="small text-muted fw-bold me-2 ms-auto text-warning">1</p>
-
-              <div class="media-body">
-                <div class="bg-primary rounded py-2 px-3 mb-2 ">
-                  <p class="text-small mb-0 text-white">
-                    너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너 메세지1너
-                  </p>
-                </div>
-                <p class="small text-muted fw-bold">방금전</p>
-              </div>
-
-              <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle mx-3" />
-            </div>
 
           </div>
 
@@ -338,7 +308,7 @@
   </div>
 </body>
 <script src="static/util/client_createRandom.js"></script>
-<script src="static/util/request.js"></script>
+<script src="static/util/axios_util.js"></script>
 <script src="static/model/dbManager.js"></script>
 <script src="static/socket/client.js"></script>
 <script src="static/view/index.js"></script>

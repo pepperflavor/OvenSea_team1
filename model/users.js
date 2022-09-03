@@ -88,10 +88,12 @@ class User extends Sequelize.Model {
            *  {"repoter": UID, "reason":"뀨", time:"timestamp"},]
            */
         },
+
         img_url: {
           type: Sequelize.STRING(255),
           allowNull: true,
         },
+        
         refresh_token:{
           type: Sequelize.TEXT,
           allowNull: true,

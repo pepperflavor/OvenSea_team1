@@ -1,17 +1,12 @@
-
 const makeParams = (data) => {
   const dataObj = { ...data };
   const params = new URLSearchParams();
-  const headers = {
-    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    Accept: "*/*",
-  };
 
   for (const [key, data] of Object.entries(dataObj)) {
     params.append(key, data);
   }
 
-  return { params, headers };
+  return { params};
 };
 
 /**
@@ -21,7 +16,11 @@ const makeParams = (data) => {
  */
 const sendAxios = async (objData) => {
   const { url, data } = objData;
-  const { params, headers }  = makeParams(data);
+  const { params } = makeParams(data);
+  const headers = {
+    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    Accept: "*/*",
+  };
   return axios.post(url, params, { headers });
 };
 
