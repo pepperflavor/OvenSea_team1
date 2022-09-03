@@ -34,7 +34,7 @@ class Chat extends Sequelize.Model {
           autoIncrement: true,
         },
         msg:{
-          type: Sequelize.INTEGER,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
 
@@ -43,8 +43,8 @@ class Chat extends Sequelize.Model {
           allowNull: true,
         },
         
-        checker: {
-          type: Sequelize.TEXT, //[{uid,notread}]
+        not_read: {
+          type: Sequelize.TEXT, //[{uid}]
           allowNull: true,
         },
         

@@ -5,7 +5,7 @@ const ejs = require("ejs");
 const path = require("path");
 // const {authMW} = require("./middleware/authMiddleware");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
-const { sequelize, User, Post, Nft  } = require("./model");
+const { sequelize, User, Post, Nft, Room, Chat, NftBrand } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
 const constance = require("./model/constants");
@@ -27,6 +27,18 @@ const PORT = 3000;
 const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
+
+sequelize
+  .sync({ force: true })
+  .then(async () => {
+    console.log("DB연결 성공");
+    // createAdmin()
+    // initDbMultiple();
+    initDb();
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const io = Socketio(server);
 
@@ -221,16 +233,6 @@ app.use(
   })
 );
 
-sequelize
-  .sync({ force: true })
-  .then(async () => {
-    console.log("DB연결 성공");
-    createAdmin()
-    // initDbMultiple();
-  })
-  .catch((err) => {
-    console.log(err);
-  });
 
 app.get("/", (req, res) => {
   fs.readFile("view/index", (err, data) => {
@@ -472,334 +474,267 @@ async function getAllData(db, query) {
 
 // });
 
-function createAdmin() {
-  const Nfts = [createUid(), createUid(), createUid(), createUid()];
-  User.create({
-    uid: "admin",
-    pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
-    name: "admin",
-    email: "test@naver.com",
-    balance: 987654321098765,
-    grade: 0,
-    refresh_token: sign("admin"),
-    gallery: JSON.stringify([...Nfts]),
-  }).then(() => {
-    Nft.bulkCreate([
-      {
-        nft_id: Nfts[0],
-        title: "NFT제목1",
-        content: "NFT내용1",
-        img_url:
-          "https://trboard.game.onstove.com/Data/TR/20170718/20/636360060838331309.jpg",
-        history: JSON.stringify([
-          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-        ]),
-        onwer: "admin",
-      },
-      {
-        nft_id: Nfts[1],
-        title: "NFT제목2",
-        content: "NFT내용2",
-        img_url:
-          "https://s3.orbi.kr/data/file/united/995556963_B6vl079m_8F223DF0-FEDE-434A-9439-8DF090FC8A66-5388-000005FED6FDB041_file.gif",
-        history: JSON.stringify([
-          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-        ]),
-        onwer: "admin",
-      },
-      {
-        nft_id: Nfts[2],
-        title: "NFT제목3",
-        content: "NFT내용3",
-        img_url: "https://cdn.cashfeed.co.kr/attachments/d070572048.jpg",
-        history: JSON.stringify([
-          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-        ]),
-        onwer: "admin",
-      },
-      {
-        nft_id: Nfts[3],
-        title: "NFT제목4",
-        content: "NFT내용4",
-        img_url:
-          "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
-        history: JSON.stringify([
-          { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-          { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-        ]),
-        onwer: "admin",
-      },
-    ]);
-  });
-}
-
-function initDbMultiple() {
-  User.bulkCreate([
+async function initDb() {
+  const nfts = [createUid(), createUid(), createUid(), createUid()];
+  const userNfts = [createUid(), createUid(), createUid(), createUid()];
+  const rooms = [createNftId(), createNftId(), createNftId(), createNftId()];
+  await User.bulkCreate([
     {
-      uid: "123",
-      pwd: "123",
-      name: "유저_1 뀨뀨",
-      email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
+      uid: "admin1",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "admin1",
+      email: "admin@naver.com",
       balance: 987654321098765,
-      grade: 0,
-      refresh_token: "1",
-      gallery: JSON.stringify([
-        createUid(),
-        createUid(),
-        createUid(),
-        createUid(),
-      ]),
+      grade: 2,
+      state: 0,
+      refresh_token: sign("admin1"),
+      gallery: JSON.stringify([...nfts]),
     },
     {
-      uid: createUid(),
-      pwd: "쀼쀼쀼쀼쀼",
-      name: "유저_2 쀼쀼",
-      email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
+      uid: "user1",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "user1",
+      email: "user1@naver.com",
       balance: 987654321098765,
-      grade: 0,
-      refresh_token: "1",
-      gallery: JSON.stringify([
-        createUid(),
-        createUid(),
-        createUid(),
-        createUid(),
-      ]),
+      grade: 1,
+      state: 0,
+      refresh_token: sign("user1"),
+      gallery: JSON.stringify([...userNfts]),
     },
     {
-      uid: createUid(),
-      pwd: "쀼쀼쀼쀼쀼",
-      name: "name",
-      email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
+      uid: "user2",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "user2",
+      email: "user2@naver.com",
       balance: 987654321098765,
-      grade: 0,
-      refresh_token: "1",
-      gallery: JSON.stringify([
-        createUid(),
-        createUid(),
-        createUid(),
-        createUid(),
-      ]),
+      grade: 1,
+      state: 0,
+      refresh_token: sign("user2"),
+      gallery: JSON.stringify([]),
     },
     {
-      uid: createUid(),
-      pwd: "쀼쀼쀼쀼쀼",
-      name: "name",
-      email: "뀨뀨뀨뀨뀨뀨뀨@naver.com",
+      uid: "user3",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "user3",
+      email: "user3@naver.com",
       balance: 987654321098765,
-      grade: 0,
-      refresh_token: "1",
-      gallery: JSON.stringify([
-        createUid(),
-        createUid(),
-        createUid(),
-        createUid(),
-      ]),
+      grade: 1,
+      state: 0,
+      refresh_token: sign("user3"),
+      gallery: JSON.stringify([]),
+    },
+    {
+      uid: "user4",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "user4",
+      email: "user3@naver.com",
+      balance: 987654321098765,
+      grade: 1,
+      state: 0,
+      refresh_token: sign("user4"),
+      gallery: JSON.stringify([]),
+    },
+    {
+      uid: "user5",
+      pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+      name: "user5",
+      email: "user3@naver.com",
+      balance: 987654321098765,
+      grade: 1,
+      state: 0,
+      refresh_token: sign("user5"),
+      gallery: JSON.stringify([]),
     },
   ]);
 
-  Nft.bulkCreate([
+  await NftBrand.bulkCreate([
     {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      brand_id: "펭귄조아",
+      brand_name: "펭귄조아",
+      img_url:
+        "https://lh3.googleusercontent.com/13g3FRwKuCmawyeH_rN5VwYbQZ8KrWdN8IZf4_uKJ3IeLjligIY7ZZ_HR7b48RKUJuUfevFTMzxFJcBWdn51TyZVoAXNPqh1TCIprw=h600",
+      content:
+        "펭귄만 그림 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아",
+      editor_uid: "user1",
     },
     {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-    },
-    {
-      nft_id: createNftId(),
-      title: "쀼쀼쀼쀼쀼",
-      content: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      brand_id: "피닐리아",
+      brand_name: "피닐리아",
+      img_url:
+        "https://lh3.googleusercontent.com/2yxEzSzTzCzRwhi9HE5vZMI-2seqe0koChnBkuTBZ4q-N8O5whASxH0U2Y92ISrcc_wBqYR8usrFSoJ0QnRvKg8fM1UAyf4l3ArULQ=h600",
+      content:
+        "피닐리아 귀여웡 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아 피닐리아",
+      editor_uid: "user2",
     },
   ]);
 
-}
+  await Nft.bulkCreate([
+    {
+      nft_id: nfts[0],
+      title: "NFT제목1",
+      content: "NFT내용1",
+      img_url:
+        "https://trboard.game.onstove.com/Data/TR/20170718/20/636360060838331309.jpg",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "admin1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "admin1",
+      brand_name: "펭귄조아",
+      brand_id: "펭귄조아",
+    },
+    {
+      nft_id: nfts[1],
+      title: "NFT제목2",
+      content: "NFT내용2",
+      img_url:
+        "https://s3.orbi.kr/data/file/united/995556963_B6vl079m_8F223DF0-FEDE-434A-9439-8DF090FC8A66-5388-000005FED6FDB041_file.gif",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "admin1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "admin1",
+      brand_name: "펭귄조아",
+      brand_id: "펭귄조아",
+    },
+    {
+      nft_id: nfts[2],
+      title: "NFT제목3",
+      content: "NFT내용3",
+      img_url: "https://cdn.cashfeed.co.kr/attachments/d070572048.jpg",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "admin1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "admin1",
+      brand_name: "펭귄조아",
+      brand_id: "펭귄조아",
+    },
+    {
+      nft_id: nfts[3],
+      title: "NFT제목4",
+      content: "NFT내용4",
+      img_url:
+        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "admin1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "admin1",
+      brand_name: "펭귄조아",
+      brand_id: "펭귄조아",
+    },
+    {
+      nft_id: userNfts[0],
+      title: "NFT제목1",
+      content: "NFT내용1",
+      img_url:
+        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "user1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "user1",
+      brand_name: "펭귄조아",
+      brand_id: "펭귄조아",
+    },
+    {
+      nft_id: userNfts[1],
+      title: "NFT제목2",
+      content: "NFT내용2",
+      img_url:
+        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "user1", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "user1",
+      brand_name: "피닐리아",
+      brand_id: "피닐리아",
+    },
+    {
+      nft_id: userNfts[2],
+      title: "NFT제목3",
+      content: "NFT내용3",
+      img_url:
+        "https://lh3.googleusercontent.com/-exUPvCyvHvFeS2Ql-Ilv5dZ6DZMqWGe6zav3vq993EnKu2Kcmps99MnXtMLk2-VdGuJAbzrvcOzMNxeQnsHBemjaG12ASrXIBrJwQ=s0",
+      history: JSON.stringify([
+        { prev_owner: createUid(), curr_owner: "user2", price: 999999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
+        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
+      ]),
+      onwer: "user2",
+      brand_name: "피닐리아",
+      brand_id: "피닐리아",
+    },
+  ]);
+  await Room.bulkCreate([
+    {
+      room_id: rooms[0],
+      event: JSON.stringify([]),
+      member: JSON.stringify(["admin1", "user1", "user2", "user3"]),
+    },
+    {
+      room_id: rooms[1],
+      event: JSON.stringify([]),
+      member: JSON.stringify(["admin1", "user2"]),
+    },
+    {
+      room_id: rooms[2],
+      event: JSON.stringify([]),
+      member: JSON.stringify(["admin1", "user3"]),
+    },
+    {
+      room_id: rooms[3],
+      event: JSON.stringify([]),
+      member: JSON.stringify(["admin1", "user1"]),
+    },
+  ]);
 
-const setImage = () => {
-  return [
+  await Chat.bulkCreate([
     {
-      id: 0,
-      title: "이미지1",
-      content: "설명1",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      room_id: rooms[0],
+      sender: "admin1",
+      msg: "방1 테스트1",
+      not_read: JSON.stringify(["user1", "user2", "user3"]),
     },
     {
-      id: 0,
-      title: "이미지2",
-      content: "설명2",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      room_id: rooms[1],
+      sender: "admin1",
+      msg: "방1 테스트2",
+      not_read: JSON.stringify(["user2"]),
     },
     {
-      id: 0,
-      title: "이미지3",
-      content: "설명3",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      room_id: rooms[2],
+      sender: "admin1",
+      msg: "방1 테스트3",
+      not_read: JSON.stringify(["user3"]),
     },
     {
-      id: 0,
-      title: "이미지4",
-      content: "설명4",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
+      room_id: rooms[2],
+      sender: "user1",
+      msg: "방1 테스트4",
+      not_read: JSON.stringify(["admin"]),
     },
-  ];
-};
+  ]);
+}

@@ -125,7 +125,7 @@ class Nft extends Sequelize.Model {
     //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
     db.Nft.belongsTo(db.User, { foreignKey: "owner", targetKey: "uid" });
-    db.Nft.belongsTo(db.NftBrand, { foreignKey: "brand_id", targetKey: "id" });
+    db.Nft.belongsTo(db.NftBrand, { foreignKey: "brand_id", targetKey: "brand_id" });
     db.Nft.belongsTo(db.Report, { foreignKey: "report_id", targetKey: "id" });
   }
 }

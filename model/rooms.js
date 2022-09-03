@@ -40,8 +40,8 @@ class Room extends Sequelize.Model {
           unique: true,
         },
 
-        Event: {
-          type: Sequelize.TEXT, //[{uid, not_read}]
+        event: {
+          type: Sequelize.TEXT, //[{uid, msg, not_read}]
         },
 
         member: {

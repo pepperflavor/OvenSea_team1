@@ -33,7 +33,10 @@ class NftBrand extends Sequelize.Model {
           // 주민번호나 전화번호 겹치지 않는 값들 혹여나 안겹치게
           autoIncrement: true,
         },
-
+        brand_id: {
+          type: Sequelize.STRING(255),
+          unique: true,
+        },
         img_url: {
           type: Sequelize.STRING(255),
           allowNull: false,
@@ -88,9 +91,15 @@ class NftBrand extends Sequelize.Model {
     // 첫번째 매개변수로 연결할 테이블
     //sourceKey User 테이블 안에 무슨 키를 foreignKey와 연결할지
     // hasMany (첫번째로 넘겨준 테이블이 foreignKey 연결되고 )
-    db.NftBrand.belongsTo(db.User, { foreignKey: "editor_uid", targetKey: "uid" });
-    db.NftBrand.belongsTo(db.Report, { foreignKey: "report_id", targetKey: "id" });
-    db.NftBrand.hasMany(db.Nft, { foreignKey: "report_id", sourceKey: "id" });
+    db.NftBrand.belongsTo(db.User, {
+      foreignKey: "editor_uid",
+      targetKey: "uid",
+    });
+    db.NftBrand.belongsTo(db.Report, {
+      foreignKey: "report_id",
+      targetKey: "id",
+    });
+    db.NftBrand.hasMany(db.Nft, { foreignKey: "brand_id", sourceKey: "brand_id" });
   }
 }
 
