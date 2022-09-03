@@ -125,8 +125,10 @@
 
             <div class="messages-box">
               <div id="userBox" class="list-group rounded-0">
-                <a class="list-group-item list-group-item-action active text-white rounded my-1">
+                <!-- <a href="#" class="list-group-item list-group-item-action active text-white rounded my-1">
                   <div class="media">
+                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
+                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
                     <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
                     <div class="media-body ml-4">
                       <div class="d-flex align-items-center justify-content-between mb-1">
@@ -168,7 +170,7 @@
                       </p>
                     </div>
                   </div>
-                </a>
+                </a> -->
 
 
               </div>
@@ -185,7 +187,7 @@
 
           <!-- Typing area -->
           <div class="input-group">
-            <input type="text" placeholder="내용을 입력해주때요" aria-describedby="button-addon2"
+            <input id="send_text" type="text" placeholder="내용을 입력해주때요" aria-describedby="button-addon2"
               class="form-control rounded-0 border-0 py-4 bg-dark text-white" />
             <div class="input-group-append align-self-center">
               <button id="sendMsg_btn" type="submit" class="btn btn-link text-decoration-none">
@@ -229,6 +231,21 @@
                 <input type="password" style="background-color:rgba(255, 255, 255, 0.425)"
                   class="form-control rounded-3" id="floatingPassword" placeholder="Password" name="user_pwd" />
                 <label for="floatingPassword">비밀번호</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
+                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
+                <label for="floatingInput">닉네임</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
+                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
+                <label for="floatingInput">이메일</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
+                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
+                <label for="floatingInput">이메일</label>
               </div>
               <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">
                 회원가입하기

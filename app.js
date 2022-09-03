@@ -723,23 +723,23 @@ async function initDb() {
   await Room.bulkCreate([
     {
       room_id: rooms[0],
-      event: JSON.stringify([{ uid: "user1", msg: "방1 테스트1" }]), //[{uid, msg, not_read}]
-      member: JSON.stringify(["admin", "user1", "user2", "user3"]),
+      event: JSON.stringify([{ uid: "user1",name:"user1", img_url:"/static/image/turn.gif", msg: "방1 테스트1" }]), //[{uid, msg, not_read}]
+      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"}, { uid: "user1",name:"user1", img_url:"/static/image/turn.gif"}, { uid: "user2",name:"user2", img_url:"/static/image/brand.gif"}, { uid: "user3",name:"user3", img_url:"/static/image/turn.gif"}]),
     },
     {
       room_id: rooms[1],
-      event: JSON.stringify([{}]),
-      member: JSON.stringify(["admin", "user2"]),
+      event: JSON.stringify([]),
+      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user2",name:"user2", img_url:"/static/image/turn.gif"}]),
     },
     {
       room_id: rooms[2],
       event: JSON.stringify([]),
-      member: JSON.stringify(["admin", "user3"]),
+      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user3",name:"user3", img_url:"/static/image/cry.gif"}]),
     },
     {
       room_id: rooms[3],
       event: JSON.stringify([]),
-      member: JSON.stringify(["admin", "user1"]),
+      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user1",name:"user1", img_url:"/static/image/brand.gif"}]),
     },
   ]);
   await Chat.bulkCreate([
