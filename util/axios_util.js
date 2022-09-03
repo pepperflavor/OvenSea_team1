@@ -1,4 +1,3 @@
-const { send } = require("express/lib/response");
 
 const makeParams = (data) => {
   const dataObj = { ...data };
@@ -21,11 +20,10 @@ const makeParams = (data) => {
  * @return {PromiseLike}
  */
 const sendAxios = async (objData) => {
-  const { url, params, headers } = objData;
+  const { url, data } = objData;
+  const { params, headers }  = makeParams(data);
   return axios.post(url, params, { headers });
 };
-
-class ApiHandler {}
 
 //if (e.target.value !== "") {
 //  const params = new URLSearchParams();
@@ -48,16 +46,18 @@ class ApiHandler {}
 //  e.target.value = "";
 //}
 
-const testObj = {
-  uid: "admin1",
-  pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
-  name: "admin1",
-  email: "admin@naver.com",
-  balance: 987654321098765,
-  grade: 2,
-  state: 0,
-};
+// const testObj = {
+//   uid: "admin1",
+//   pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
+//   name: "admin1",
+//   email: "admin@naver.com",
+//   balance: 987654321098765,
+//   grade: 2,
+//   state: 0,
+// };
 
-const { params, headers } = makeParams(testObj);
+// const { params, headers } = makeParams(testObj);
 
-console.log(params);
+// sendAxios({ params, headers, url: "/getNfts" }).then(() => {});
+
+// console.log(params);
