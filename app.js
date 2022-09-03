@@ -5,7 +5,7 @@ const ejs = require("ejs");
 const path = require("path");
 // const {authMW} = require("./middleware/authMiddleware");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
-const { sequelize, User, Post, Nft, Rank } = require("./model");
+const { sequelize, User, Post, Nft  } = require("./model");
 const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
 const constance = require("./model/constants");
@@ -222,10 +222,10 @@ app.use(
 );
 
 sequelize
-  .sync({ force: false })
+  .sync({ force: true })
   .then(async () => {
     console.log("DB연결 성공");
-    // createAdmin()
+    createAdmin()
     // initDbMultiple();
   })
   .catch((err) => {
@@ -745,120 +745,6 @@ function initDbMultiple() {
     },
   ]);
 
-  Rank.bulkCreate([
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-    {
-      nft_id: createNftId(),
-      score: 1231231231,
-      nickname: "뀨뀨뀨뀨뀨뀨뀨뀨",
-      img_url: "/뀨쀼뀨쀼뀨.",
-      user_id: createUid(),
-    },
-  ]);
 }
 
 const setImage = () => {
