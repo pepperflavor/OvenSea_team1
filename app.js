@@ -1007,8 +1007,7 @@ async function initDb() {
       onwer: "admin",
       brand_name: "펭귄조아",
       brand_id: "펭귄조아",
-    },
-    {
+
       nft_id: userNfts[0],
       title: "NFT제목1",
       content: "NFT내용1",
@@ -1042,23 +1041,7 @@ async function initDb() {
       brand_name: "피닐리아",
       brand_id: "피닐리아",
     },
-    {
-      nft_id: userNfts[2],
-      title: "NFT제목3",
-      content: "NFT내용3",
-      img_url:
-        "https://lh3.googleusercontent.com/-exUPvCyvHvFeS2Ql-Ilv5dZ6DZMqWGe6zav3vq993EnKu2Kcmps99MnXtMLk2-VdGuJAbzrvcOzMNxeQnsHBemjaG12ASrXIBrJwQ=s0",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "user2", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "user2",
-      brand_name: "피닐리아",
-      brand_id: "피닐리아",
-    },
+
   ]);
   await Room.bulkCreate([
     {

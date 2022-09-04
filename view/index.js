@@ -21,6 +21,17 @@ function getNftBrands() {
     });
   });
 }
+function getNfts() {
+  return new Promise((resolve, reject) => {
+    sendAxios({
+      url: "/getNfts",
+      data: {},
+    }).then(({ data }) => {
+      resolve(data);
+    });
+  });
+}
+
 function makeBannerIndicators(idx) {
   const el = `<button type="button" data-bs-target="#myCarousel" data-bs-slide-to="${idx}" class="${
     idx === 0 ? "active" : ""
@@ -32,7 +43,7 @@ function makeBannerIndicators(idx) {
 function makeBanner(data) {
   const { brand_id, img_url, editor_uid, content, brand_name } = data;
   const bannerTag = `
-        <img src="${img_url}" alt height="550"/>
+        <img src="${img_url}" alt height="550" style="filter: brightness(50%);"/>
         <div class="container">
           <div class="carousel-caption text-start my-4 text-light tw-bold">
             <h1>${brand_name}</h1>
@@ -43,13 +54,41 @@ function makeBanner(data) {
   return bannerTag;
 }
 
+function makeNft(data) {
+  const { title, img_url, onwer, content, brand_name } = data; //<div class="col">
+  const tag = `
+                  <a href="#" class="img_cell text-decoration-none">
+                    <div class="card bg-secondary">
+                      <img id="img_url_example" class="p-2 my-3 rounded-circle m-auto center" src="${img_url}"
+                        alt="" width="300" height="300">
+                      <div class="card-body bg-secondary">
+                        <h2 class="card-text text-white my-3">${title}</h2>
+                        <p class="card-text text-white my-3">${content}</p>
+                        
+                      </div>
+                    </div>
+                  </a>
+                `; //</div>
+
+  return tag;
+}
+
+getNfts().then((datas) => {
+  datas.forEach((data, idx) => {
+    const ntfTag = makeNft(data);
+    const newNftWrap = document.createElement("div");
+    newNftWrap.classList.add("col");
+    newNftWrap.innerHTML = ntfTag;
+    nftContainer.appendChild(newNftWrap)
+  });
+});
+
 getNftBrands().then((datas) => {
   datas.forEach((data, idx) => {
     const bannerTag = makeBanner({ idx, ...data });
     const indicators = makeBannerIndicators(idx);
     const newBannerWrap = document.createElement("div");
-    newBannerWrap.style=
-    newBannerWrap.classList.add("carousel-item");
+    newBannerWrap.style = newBannerWrap.classList.add("carousel-item");
     if (idx === 0) newBannerWrap.classList.add("active");
     newBannerWrap.innerHTML = bannerTag;
     banner.appendChild(newBannerWrap);
