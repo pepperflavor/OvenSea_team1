@@ -43,15 +43,19 @@ ServerSocket.prototype.asyncEmit = async function (inputObj) {
 };
 
 ServerSocket.prototype.toEmit = function (inputObj) {
-  const { to, event, callbefore, query, ...data } = inputObj;
-  if (to === "all") {
-    this.connectionSocket.broadcast.emit(event, data);
-    return this;
-  } else {
-    to.forEach((element) => {
-      this.connectionSocket.to(element).emit(event, data);
-    });
-    return this;
+  try {
+    const { to, event, callbefore, query, ...data } = inputObj;
+    if (to === "all") {
+      this.connectionSocket.broadcast.emit(event, data);
+      return this;
+    } else {
+      to.forEach((element) => {
+        this.connectionSocket.to(element).emit(event, data);
+      });
+      return this;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 module.exports = ServerSocket;

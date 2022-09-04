@@ -14,7 +14,7 @@ const EXPIRE = { ONE_DAY: "2w", ONE_WEEK: "2w" };
  */
 module.exports = {
   sign: (user, token_type = "access", expiresIn = EXPIRE.ONE_DAY) => {
-    const { pwd, iat, exp, ...otherUserData } = user;
+    const { pwd, iat, exp, id, email, grade, createdAt, updatedAt, ...otherUserData } = user;
     const payload = { ...otherUserData }; // { uid };
     const secretKey = token_type === "access" ? ACCESS_TOKEN : REFRESH_TOKEN;
     

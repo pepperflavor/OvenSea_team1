@@ -31,7 +31,7 @@ sequelize
   .sync({ force: false })
   .then(async () => {
     console.log("DB연결 성공");
-    // initDb();
+    //initDb();
   })
   .catch((err) => {
     console.log(err);
@@ -177,14 +177,17 @@ app.use(
 );
 
 app.get("/", async (req, res) => {
-  const { accessToken, refreshToken } = req.cookies;
+  const { accessToken, refreshToken, lightToken } = req.cookies;
 
   const { ok, user } = verify(refreshToken, "refresh");
+
+  if (!lightToken)
+    res.cookie("lightToken", createUid(), { maxAge: constant.ONE_DAY });
 
   if (ok) {
     res.render("index", { user, isLogin: true });
   } else {
-    res.render("index", {user:"", img_url:"", isLogin: false });
+    res.render("index", { user: "", img_url: "", isLogin: false });
   }
 });
 
@@ -258,49 +261,174 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/sendChat", authMW, async (req, res) => {
-  const { room_id, msg, img_content } = req.body;
+  try {
+    const { room_id, msg, img_content } = req.body;
 
-  const { accessToken, refreshToken } = req.cookies;
+    const { accessToken, refreshToken } = req.cookies;
 
-  const { user } = verify(refreshToken, "refresh");
+    const { user } = verify(refreshToken, "refresh");
 
-  Room.findOne({ where: { room_id } }).then((room) => {
-    const {
-      dataValues: { member },
-    } = room;
-    const not_read = [];
-    JSON.parse(member).forEach(({ name }) => {
-      if (name !== user.name) {
-        not_read.push(name);
-      }
+    Room.findOne({ where: { room_id } }).then((room) => {
+      const {
+        dataValues: { member },
+      } = room;
+      const not_read = [];
+      JSON.parse(member).forEach(({ name }) => {
+        if (name !== user.name) {
+          not_read.push(name);
+        }
+      });
+      const toStringNotRead = JSON.stringify(not_read);
+
+      const createChat = {
+        room_id,
+        msg,
+        img_content,
+        name: user.name,
+        sender: user.uid,
+        img_url: user.img_url,
+        not_read: toStringNotRead,
+      };
+      // console.log("생성된createChat ", createChat);
+      Chat.create(createChat).then((result) => {
+        // console.log("newChat :", { event: "newChat", data: createChat });
+        chat.toEmit({ to: "all", event: "newChat", ...createChat });
+        chat.emit({ event: "newChat", ...createChat });
+      });
     });
-    const toStringNotRead = JSON.stringify(not_read);
-
-    const createChat = {
-      room_id,
-      msg,
-      img_content,
-      name: user.name,
-      sender: user.uid,
-      img_url: user.img_url,
-      not_read: toStringNotRead,
-    };
-    // console.log("생성된createChat ", createChat);
-    Chat.create(createChat).then((result) => {
-      // console.log("newChat :", { event: "newChat", data: createChat });
-      chat.toEmit({ to: "all", event: "newChat", ...createChat });
-      chat.emit({ event: "newChat", ...createChat });
-    });
-  });
+  } catch (error) {
+    console.log(error);
+  }
 });
+
+app.post("/upLikeNft", async (req, res) => {
+  try {
+    let isSame;
+    let like_length;
+    let likeArr;
+    const { id } = req.body;
+
+    const { refreshToken } = req.cookies;
+
+    const { ok, user } = verify(refreshToken, "refresh");
+
+    if (ok) {
+      const nft = await Nft.findOne({ where: { id } });
+
+      const { like } = nft.dataValues;
+      likeArr = JSON.parse(like);
+
+      like_length = likeArr[0]?.name === "" ? 0 : likeArr.length;
+
+      if (like_length !== 0) {
+        likeArr = likeArr.map((value) => value);
+        likeArr.push();
+      } else {
+        likeArr = [{ name: `${user.name}` }];
+      }
+
+      isSame = likeArr.find((name) => name === user.name);
+
+      if (isSame == undefined) {
+        like_length++;
+        Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
+          (id) => {
+            console.log(id[0]);
+            Nft.findOne({ where: { id: id[0] } }).then((data) => {
+              if (data?.upLikeNft) {
+                const { like } = dataValues;
+                const result = JSON.parse(like).length;
+                res.send(`${result}`);
+              }
+            });
+          }
+        );
+      }
+    } else {
+      res.send("-1");
+    }
+  } catch (err) {
+    console.log(err);
+    res.send("-1");
+  }
+});
+
+app.get("/nftPage/:id", async (req, res) => {
+  try {
+    let isSame;
+    let view_length;
+    let like_length;
+    let viewArr;
+    let likeArr;
+    const { id } = req.params;
+
+    const { refreshToken, lightToken } = req.cookies;
+
+    if (!lightToken)
+      res.cookie("lightToken", createUid(), { maxAge: constant.ONE_DAY });
+
+    const { ok, user } = verify(refreshToken, "refresh");
+
+    // console.log(id);
+
+    const nft = await Nft.findOne({ where: { id } });
+
+    if (nft?.dataValues) {
+      const { view, like, id } = nft.dataValues;
+      viewArr = JSON.parse(view);
+      likeArr = JSON.parse(like);
+      const isLike = likeArr.indexOf(user.name) > 0 ? true : false;
+
+      //console.log(JSON.stringify(viewArr));
+      //console.log(typeof viewArr, viewArr);
+      //console.log("isSame :", isSame, viewArr);
+
+      // console.log("viewArr[0]", viewArr, viewArr[0], viewArr[0].name);
+
+      like_length = likeArr[0]?.name === "" ? 0 : likeArr.length;
+
+      view_length = viewArr[0]?.name === "" ? 0 : viewArr.length;
+
+      if (view_length !== 0) {
+        viewArr = viewArr.map((value) => value);
+      } else {
+        viewArr = [{ name: `${lightToken}` }];
+      }
+
+      isSame = viewArr.find((name) => name === lightToken);
+
+      if (isSame == undefined) {
+        view_length++;
+        Nft.update({ view: JSON.stringify(viewArr) }, { where: { id } });
+      }
+
+      const nftData = { view_length, like_length, isLike, ...nft.dataValues };
+      // console.log({ user, ...nftData, isLogin: true });
+      if (ok) {
+        res.render("nftPage", { user, ...nftData, isLogin: true });
+      } else {
+        res.render("nftPage", { ...nftData, img_url: "", isLogin: false });
+      }
+    } else {
+      if (ok) {
+        res.render("index", { user, isLogin: true });
+      } else {
+        res.render("index", { img_url: "", isLogin: false });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.get("/loginpage", (req, res) => {
   res.render("login");
 });
 
 app.post("/getAuth", authMW, (req, res) => {
-  const { refreshToken } = req.cookies;
+  const { refreshToken, lightToken } = req.cookies;
   const { user } = verify(refreshToken, "refresh");
-  res.send(user);
+  res.send({ ...user, lightToken });
 });
 
 app.post("/logout"),
@@ -337,21 +465,26 @@ app.post("/getRooms", async (req, res) => {
   // console.log(accessToken);
   // const { uid } = verify(accessToken);
   // const searchUid = uid.uid;
-  const { uid } = req.body;
-  const {
-    dataValues: { rooms },
-  } = await User.findOne({ where: { uid } });
+  try {
+    const { uid } = req.body;
 
-  const roomsObj = JSON.parse(rooms || "[]");
+    const {
+      dataValues: { rooms },
+    } = await User.findOne({ where: { uid } });
 
-  const roomresult = await Room.findAll({
-    where: { room_id: [...roomsObj] },
-    order: [
-      ["updatedAt", "ASC"], //ASC DESC
-    ],
-  });
+    const roomsObj = JSON.parse(rooms || "[]");
 
-  res.send(roomresult);
+    const roomresult = await Room.findAll({
+      where: { room_id: [...roomsObj] },
+      order: [
+        ["updatedAt", "ASC"], //ASC DESC
+      ],
+    });
+
+    res.send(roomresult);
+  } catch (error) {
+    console.log("err-getRooms :", error);
+  }
 });
 
 app.post("/existEmail", async (req, res) => {
@@ -363,8 +496,8 @@ app.post("/existEmail", async (req, res) => {
 });
 
 app.get("/signup", async (req, res) => {
-  res.render("signup")
-})
+  res.render("signup");
+});
 
 app.post("/signup", async (req, res) => {
   try {
@@ -679,6 +812,8 @@ async function initDb() {
   await Nft.bulkCreate([
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #1749",
       content: "펭귄1",
       img_url:
@@ -696,6 +831,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #3749",
       content: "펭귄2",
       img_url:
@@ -713,6 +850,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #3742",
       content: "펭귄3",
       img_url:
@@ -730,6 +869,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #3738",
       content: "펭귄4",
       img_url:
@@ -747,6 +888,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #3755",
       content: "펭귄5",
       img_url:
@@ -764,6 +907,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #123",
       content: "펭귄6",
       img_url:
@@ -781,6 +926,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #1813",
       content: "펭귄7",
       img_url:
@@ -798,6 +945,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Party Penguin #3739",
       content: "펭귄8",
       img_url:
@@ -815,6 +964,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #8315",
       content: "원숭이1",
       img_url:
@@ -832,6 +983,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #9101",
       content: "원숭이2",
       img_url:
@@ -849,6 +1002,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #5731",
       content: "원숭이3",
       img_url:
@@ -866,6 +1021,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #1197",
       content: "원숭이4",
       img_url:
@@ -883,6 +1040,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #4171",
       content: "원숭이5",
       img_url:
@@ -900,6 +1059,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #3043",
       content: "원숭이6",
       img_url:
@@ -917,6 +1078,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #3932",
       content: "원숭이7",
       img_url:
@@ -934,6 +1097,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "Monkey #4564",
       content: "원숭이8",
       img_url:
@@ -951,6 +1116,8 @@ async function initDb() {
     },
     {
       nft_id: createNftId(),
+      view: JSON.stringify([{ name: "" }]),
+      like: JSON.stringify([{ name: "" }]),
       title: "NFT제목1",
       content: "NFT내용1",
       img_url:
@@ -1070,7 +1237,14 @@ async function initDb() {
     },
     {
       room_id: rooms[1],
-      event: JSON.stringify([]),
+      event: JSON.stringify([
+        {
+          uid: "",
+          name: "",
+          img_url: "",
+          msg: "",
+        },
+      ]),
       member: JSON.stringify([
         { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
         { uid: "user2", name: "user2", img_url: "/static/image/turn.gif" },
@@ -1078,7 +1252,14 @@ async function initDb() {
     },
     {
       room_id: rooms[2],
-      event: JSON.stringify([]),
+      event: JSON.stringify([
+        {
+          uid: "",
+          name: "",
+          img_url: "",
+          msg: "",
+        },
+      ]),
       member: JSON.stringify([
         { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
         { uid: "user3", name: "user3", img_url: "/static/image/cry.gif" },
@@ -1086,7 +1267,14 @@ async function initDb() {
     },
     {
       room_id: rooms[3],
-      event: JSON.stringify([]),
+      event: JSON.stringify([
+        {
+          uid: "",
+          name: "",
+          img_url: "",
+          msg: "",
+        },
+      ]),
       member: JSON.stringify([
         { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
         { uid: "user1", name: "user1", img_url: "/static/image/brand.gif" },

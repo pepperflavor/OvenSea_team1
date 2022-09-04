@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js"
+    integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w=="
+    crossorigin="anonymous"></script>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <style>
+    /* chat-css */
+    .my-msg {
+      float: left;
+    }
+
+    .dropdown-toggle {
+      outline: 0;
+    }
+
+    .form-signin {
+      max-width: 330px;
+      padding: 15px;
+    }
+
+    .form-signin .form-floating:focus-within {
+      z-index: 2;
+    }
+
+    .form-signin input[type="email"] {
+      margin-bottom: -1px;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .form-signin input[type="password"] {
+      margin-bottom: 10px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    .dropdown-menu.show {
+      transform: translate(-100px, 20px);
+    }
+  </style>
+
+
+</head>
+
+<body class="bg-dark">
+  <div id="nft_id" class="visually-hidden">
+    <%=id%>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fs-5">
+    <div class="container-fluid fs-5">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+        aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <img class="rounded-circle m-auto center me-3 ms-1" src="/static/image/brand.gif" alt="" width="55" height="55" />
+      <a class="navbar-brand fs-2 fw-bold" href="/">Ovensea</a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+
+        <input class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold" type="search"
+          placeholder="Search" aria-label="Search"></input>
+      </div>
+      <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
+        <li class="nav-item ms-4">
+          <a class="nav-link active " aria-current="page" href="/">메인페이지</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link " href="/gallery">갤러리</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link" href="/auction">경매</a>
+        </li>
+        <li class="nav-item ms-4">
+          <a class="nav-link" href="/chat">채팅</a>
+        </li>
+        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
+          <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">로그인</a>
+        </li>
+        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
+          <a href="/signup" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">회원가임</a>
+        </li>
+      </ul>
+      <div class="dropdown text-end ms-4 me-1 float-end <%= !isLogin &&'visually-hidden'%>" id="userDiv">
+        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <img src="<%=user.img_url%>" id="my_imgUrl" alt="mdo" width="32" height="32" class="rounded-circle">
+        </a>
+        <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
+          <li><a class="dropdown-item" href="/profile">내정보</a></li>
+          <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
+          <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
+          <li><a class="dropdown-item" href="/chat">채팅창</a></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- nft 상세페이지  -->
+    <div class="container">
+      <div class="row row-2 my-5">
+        <div class="col ">
+          <img id="img_url_example" class="mt-2 m-4 rounded-4 shadow m-auto center" src="<%=img_url%>" alt=""
+            width="600" height="600">
+        </div>
+        <div class="col">
+          <div class="card bg-secondary rounded-4">
+
+
+            <div class="card-body bg-secondary rounded-4">
+
+              <a href="/nftBrand/<%=brand_id%>" class="img_cell text-decoration-none">
+
+                <h4 class="card-text text-primary mb-5 fw-bold">
+                  <%=brand_id%>
+                </h4>
+
+              </a>
+
+              <div class=" d-flex justify-content-start">
+                <a href="#"
+                  class=" mb-5 me-5 img_cell fw-bold text-light text-decoration-none d-flex justify-content-start">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                    class="bi bi-eye-fill me-3" viewBox="0 0 16 16">
+                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                    <path
+                      d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                  </svg>
+                  <p class="me-3">조회수</p>
+                  <p class="me-3">
+                    <%=view_length%>
+                  </p>
+                </a>
+
+                <a href="#" id="like"
+                  class=" mb-5 img_cell fw-bold text-light d-flex justify-content-start  text-decoration-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" id="Like"
+                    class="bi bi-eye-fill me-3 <%= isLike && 'visually-hidden'%>" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                      d="M8.49 10.92C19.412 3.382 11.28-2.387 8 .986 4.719-2.387-3.413 3.382 7.51 10.92l-.234.468a.25.25 0 1 0 .448.224l.04-.08c.009.17.024.315.051.45.068.344.208.622.448 1.102l.013.028c.212.422.182.85.05 1.246-.135.402-.366.751-.534 1.003a.25.25 0 0 0 .416.278l.004-.007c.166-.248.431-.646.588-1.115.16-.479.212-1.051-.076-1.629-.258-.515-.365-.732-.419-1.004a2.376 2.376 0 0 1-.037-.289l.008.017a.25.25 0 1 0 .448-.224l-.235-.468ZM6.726 1.269c-1.167-.61-2.8-.142-3.454 1.135-.237.463-.36 1.08-.202 1.85.055.27.467.197.527-.071.285-1.256 1.177-2.462 2.989-2.528.234-.008.348-.278.14-.386Z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" id="notLike"
+                    class="bi bi-eye-fill me-3 <%= (!isLike) &&'visually-hidden'%>" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                      d="m8 2.42-.717-.737c-1.13-1.161-3.243-.777-4.01.72-.35.685-.451 1.707.236 3.062C4.16 6.753 5.52 8.32 8 10.042c2.479-1.723 3.839-3.29 4.491-4.577.687-1.355.587-2.377.236-3.061-.767-1.498-2.88-1.882-4.01-.721L8 2.42Zm-.49 8.5c-10.78-7.44-3-13.155.359-10.063.045.041.089.084.132.129.043-.045.087-.088.132-.129 3.36-3.092 11.137 2.624.357 10.063l.235.468a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3.177 3.177 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.235-.468ZM6.013 2.06c-.649-.18-1.483.083-1.85.798-.131.258-.245.689-.08 1.335.063.244.414.198.487-.043.21-.697.627-1.447 1.359-1.692.217-.073.304-.337.084-.398Z" />
+                  </svg>
+                  <p class="me-3">죠아요</p>
+                  <p class="me-3" id="like_num">
+                    <%=like_length%>
+                  </p>
+                </a>
+              </div>
+              <h2 class="card-text text-white mb-3  fw-bold">
+                제목
+              </h2>
+              <h2 class="card-text text-white mb-5  fw-bold">
+                <%=title%>
+              </h2>
+              <p class="card-text text-white mb-3">
+                내용
+              </p>
+              <p class="card-text text-white mb-5">
+                <%=content%>
+              </p>
+              <p class="card-text text-white mb-3">
+                소유자
+              </p>
+              <p class="card-text text-white mb-5">
+                <%=owner%>
+              </p>
+              <p class="card-text text-white mb-3">
+                제작자
+              </p>
+              <p class="card-text text-white mb-5">
+                <%=brand_id%>
+              </p>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-1">
+
+      </div>
+
+    </div>
+
+  </div>
+</body>
+<script src="static/util/axios_util.js"></script>
+<script src="static/util/auth.js"></script>
+<script>
+  const makeParams = (data) => {
+    const dataObj = { ...data };
+    const params = new URLSearchParams();
+
+    for (const [key, data] of Object.entries(dataObj)) {
+      params.append(key, data);
+    }
+
+    return { params };
+  };
+
+  /**
+   *
+   * @param {Object} objData
+   * @return {PromiseLike}
+   */
+  const sendAxios = async (objData) => {
+    const { url, data } = objData;
+    const { params } = makeParams(data);
+    const headers = {
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      Accept: "*/*",
+    };
+    return axios.post(url, params, { headers });
+  };
+
+  like.addEventListener("click", () => {
+    const id = nft_id.innerHTML
+    sendAxios({
+      url: "/upLikeNft",
+      data: { id },
+    }).then(({ data }) => {
+      console.log(data);
+      if (data > 0) like_num.innerHTML = data
+    })
+  })
+</script>
+
+</html>

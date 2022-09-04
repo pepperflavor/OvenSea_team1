@@ -69,33 +69,31 @@
       <img class="rounded-circle m-auto center me-3 ms-1" src="/static/image/brand.gif" alt="" width="55" height="55" />
       <a class="navbar-brand fs-2 fw-bold" href="/">Ovensea</a>
       <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
-          viewBox="0 0 16 16">
-          <path
-            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-        </svg>
+
         <input class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold" type="search"
           placeholder="Search" aria-label="Search"></input>
       </div>
       <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
         <li class="nav-item ms-4">
-          <a class="nav-link active " aria-current="page" href="#">Home</a>
+          <a class="nav-link active " aria-current="page" href="/">메인페이지</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link " href="#">Gallery</a>
+          <a class="nav-link " href="/gallery">갤러리</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link" href="#">Auction</a>
+          <a class="nav-link" href="/auction">경매</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link" href="/chat">Chat</a>
+          <a class="nav-link" href="/chat">채팅</a>
         </li>
         <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
-          <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
-
+          <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">로그인</a>
+        </li>
+        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
+          <a href="/signup" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">회원가임</a>
         </li>
       </ul>
-      <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
+      <div class="dropdown text-end ms-4 me-1 float-end <%= !isLogin &&'visually-hidden'%>" id="userDiv">
         <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown"
           aria-expanded="false">
           <img src="<%=user.img_url%>" id="my_imgUrl" alt="mdo" width="32" height="32" class="rounded-circle">
@@ -108,7 +106,7 @@
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item" href="http://localhost:5000/">로그아웃</a></li>
+          <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
         </ul>
       </div>
     </div>

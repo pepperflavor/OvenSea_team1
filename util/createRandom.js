@@ -59,9 +59,9 @@ const RANDOM_TABLE = [...UPPER_TABLE, ...NUM_TABLE, ...LOWER_TABLE];
 
 const RANDOM_SIZE = RANDOM_TABLE.length;
 
-const UID_SIZE = 24;
+const UID_SIZE = 12;
 
-const NFT_ID_SIZE = 30;
+const NFT_ID_SIZE = 12;
 
 const timestamps = new Date();
 

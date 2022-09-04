@@ -1,6 +1,6 @@
 [1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10, 11, 12, 13].forEach((num) =>
   document.getElementById(`img_${num}`).addEventListener("click", () => {
-    document.getElementById(`img_${num}`).value =
+    document.getElementById(`img_url`).value =
       "/static" + document.getElementById(`img_${num}`).src.split("/static")[1];
     document.getElementById("img_url_example").src =
       "/static" + document.getElementById(`img_${num}`).src.split("/static")[1];

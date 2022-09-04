@@ -1,15 +1,9 @@
-// document.onload = () => {};
-// const dbManager = new DbManager();
 
-// $.getJSON("/getDatas", (datas) => {
-//   dbManager.setData(datas);
-//   dbManager.createTableEl(table, ["balance", "uid", "grade"]);
-// });
 
-// $.getJSON("/getDatas2", (datas) => {
-//   dbManager.setData(datas);
-//   dbManager.createTableEl(table2);
-// });
+const myAuth = new Auth()
+
+// console.log(myAuth.getUid()); 
+
 
 function getNftBrands() {
   return new Promise((resolve, reject) => {
@@ -79,12 +73,10 @@ getNfts().then((datas) => {
     const newNftWrap = document.createElement("div");
     newNftWrap.classList.add("col");
     newNftWrap.innerHTML = ntfTag;
-
     newNftWrap.addEventListener("click",()=>{
-      const {nft_id} = data
-      
+      const {id} = data
+      document.location.href = `/nftPage/${id}`
     })
-
     nftContainer.appendChild(newNftWrap)
   });
 });
