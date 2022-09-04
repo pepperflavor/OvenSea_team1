@@ -329,7 +329,7 @@ app.post("/upLikeNft", async (req, res) => {
 
       isSame = likeArr.find((name) => name === user.name);
 
-      if (isSame == undefined) {
+      if (isSame === undefined) {
         like_length++;
         Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
           (id) => {
