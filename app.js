@@ -31,7 +31,7 @@ sequelize
   .sync({ force: false })
   .then(async () => {
     console.log("DB연결 성공");
-    // initDb();
+    //initDb();
   })
   .catch((err) => {
     console.log(err);
@@ -67,41 +67,6 @@ auction.setConnection(() => {
         // console.log(data);
         // console.log("auction_send : 뀨");
       },
-    })
-    .on({
-      event: "",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("auction_send : 뀨");
-      },
-    })
-    .on({
-      event: "뀨",
-      callback: (data) => {
-        // console.log(data)
-        // console.log("auction_send : 뀨")
-      },
-    })
-    .on({
-      event: "tiemOut",
-      callback: (data) => {
-        // console.log(data)
-        // console.log("auction_send : 뀨")
-      },
-    })
-    .on({
-      event: "sell",
-      callback: (data) => {
-        // console.log(data)
-        // console.log("auction_send : 뀨")
-      },
-    })
-    .on({
-      event: "buy",
-      callback: (data) => {
-        // console.log(data)
-        // console.log("auction_send : 뀨")
-      },
     });
 });
 
@@ -115,24 +80,33 @@ chat.setConnection(() => {
       },
     })
     .on({
-      event: "leave",
+      event: "leaveChatRoom",
       callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
+        console.log("leaveChatRoom :", data);
       },
     })
     .on({
-      event: "뀨",
+      event: "joinChatRoom",
       callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
-    })
-    .on({
-      event: "뀨",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
+        //my
+        const { room_id, my_name, my_uid } = data;
+        //console.log("joinCHatRoom", data);
+        Chat.findAll({ where: { room_id } }).then((datas) => {
+          const msgs_id = datas.map(({ dataValues }) => {
+            const { not_read, id } = dataValues;
+            //console.log("{ not_read, id } = ", dataValues);
+            const arr_not_read = JSON.parse(not_read);
+
+            if (arr_not_read.indexOf(my_name) > 0)
+              arr_not_read.splice(arr_not_read.indexOf(my_name), 1);
+
+            const string = JSON.stringify(arr_not_read);
+
+            // const {sender,...new_not_read} = arr_not_read
+            Chat.update({ not_read: string }, { where: { id } });
+          });
+        });
+        console.log("joinChatRoom :", data);
       },
     })
     .on({
@@ -159,34 +133,6 @@ event.setConnection(() => {
         // console.log(data);
         // console.log("chat_send : 뀨");
       },
-    })
-    .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
-    })
-    .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
-    })
-    .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
-    })
-    .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
     });
 });
 
@@ -198,8 +144,8 @@ const authMW = (req, res, next) => {
 
     if (!refreshVerify.ok) res.render("login");
 
-    const newAccessToken = sign(refreshVerify.uid);
-    console.log("엑세스토큰 새로발급");
+    const newAccessToken = sign(refreshVerify);
+    res.cookie("accessToken", newAccessToken, { maxAge: constant.ONE_DAY });
     req.session.accessToken = newAccessToken;
     next();
   }
@@ -230,10 +176,16 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
-  fs.readFile("view/index", (err, data) => {
-    res.render("index");
-  });
+app.get("/", async (req, res) => {
+  const { accessToken, refreshToken } = req.cookies;
+
+  const { ok, user } = verify(refreshToken, "refresh");
+  console.log(ok);
+  if (ok) {
+    res.render("index", { user, isLogin: true });
+  } else {
+    res.render("index", { user, isLogin: false });
+  }
 });
 
 // app.get("/getDatas", async (req, res) => {
@@ -262,35 +214,93 @@ app.get("/", (req, res) => {
 //   }
 // });
 
+app.get("/chat", async (req, res) => {
+  const { accessToken, refreshToken } = req.cookies;
+
+  const { ok, user } = verify(refreshToken, "refresh");
+  console.log(ok);
+  if (ok) {
+    res.render("chat", { user, isLogin: true });
+  } else {
+    res.render("chat", { user, isLogin: false });
+  }
+});
+
 app.post("/login", async (req, res) => {
   try {
     const { user_email, user_pwd } = req.body;
 
     const user = await User.findOne({ where: { email: user_email } });
-    const queryResult = user?.dataValues;
-    const compareOk = await compare(user_pwd, queryResult?.pwd);
+
+    //console.log("@@@@@@@@@@로그인", user.dataValues, user_email, user_pwd);
+
+    const compareOk = await compare(user_pwd, user.dataValues?.pwd);
 
     if (!compareOk) throw Error("아이디나 비밀번호가 잘못됨");
 
-    const accessToken = sign(user);
-    const refreshToken = sign(user, "refresh");
+    //console.log("로그인", user.dataValues);
+    const accessToken = sign(user.dataValues);
+    const refreshToken = sign(user.dataValues, "refresh");
 
-    res.cookie("uid", user?.uid, { maxAge: constant.ONE_DAY });
     res.cookie("accessToken", accessToken, { maxAge: constant.ONE_DAY });
     res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
 
-    req.session.uid = user?.uid;
-    req.session.accessToken = accessToken;
-    req.session.refreshToken = refreshToken;
+    //req.session.uid = user?.dataValues.uid;
+    //req.session.accessToken = accessToken;
+    //req.session.refreshToken = refreshToken;
 
-    res.redirect("main");
+    console.log("로그인성공", user.dataValues.uid);
+    res.redirect("/");
   } catch (error) {
+    console.log("로그인실패", error);
     res.redirect("/");
   }
 });
 
+app.post("/sendChat", authMW, async (req, res) => {
+  const { room_id, msg, img_content } = req.body;
+
+  const { accessToken, refreshToken } = req.cookies;
+
+  const { user } = verify(refreshToken, "refresh");
+  
+  Room.findOne({ where: { room_id } }).then((room) => {
+    const {
+      dataValues: { member },
+    } = room;
+    const not_read = [];
+    JSON.parse(member).forEach(({ name }) => {
+      if (name !== user.name) {
+        not_read.push(name);
+      }
+    });
+    const toStringNotRead = JSON.stringify(not_read);
+
+    const createChat = {
+      room_id,
+      msg,
+      img_content,
+      name: user.name,
+      sender: user.uid,
+      img_url: user.img_url,
+      not_read: toStringNotRead,
+    };
+    // console.log("생성된createChat ", createChat);
+    Chat.create(createChat).then((result) => {
+      // console.log("newChat :", { event: "newChat", data: createChat });
+      chat.toEmit({ to: "all", event: "newChat", ...createChat });
+      chat.emit({ event: "newChat", ...createChat });
+    });
+  });
+});
 app.get("/loginpage", (req, res) => {
   res.render("login");
+});
+
+app.post("/getAuth", authMW, (req, res) => {
+  const { refreshToken } = req.cookies;
+  const { user } = verify(refreshToken, "refresh");
+  res.send(user);
 });
 
 app.post("/logout"),
@@ -300,12 +310,11 @@ app.post("/logout"),
 
 app.post("/main", authMW, async (req, res) => {
   const { user_email, user_pwd } = req.body;
-  console.log("@@@main_post", user_email, user_pwd);
   const user = await User.findOne({ where: { email: user_email } });
-  const { pwd } = user?.dataValues;
+  const { pwd, img_url } = user?.dataValues;
   const ok = await compare(user_pwd, pwd);
   if (ok) {
-    res.render("main");
+    res.render("main", { user: user?.dataValues });
   } else {
     res.redirect("/");
   }
@@ -313,7 +322,12 @@ app.post("/main", authMW, async (req, res) => {
 
 app.post("/getChats", async (req, res) => {
   const { room_id } = req.body;
-  const chats = await Chat.findAll({ where: { room_id } });
+  const chats = await Chat.findAll({
+    where: { room_id },
+    order: [
+      ["updatedAt", "ASC"], //ASC DESC
+    ],
+  });
   // console.log(chats);
   res.send(chats);
 });
@@ -324,11 +338,18 @@ app.post("/getRooms", async (req, res) => {
   // const { uid } = verify(accessToken);
   // const searchUid = uid.uid;
   const { uid } = req.body;
-  const {dataValues: { rooms }} = await User.findOne({ where: { uid } });
+  const {
+    dataValues: { rooms },
+  } = await User.findOne({ where: { uid } });
 
-  const roomsObj = JSON.parse(rooms);
+  const roomsObj = JSON.parse(rooms || "[]");
 
-  const roomresult = await Room.findAll({ where: { room_id: [...roomsObj] } });
+  const roomresult = await Room.findAll({
+    where: { room_id: [...roomsObj] },
+    order: [
+      ["updatedAt", "ASC"], //ASC DESC
+    ],
+  });
 
   res.send(roomresult);
 });
@@ -343,18 +364,18 @@ app.post("/existEmail", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try {
-    const { user_email, user_pwd } = req.body;
+    const { user_email, user_pwd, img_url, name } = req.body;
 
+    // console.log({ user_email, user_pwd, img_url, name });
     const uid = createUid();
     const user = {
       uid: uid,
-      name: user_email,
+      name,
       balance: 50000,
       grade: constant.NORMAL_GRADE,
       email: user_email,
-      gallery: stringify([]),
-      img_url:
-        "https://firebasestorage.googleapis.com/v0/b/kyoungil-f459e.appspot.com/o/1%20(1).gif?alt=media&token=857b466c-fa52-4b49-b998-bb5068f8d57a",
+      gallery: JSON.stringify([]),
+      img_url,
     };
     const hashedPwd = await encrypt(user_pwd);
     user["pwd"] = hashedPwd;
@@ -366,17 +387,24 @@ app.post("/signup", async (req, res) => {
       (token_type = "refresh"),
       (expiresIn = "1w")
     );
+
     user["refresh_token"] = refreshToken;
+
+    // console.log(
+    //   "refreshToken@@@@@@@@@@",
+    //   verify(refreshToken, (token_type = "refresh"))
+    // );
+    // console.log("accessToken@@@@@@@@@@", verify(accessToken));
 
     res.cookie("accessToken", accessToken, { maxAge: constant.ONE_WEEK });
     res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
 
     await User.create(user);
+    console.log("회원가입성공", user);
 
     res.redirect("/");
   } catch (error) {
     console.log("@@@signup", error);
-
     res.redirect("/");
   }
 });
@@ -388,13 +416,13 @@ app.get("/logOut", (req, res) => {
 
 app.get("/main", authMW, (req, res) => {
   const ref = verify(req.cookies?.accessToken);
-  console.log("@@@main", ref);
+  // console.log("@@@main", ref);
   // res.cookie("accessToken",res.session.accessToken);
   res.render("main");
 });
 
 app.get("/editNft", (req, res) => {
-  console.log("@@@editNft", ref);
+  // console.log("@@@editNft", ref);
   res.render("editNft");
 });
 
@@ -510,7 +538,7 @@ async function initDb() {
       email: "admin@naver.com",
       balance: 987654321098765,
       grade: constant.ADMIN_GRADE,
-      img_url:"/static/image/cat.png",
+      img_url: "/static/image/cat.png",
       state: 0,
       rooms: JSON.stringify([...rooms]),
       refresh_token: sign("admin"),
@@ -523,7 +551,7 @@ async function initDb() {
       email: "user1@naver.com",
       balance: 987654321098765,
       grade: constant.EDITOR_GRADE,
-      img_url:"/static/image/turn.gif",
+      img_url: "/static/image/turn.gif",
       state: 0,
       rooms: JSON.stringify([rooms[0], rooms[2]]),
       refresh_token: sign("user1"),
@@ -536,7 +564,7 @@ async function initDb() {
       email: "user2@naver.com",
       balance: 987654321098765,
       grade: constant.NORMAL_GRADE,
-      img_url:"/static/image/brand.gif",
+      img_url: "/static/image/brand.gif",
       state: 0,
       rooms: JSON.stringify([rooms[0], rooms[1]]),
       refresh_token: sign("user2"),
@@ -549,7 +577,7 @@ async function initDb() {
       email: "user3@naver.com",
       balance: 987654321098765,
       grade: constant.NORMAL_GRADE,
-      img_url:"/static/image/turn.gif",
+      img_url: "/static/image/turn.gif",
       state: 0,
       rooms: JSON.stringify([rooms[0], rooms[2]]),
       refresh_token: sign("user3"),
@@ -562,7 +590,7 @@ async function initDb() {
       email: "user3@naver.com",
       balance: 987654321098765,
       grade: constant.NORMAL_GRADE,
-      img_url:"/static/image/brand.gif",
+      img_url: "/static/image/brand.gif",
       state: 0,
       refresh_token: sign("user4"),
       gallery: JSON.stringify([]),
@@ -574,7 +602,7 @@ async function initDb() {
       email: "user3@naver.com",
       balance: 987654321098765,
       grade: constant.NORMAL_GRADE,
-      img_url:"/static/image/brand.gif",
+      img_url: "/static/image/brand.gif",
       state: 0,
       refresh_token: sign("user5"),
       gallery: JSON.stringify([]),
@@ -723,86 +751,116 @@ async function initDb() {
   await Room.bulkCreate([
     {
       room_id: rooms[0],
-      event: JSON.stringify([{ uid: "user1",name:"user1", img_url:"/static/image/turn.gif", msg: "방1 테스트1" }]), //[{uid, msg, not_read}]
-      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"}, { uid: "user1",name:"user1", img_url:"/static/image/turn.gif"}, { uid: "user2",name:"user2", img_url:"/static/image/brand.gif"}, { uid: "user3",name:"user3", img_url:"/static/image/turn.gif"}]),
+      event: JSON.stringify([
+        {
+          uid: "user1",
+          name: "user1",
+          img_url: "/static/image/turn.gif",
+          msg: "방1 테스트1",
+        },
+      ]), //[{uid, msg, not_read}]
+      member: JSON.stringify([
+        { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
+        { uid: "user1", name: "user1", img_url: "/static/image/turn.gif" },
+        { uid: "user2", name: "user2", img_url: "/static/image/brand.gif" },
+        { uid: "user3", name: "user3", img_url: "/static/image/turn.gif" },
+      ]),
     },
     {
       room_id: rooms[1],
       event: JSON.stringify([]),
-      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user2",name:"user2", img_url:"/static/image/turn.gif"}]),
+      member: JSON.stringify([
+        { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
+        { uid: "user2", name: "user2", img_url: "/static/image/turn.gif" },
+      ]),
     },
     {
       room_id: rooms[2],
       event: JSON.stringify([]),
-      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user3",name:"user3", img_url:"/static/image/cry.gif"}]),
+      member: JSON.stringify([
+        { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
+        { uid: "user3", name: "user3", img_url: "/static/image/cry.gif" },
+      ]),
     },
     {
       room_id: rooms[3],
       event: JSON.stringify([]),
-      member: JSON.stringify([{ uid: "admin",name:"admin", img_url:"/static/image/cat.png"},{ uid: "user1",name:"user1", img_url:"/static/image/brand.gif"}]),
+      member: JSON.stringify([
+        { uid: "admin", name: "admin", img_url: "/static/image/cat.png" },
+        { uid: "user1", name: "user1", img_url: "/static/image/brand.gif" },
+      ]),
     },
   ]);
   await Chat.bulkCreate([
     {
       room_id: rooms[0],
       sender: "admin",
-      img_url:"/static/image/cat.png",
+      name: "admin",
+      img_url: "/static/image/cat.png",
       msg: "방1 테스트1",
       not_read: JSON.stringify(["user1", "user2", "user3"]),
     },
     {
       room_id: rooms[0],
       sender: "user1",
-      img_url:"/static/image/turn.gif",
+      name: "user1",
+      img_url: "/static/image/turn.gif",
       msg: "방1 테스트2",
       not_read: JSON.stringify(["user1", "user2", "user3"]),
     },
     {
       room_id: rooms[0],
       sender: "user2",
-      img_url:"/static/image/brand.gif",
+      name: "user2",
+      img_url: "/static/image/brand.gif",
       msg: "방1 테스트3",
       not_read: JSON.stringify(["user1", "user2"]),
     },
     {
       room_id: rooms[0],
       sender: "user3",
+      name: "user3",
       msg: "방1 테스트4",
-      img_url:"/static/image/turn.gif",
+      img_url: "/static/image/turn.gif",
       not_read: JSON.stringify(["user1"]),
     },
     {
       room_id: rooms[0],
       sender: "user3",
+      name: "user3",
       msg: "방1 테스트4",
-      img_url:"/static/image/turn.gif",
+      img_url: "/static/image/turn.gif",
       not_read: JSON.stringify(["user1"]),
     },
     {
       room_id: rooms[1],
       sender: "admin",
-      img_url:"/static/image/cat.png",
+      name: "admin",
+      img_url: "/static/image/cat.png",
       msg: "방1 테스트2",
       not_read: JSON.stringify(["user2"]),
     },
     {
       room_id: rooms[1],
       sender: "user2",
-      img_url:"/static/image/brand.gif",
+      name: "user2",
+      img_url: "/static/image/brand.gif",
       msg: "방1 테스트3",
       not_read: JSON.stringify(["admin"]),
     },
     {
       room_id: rooms[2],
       sender: "admin",
-      img_url:"/static/image/cat.png",
+      name: "admin",
+      img_url: "/static/image/cat.png",
       msg: "방1 테스트3",
       not_read: JSON.stringify(["user3"]),
     },
     {
       room_id: rooms[2],
       sender: "user1",
-      img_url:"/static/image/turn.gif",
+      name: "user1",
+      img_url: "/static/image/turn.gif",
       msg: "방1 테스트4",
       not_read: JSON.stringify(["admin"]),
     },

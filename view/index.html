@@ -55,6 +55,9 @@
       transform: translate(-100px, 20px);
     }
   </style>
+
+
+  <link href="static/view/carousel.css" rel="stylesheet">
 </head>
 
 <body class="bg-dark">
@@ -78,18 +81,18 @@
       </div>
       <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
         <li class="nav-item ms-4">
-          <a class="nav-link active " aria-current="page" href="#">Home</a>
+          <a class="nav-link active " aria-current="page" href="/">Home</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link " href="#">Gallery</a>
+          <a class="nav-link " href="/gallery">Gallery</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link" href="#">Auction</a>
+          <a class="nav-link" href="/auction">Auction</a>
         </li>
         <li class="nav-item ms-4">
-          <a class="nav-link" href="#">Chat</a>
+          <a class="nav-link" href="/chat">Chat</a>
         </li>
-        <li class="nav-item hidden" id="loginDiv">
+        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
           <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">Login</a>
 
         </li>
@@ -97,7 +100,7 @@
       <div class="dropdown text-end ms-4 me-1 float-end" id="userDiv">
         <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown"
           aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          <img src="<%=user.img_url%>" id="my_imgUrl" alt="mdo" width="32" height="32" class="rounded-circle">
         </a>
         <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
           <li><a class="dropdown-item" href="/profile">내정보</a></li>
@@ -114,95 +117,103 @@
   </nav>
 
   <div class="container">
-    <div class="container-fluid pb-3 ">
-      <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr; height: 90%; max-height:90%;">
-        <!-- Users box-->
-        <div class="px-0 bg-dark">
-          <div class="bg-dark">
-            <div class="bg-gray py-2 bg-dark">
-              <p class="h5 mb-0 py-1 text-white">채팅방</p>
+
+
+    <!-- 슬라이드영역 시작 -->
+    <section class="py-5 text-center container">
+      <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+            aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+          <!-- 배너 1페이지 시작 -->
+          <div class="carousel-item active">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <rect width="100%" height="100%" fill="#777" />
+            </svg>
+
+            <div class="container">
+              <div class="carousel-caption text-start">
+                <h1>Example headline.</h1>
+                <p>Some representative placeholder content for the first slide of the carousel.</p>
+                <p><a class="btn btn-lg btn-primary" href="#">Sign up today</a></p>
+              </div>
             </div>
+          </div>
+          <!-- 배너 1페이지  끝 -->
+          <div class="carousel-item">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <rect width="100%" height="100%" fill="#777" />
+            </svg>
 
-            <div class="messages-box">
-              <div id="userBox" class="list-group rounded-0">
-                <!-- <a href="#" class="list-group-item list-group-item-action active text-white rounded my-1">
-                  <div class="media">
-                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
-                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
-                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
-                    <div class="media-body ml-4">
-                      <div class="d-flex align-items-center justify-content-between mb-1">
-                        <h6 class="mb-0">유저1</h6>
-                        <small class="small font-weight-bold">날짜1</small>
-                      </div>
-                      <p class="font-italic text-white mb-0 text-small">
-                        내용1 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                      </p>
-                    </div>
-                  </div>
-                </a>
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>Another example headline.</h1>
+                <p>Some representative placeholder content for the second slide of the carousel.</p>
+                <p><a class="btn btn-lg btn-primary" href="#">Learn more</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <rect width="100%" height="100%" fill="#777" />
+            </svg>
 
-                <a href="#" class="list-group-item list-group-item-action list-group-item-dark rounded my-1">
-                  <div class="media">
-                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
-                    <div class="media-body ml-4">
-                      <div class="d-flex align-items-center justify-content-between mb-1">
-                        <h6 class="mb-0">유저2</h6>
-                        <small class="small font-weight-bold">날짜2</small>
-                      </div>
-                      <p class="font-italic text-muted mb-0 text-small">
-                        내용2 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                      </p>
-                    </div>
-                  </div>
-                </a>
-
-                <a href="#" class="list-group-item list-group-item-action list-group-item-dark rounded my-1">
-                  <div class="media">
-                    <img src="/static/image/brand.gif" alt="user" width="50" height="50" class="rounded-circle" />
-                    <div class="media-body ml-4">
-                      <div class="d-flex align-items-center justify-content-between mb-1">
-                        <h6 class="mb-0">유저3</h6>
-                        <small class="small font-weight-bold">날짜3</small>
-                      </div>
-                      <p class="font-italic text-muted mb-0 text-small">
-                        내용3 뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨뀨
-                      </p>
-                    </div>
-                  </div>
-                </a> -->
-
-
+            <div class="container">
+              <div class="carousel-caption text-end">
+                <h1>One more for good measure.</h1>
+                <p>Some representative placeholder content for the third slide of this carousel.</p>
+                <p><a class="btn btn-lg btn-primary" href="#">Browse gallery</a></p>
               </div>
             </div>
           </div>
         </div>
-        <!-- Chat Box start-->
-        <div class="bg-dark">
-          <div id = "chatBox" class="py-5 chat-box bg-dark d-flex flex-column" style="overflow-y: scroll; height: 85vh;">
+        <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </section>
+    <!-- 슬라이드영역 끝 -->
 
+    <!-- 갤러리 영역 시작 -->
+    <div class="album py-5 ">
+      <div class="container">
+
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-2 g-3">
+          <!-- 셀 시작 -->
+          <div class="col">
+            <a href="#" class="img_cell text-decoration-none">
+              <div class="card bg-secondary">
+                <img id="img_url_example" class="p-2 my-3 rounded-circle m-auto center" src="/static/image/brand.gif"
+                  alt="" width="300" height="300">
+                <div class="card-body bg-secondary">
+                  <h2 class="card-text text-white my-3">This is </h2>
+                  <p class="card-text text-white my-3">This is a wider card with supporting text below as a natural lead-in
+                    to additional content. This content is a little bit longer.</p>
+                  
+                </div>
+              </div>
+            </a>
           </div>
+          <!-- 셀 끝 -->
 
-          <!-- Chat Box end-->
-
-          <!-- Typing area -->
-          <div class="input-group">
-            <input id="send_text" type="text" placeholder="내용을 입력해주때요" aria-describedby="button-addon2"
-              class="form-control rounded-0 border-0 py-4 bg-dark text-white" />
-            <div class="input-group-append align-self-center">
-              <button id="sendMsg_btn" type="submit" class="btn btn-link text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                  class="bi bi-send me-2" viewBox="0 0 16 16">
-                  <path
-                    d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
-                </svg>
-                보내버리기
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
+
+    <!-- 갤러리 영역 끝 -->
+
     <table id="table" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
     <table id="table2" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
     <table id="table3" class="table table-dark table-striped table-hover my-2 w-75 m-auto"></table>
@@ -217,8 +228,24 @@
 
           <div class="modal-body p-5 pt-0">
             <div class="w-100">
-              <img class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt="" width="72"
-                height="72">
+              <img id="img_url_example" class="mb-4 rounded-circle m-auto center" src="/static/image/brand.gif" alt=""
+                width="72" height="72">
+              <div class="dropdown ">
+                <a class="btn btn-secondary dropdown-toggle mb-4" href="#" role="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  프로필 사진
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item"><img id="brand" class="mb-4 rounded-circle m-auto center"
+                        src="/static/image/brand.gif" alt="" width="72" height="72"></a></li>
+                  <li><a class="dropdown-item"><img id="turn" class="mb-4 rounded-circle m-auto center"
+                        src="/static/image/turn.gif" alt="" width="72" height="72"></a></li>
+                  <li><a class="dropdown-item"><img id="cry" class="mb-4 rounded-circle m-auto center"
+                        src="/static/image/cry.gif" alt="" width="72" height="72"></a></li>
+                  <li><a class="dropdown-item"><img id="cat" class="mb-4 rounded-circle m-auto center"
+                        src="/static/image/cat.png" alt="" width="72" height="72"></a></li>
+                </ul>
+              </div>
             </div>
             <form action="/signup" method="post">
               <div class="form-floating mb-3">
@@ -233,19 +260,16 @@
                 <label for="floatingPassword">비밀번호</label>
               </div>
               <div class="form-floating mb-3">
-                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
-                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
+                <input type="text" class="form-control rounded-3" placeholder="닉네임" name="name"
+                  style="background-color:rgba(255, 255, 255, 0.425)" />
                 <label for="floatingInput">닉네임</label>
               </div>
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
-                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
-                <label for="floatingInput">이메일</label>
-              </div>
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control rounded-3" id="signup_email" placeholder="name@example.com"
-                  name="user_email" style="background-color:rgba(255, 255, 255, 0.425)" />
-                <label for="floatingInput">이메일</label>
+              <div class="form-floating mb-3 visually-hidden">
+                <!-- visually-hidden -->
+                <input type="text" value="/static/image/brand.gif" class="form-control rounded-3" placeholder="프로필 사진"
+                  id="img_url" name="img_url" style="background-color:rgba(255, 255, 255, 0.425)" />
+                <label for="floatingInput">프로필 사진</label>
+
               </div>
               <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">
                 회원가입하기
@@ -324,11 +348,12 @@
     </form>
   </div>
 </body>
+<script src="static/view/signup.js"></script>
 <script src="static/util/client_createRandom.js"></script>
 <script src="static/util/axios_util.js"></script>
+<script src="static/util/auth.js"></script>
 <script src="static/model/dbManager.js"></script>
 <script src="static/socket/client.js"></script>
 <script src="static/view/index.js"></script>
-<script src="static/view/chat.js"></script>
 
 </html>

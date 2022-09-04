@@ -11,7 +11,7 @@ class ServerSocket {
 
 ServerSocket.prototype.setConnection = function (callback) {
   this.io.on("connection", (socket) => {
-    this.connectionSocket = socket
+    this.connectionSocket = socket;
     callback(socket);
   });
   return this;
@@ -27,10 +27,12 @@ ServerSocket.prototype.on = function (inputObj) {
 };
 
 ServerSocket.prototype.emit = function (inputObj) {
-  const { event, callbefore, query, ...data } = inputObj;
-  if (callbefore) callbefore(query);
-  this.connectionSocket.emit(event, data);
-  return this;
+  try {
+    const { event, callbefore, query, ...data } = inputObj;
+    if (callbefore) callbefore(query);
+    this.connectionSocket.emit(event, data);
+    return this;
+  } catch (error) {}
 };
 
 ServerSocket.prototype.asyncEmit = async function (inputObj) {

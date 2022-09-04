@@ -1,42 +1,111 @@
 class ChatManager {
   constructor() {
     this.currRoomId = "";
+    this.roomElements = {};
+    this.chatElements = {};
   }
+  getCurrRoomId = () => this.currRoomId;
+  setCurrRoomId = (roomId) => {
+    this.currRoomId = roomId;
+  };
+
+  getRooms = (myUid, socket) => {
+    return new Promise((resolve, reject) => {
+      sendAxios({
+        url: "/getRooms",
+        data: { uid: myUid },
+      }).then(({ data }) => {
+        data.forEach((room) => {
+          const { room_id, event, member, updatedAt } = room;
+          const memberObj = JSON.parse(member);
+          const meberImgs = memberObj.map((oneMember) => oneMember.img_url);
+
+          const roomTag = setRoomTag({
+            room_id,
+            meberImgs,
+            event,
+            updatedAt,
+            memberObj,
+          });
+          const boxAEl = document.createElement("a");
+
+          boxAEl.innerHTML = roomTag;
+          boxAEl.addEventListener("click", (e) => {
+            socket.emit({
+              event: "leaveChatRoom",
+              room_id: this.getCurrRoomId(),
+            });
+
+            this.setCurrRoomId(room_id);
+
+            socket.emit({
+              event: "joinChatRoom",
+              my_uid: myAuth.getUid(),
+              my_name: myAuth.getName(),
+              room_id: this.getCurrRoomId(),
+            });
+
+            console.log("현재 RoomId :", { room_id: this.getCurrRoomId() });
+            chat_input.classList.remove("visually-hidden");
+
+            data.forEach((room_target) => {
+              document
+                .getElementById(`${room_target.room_id}`)
+                .classList.remove("active");
+            });
+            document
+              .getElementById(`${this.getCurrRoomId()}`)
+              .classList.add("active");
+            this.getChat(room_id, myUid);
+          });
+
+          this.roomElements[data[0].room_id] = boxAEl;
+          userBox.appendChild(boxAEl);
+        });
+        resolve(this.roomElements);
+      });
+    });
+  };
+
+  getChat = (room_id, myUid) => {
+    // console.log("inner getChat", room_id);
+    sendAxios({
+      url: "/getChats",
+      data: { room_id },
+    }).then(({ data }) => {
+      chatBox.innerHTML = "";
+      data.forEach((chat) => {
+        const el = document.createElement("div");
+        if (myUid === chat.sender) {
+          el.innerHTML = setMyChatTag(chat);
+        } else {
+          el.innerHTML = setYourChatTag(chat);
+        }
+        chatBox.appendChild(el);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  };
+
+  addNewChat = (chat, myUid) => {
+    const el = document.createElement("div");
+    if (myUid === chat.sender) {
+      el.innerHTML = setMyChatTag(chat);
+    } else {
+      el.innerHTML = setYourChatTag(chat);
+    }
+    chatBox.appendChild(el);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
 }
 
-const chatManager = new ChatManager()
-
-let room_id = 0;
-
-sendMsg_btn.addEventListener("click",()=>{
-  const sendText = document.getElementById("send_text").value 
-})
-
-sendAxios({
-  url: "/getRooms",
-  data: { uid: "admin" },
-}).then(({ data }) => {
-  chatManager.currRoomId = data[0].room_id;
-  data.forEach((room) => {
-    const { room_id, event, member, updatedAt } = room;
-    const meberImgs = JSON.parse(member).map((oneMember) => oneMember.img_url);
-
-    const roomTag = setRoomTag({ room_id, meberImgs, event, updatedAt });
-    const aEl = document.createElement("a");
-
-    aEl.innerHTML = roomTag;
-    aEl.addEventListener("click", (e) => {
-      const tags = data.map((room_target) => {
-        document
-          .getElementById(`${room_target.room_id}`)
-          .classList.remove("active");
-      });
-      document.getElementById(`${chatManager.currRoomId}`).classList.add("active");
-      setChat(room_id);
-    });
-    userBox.appendChild(aEl);
+sendChat = ({ room_id, msg }) => {
+  // console.log("inner getChat", room_id);
+  sendAxios({
+    url: "/setChat",
+    data: { room_id },
   });
-});
+};
 
 function makeUrl(list) {
   let tags = "";
@@ -59,7 +128,7 @@ function setRoomTag(data) {
   // const { msg, name } = events[0]
   const stringTime = calcTime(updatedAt);
 
-  return `<a id=${room_id} href="#" class="list-group-item list-group-item-action list-group-item-dark text-white rounded my-1">
+  return `<a id=${room_id} href="#" class="list-group-item list-group-item-action list-group-item-dark  text-white rounded my-1">
       <div class="media">
         ${makeUrl(meberImgs)}
         <div class="media-body ml-4">
@@ -73,26 +142,6 @@ function setRoomTag(data) {
         </div>
       </div>
     </a>`;
-}
-
-function setChat(room_id) {
-  // console.log("inner setChat", room_id);
-  sendAxios({
-    url: "/getChats",
-    data: { room_id },
-  }).then(({ data }) => {
-    chatBox.innerHTML = "";
-    data.forEach((chat) => {
-      const myUid = "admin";
-      const el = document.createElement("div");
-      if (myUid === chat.sender) {
-        el.innerHTML = setMyChatTag(chat);
-      } else {
-        el.innerHTML = setYourChatTag(chat);
-      }
-      chatBox.appendChild(el);
-    });
-  });
 }
 
 function calcTime(time) {
@@ -116,18 +165,19 @@ function calcTime(time) {
   if (betweenTimeDay < 365) {
     return `${betweenTimeDay}일전`;
   }
-
+  if (`${Math.floor(betweenTimeDay / 365)}` === "NaN") return "방금전";
   return `${Math.floor(betweenTimeDay / 365)}년전`;
 }
 
 function setYourChatTag(data) {
   const { img_url, msg, createdAt, not_read, name } = data;
+  //console.log("setYourChatTag :", not_read);
   const notRead = JSON.parse(not_read).length;
   const stringTime = calcTime(createdAt);
   return `  <div class="media w-75 mb-3 d-flex me-auto">
   <img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle mx-3" />
   <div class="media-body">
-  ${name}
+  <p class="text-white">${name}</p>
     <div class="bg-info rounded py-2 px-3 mb-2">
       <p class="text-small mb-0 text-white">
         ${msg}
@@ -141,6 +191,7 @@ function setYourChatTag(data) {
 
 function setMyChatTag(data) {
   const { img_url, msg, createdAt, not_read } = data;
+  //console.log("setYourChatTag :", not_read);
   const notRead = JSON.parse(not_read).length;
   const stringTime = calcTime(createdAt);
   return `<div class="media w-75 mb-3 float-end d-flex ms-auto ">
@@ -157,3 +208,40 @@ function setMyChatTag(data) {
   <img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle mx-3" />
 </div>`;
 }
+const myAuth = new Auth();
+const chatManager = new ChatManager();
+const chatSocket = new ClientSocket("chat");
+
+chatSocket.setConnection(() => {
+  console.log("채팅 connect");
+
+  chatSocket.on({
+    event: "newChat",
+    callback: (data) => {
+      console.log("newChat소켓 :", data);
+      chatManager.addNewChat(data, myAuth.getUid());
+    },
+  });
+});
+
+myAuth.getAuth().then((myAUth) => {
+  console.log("chat myAuth Uid :", myAUth.getUid());
+
+  chatManager.getRooms(myAUth.getUid(), chatSocket).then(() => {
+    sendMsg_btn.addEventListener("click", () => {
+      const msgText = document.getElementById("send_text").value;
+      const sendChat = ({ room_id, msg, img_content }) => {
+        sendAxios({
+          url: "/sendChat",
+          data: { room_id, msg, img_content },
+        });
+      };
+
+      const sendChatContent = {
+        room_id: chatManager.getCurrRoomId(),
+        msg: msgText,
+      };
+      sendChat(sendChatContent);
+    });
+  });
+});

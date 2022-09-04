@@ -46,6 +46,11 @@ class Chat extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: true,
         },
+
+        name: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+        },
         
         not_read: {
           type: Sequelize.TEXT, //[{uid}]

@@ -6,7 +6,7 @@ const makeParams = (data) => {
     params.append(key, data);
   }
 
-  return { params};
+  return { params };
 };
 
 /**

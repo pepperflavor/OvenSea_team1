@@ -1,15 +1,22 @@
 document.onload = () => {};
 const dbManager = new DbManager();
 
-$.getJSON("/getDatas", (datas) => {
-  dbManager.setData(datas);
-  dbManager.createTableEl(table, ["balance", "uid", "grade"]);
-});
+// $.getJSON("/getDatas", (datas) => {
+//   dbManager.setData(datas);
+//   dbManager.createTableEl(table, ["balance", "uid", "grade"]);
+// });
 
-$.getJSON("/getDatas2", (datas) => {
-  dbManager.setData(datas);
-  dbManager.createTableEl(table2);
-});
+// $.getJSON("/getDatas2", (datas) => {
+//   dbManager.setData(datas);
+//   dbManager.createTableEl(table2);
+// });
+
+const img_cell = document.querySelector(".img_cell");
+img_cell.addEventListener("mouseover",(e)=>{
+  console.log(e.target)
+  // document.getElementById().childNodes
+  console.log("@@@@@@@@@@@@@@@");
+})
 
 const emailExist = document.getElementById("email_exist");
 const signupEmail = document.getElementById("signup_email");
@@ -35,8 +42,6 @@ signupEmail.addEventListener("change", (e) => {
   } else {
     e.target.value = "";
   }
-
-  
 });
 
 // $.getJSON("/getDatas3", (datas) => {
@@ -63,7 +68,6 @@ signupEmail.addEventListener("change", (e) => {
 // }, 888);
 
 const auction = new ClientSocket("auction");
-const chat = new ClientSocket("chat");
 const event = new ClientSocket("event");
 
 // chat.on({
@@ -90,17 +94,6 @@ auction.setConnection(() => {
   console.log("connect");
 
   auction.on({
-    event: "toEmit",
-    callback: (data) => {
-      console.log(data, "send 감지!");
-    },
-  });
-});
-
-chat.setConnection(() => {
-  console.log("connect");
-
-  chat.on({
     event: "toEmit",
     callback: (data) => {
       console.log(data, "send 감지!");
