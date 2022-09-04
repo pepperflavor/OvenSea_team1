@@ -24,7 +24,6 @@ ClientSocket.prototype.on = function (inputObj) {
 
 ClientSocket.prototype.emit = function (inputObj) {
   const { event, callbefore, query, ...data } = inputObj;
-  console.log(data)
   if (callbefore) callbefore(query);
   this.io.emit(`${event}`, data);
   return this;

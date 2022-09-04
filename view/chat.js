@@ -208,9 +208,11 @@ function setMyChatTag(data) {
   <img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle mx-3" />
 </div>`;
 }
+
 const myAuth = new Auth();
 const chatManager = new ChatManager();
 const chatSocket = new ClientSocket("chat");
+const eventSocket = new ClientSocket("event");
 
 chatSocket.setConnection(() => {
   console.log("채팅 connect");
@@ -226,6 +228,7 @@ chatSocket.setConnection(() => {
 
 myAuth.getAuth().then((myAUth) => {
   console.log("chat myAuth Uid :", myAUth.getUid());
+  const user = myAuth.getUser();
 
   chatManager.getRooms(myAUth.getUid(), chatSocket).then(() => {
     sendMsg_btn.addEventListener("click", () => {
@@ -244,4 +247,37 @@ myAuth.getAuth().then((myAUth) => {
       sendChat(sendChatContent);
     });
   });
+
+  eventSocket.emit({
+    event: "online",
+    user,
+  });
+});
+
+eventSocket.setConnection(() => {
+  console.log("이벤트 connect");
+
+  eventSocket
+    .on({
+      event: "online",
+      callback: (data) => {
+        console.log("online", data);
+        onlineUserList = data;
+        console.log("onlineUserList", onlineUserList);
+      },
+    })
+    .on({
+      event: "sleep",
+      callback: (data) => {
+        console.log("online", data);
+        onlineUserList = data;
+        console.log("onlineUserList", onlineUserList);
+      },
+    })
+    .on({
+      event: "offline",
+      callback: (data) => {
+        onlineUserList = data;
+      },
+    });
 });

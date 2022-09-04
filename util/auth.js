@@ -1,6 +1,6 @@
 class Auth {
   constructor() {
-    this.myUid = "";
+    this.myAuth = "";
   }
   getAuth = async () => {
     return new Promise((resolve, reject) => {
@@ -8,18 +8,18 @@ class Auth {
         url: "/getAuth",
         data: {},
       }).then(({ data }) => {
-        this.myUid = data;
+        this.myAuth = data;
         resolve(this);
       });
     });
   };
-
-  getUid = () => this.myUid.uid;
-  getImgUrl = () => this.myUid.img_url;
-  getbalance = () => this.myUid.balance;
-  getName = () => this.myUid.name;
-  getGallery = () => JSON.parse(this.myUid.gallery);
-  getGrade = () => this.myUid.grade;
+  getUser = () => this.myAuth;
+  getUid = () => this.myAuth.uid;
+  getImgUrl = () => this.myAuth.img_url;
+  getbalance = () => this.myAuth.balance;
+  getName = () => this.myAuth.name;
+  getGallery = () => JSON.parse(this.myAuth.gallery);
+  getGrade = () => this.myAuth.grade;
 }
 
 // const myAuth = new Auth();

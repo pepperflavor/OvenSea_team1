@@ -118,22 +118,28 @@ chat.setConnection(() => {
     });
 });
 
+const onlineUser = [];
+
 event.setConnection(() => {
   event
     .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
+      event: "online",
+      callback: (newUser) => {
+        console.log("online",newUser);
+
+        const isSameIdx = onlineUser.find((user) => {
+          return user.uid === newUser.uid;
+        });
+        console.log(isSameIdx);
+
+        if (isSameIdx === undefined) {
+          onlineUser.push(newUser)
+        }
+        console.log(onlineUser);
+        event.toEmit({to:"all", event: "online", onlineUser });
       },
     })
-    .on({
-      event: "join",
-      callback: (data) => {
-        // console.log(data);
-        // console.log("chat_send : 뀨");
-      },
-    });
+    
 });
 
 const authMW = (req, res, next) => {
