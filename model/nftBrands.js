@@ -46,7 +46,7 @@ class NftBrand extends Sequelize.Model {
           type: Sequelize.TEXT,
         },
 
-        brandName: {
+        brand_name: {
           type: Sequelize.STRING(255),
           allowNull: true,
         },

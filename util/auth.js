@@ -5,7 +5,7 @@ class Auth {
   getAuth = async () => {
     return new Promise((resolve, reject) => {
       sendAxios({
-        url: "getAuth",
+        url: "/getAuth",
         data: {},
       }).then(({ data }) => {
         this.myUid = data;

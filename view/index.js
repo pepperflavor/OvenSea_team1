@@ -1,5 +1,5 @@
-document.onload = () => {};
-const dbManager = new DbManager();
+// document.onload = () => {};
+// const dbManager = new DbManager();
 
 // $.getJSON("/getDatas", (datas) => {
 //   dbManager.setData(datas);
@@ -11,12 +11,57 @@ const dbManager = new DbManager();
 //   dbManager.createTableEl(table2);
 // });
 
+function getNftBrands() {
+  return new Promise((resolve, reject) => {
+    sendAxios({
+      url: "/getNftBrands",
+      data: {},
+    }).then(({ data }) => {
+      resolve(data);
+    });
+  });
+}
+function makeBannerIndicators(idx) {
+  const el = `<button type="button" data-bs-target="#myCarousel" data-bs-slide-to="${idx}" class="${
+    idx === 0 ? "active" : ""
+  }" aria-current="true"
+  aria-label="Slide ${idx + 1}"></button>`;
+  return el;
+}
+
+function makeBanner(data) {
+  const { brand_id, img_url, editor_uid, content, brand_name } = data;
+  const bannerTag = `
+        <img src="${img_url}" alt height="550"/>
+        <div class="container">
+          <div class="carousel-caption text-start my-4 text-light tw-bold">
+            <h1>${brand_name}</h1>
+            <p class="my-4">${content}</p>
+            
+          </div>
+        </div>`;
+  return bannerTag;
+}
+
+getNftBrands().then((datas) => {
+  datas.forEach((data, idx) => {
+    const bannerTag = makeBanner({ idx, ...data });
+    const indicators = makeBannerIndicators(idx);
+    const newBannerWrap = document.createElement("div");
+    newBannerWrap.style=
+    newBannerWrap.classList.add("carousel-item");
+    if (idx === 0) newBannerWrap.classList.add("active");
+    newBannerWrap.innerHTML = bannerTag;
+    banner.appendChild(newBannerWrap);
+    bannerIndicators.innerHTML += indicators;
+  });
+});
+
 const img_cell = document.querySelector(".img_cell");
-img_cell.addEventListener("mouseover",(e)=>{
-  console.log(e.target)
+img_cell.addEventListener("mouseover", (e) => {
+  console.log(e.target);
   // document.getElementById().childNodes
-  console.log("@@@@@@@@@@@@@@@");
-})
+});
 
 const emailExist = document.getElementById("email_exist");
 const signupEmail = document.getElementById("signup_email");
