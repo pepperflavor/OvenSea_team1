@@ -110,7 +110,7 @@ sendChat = ({ room_id, msg }) => {
 function makeUrl(list) {
   let tags = "";
   list.forEach((img_url) => {
-    tags += `<img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle" />`;
+    tags += `<img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle me-2" />`;
   });
   return tags;
 }

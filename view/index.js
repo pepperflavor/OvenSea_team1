@@ -59,8 +59,8 @@ function makeNft(data) {
   const tag = `
                   <a href="#" class="img_cell text-decoration-none">
                     <div class="card bg-secondary">
-                      <img id="img_url_example" class="p-2 my-3 rounded-circle m-auto center" src="${img_url}"
-                        alt="" width="300" height="300">
+                      <img id="img_url_example" class="p-2 my-3 rounded-4 shadow m-auto center" src="${img_url}"
+                        alt="" width="265" height="265">
                       <div class="card-body bg-secondary">
                         <h2 class="card-text text-white my-3">${title}</h2>
                         <p class="card-text text-white my-3">${content}</p>
@@ -79,6 +79,12 @@ getNfts().then((datas) => {
     const newNftWrap = document.createElement("div");
     newNftWrap.classList.add("col");
     newNftWrap.innerHTML = ntfTag;
+
+    newNftWrap.addEventListener("click",()=>{
+      const {nft_id} = data
+      
+    })
+
     nftContainer.appendChild(newNftWrap)
   });
 });
@@ -96,37 +102,13 @@ getNftBrands().then((datas) => {
   });
 });
 
-const img_cell = document.querySelector(".img_cell");
-img_cell.addEventListener("mouseover", (e) => {
-  console.log(e.target);
-  // document.getElementById().childNodes
-});
+// const img_cell = document.querySelector(".img_cell");
+// img_cell.addEventListener("mouseover", (e) => {
+//   console.log(e.target);
+//   // document.getElementById().childNodes
+// });
 
-const emailExist = document.getElementById("email_exist");
-const signupEmail = document.getElementById("signup_email");
 
-signupEmail.addEventListener("change", (e) => {
-  if (e.target.value !== "") {
-    const params = new URLSearchParams();
-    const headers = {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      Accept: "*/*",
-    };
-    params.append("user_email", e.target.value);
-    axios
-      .post("/existEmail", params, {
-        headers,
-      })
-      .then(function (response) {
-        const {
-          data: { msg },
-        } = response;
-        emailExist.innerHTML = msg;
-      });
-  } else {
-    e.target.value = "";
-  }
-});
 
 // $.getJSON("/getDatas3", (datas) => {
 //   dbManager.setData(datas);

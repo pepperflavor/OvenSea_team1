@@ -184,7 +184,7 @@ app.get("/", async (req, res) => {
   if (ok) {
     res.render("index", { user, isLogin: true });
   } else {
-    res.render("index", { user, isLogin: false });
+    res.render("index", {user:"", img_url:"", isLogin: false });
   }
 });
 
@@ -253,7 +253,7 @@ app.post("/login", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log("로그인실패", error);
-    res.redirect("/");
+    // res.redirect("/login");
   }
 });
 
@@ -362,6 +362,10 @@ app.post("/existEmail", async (req, res) => {
   else res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아" }));
 });
 
+app.get("/signup", async (req, res) => {
+  res.render("signup")
+})
+
 app.post("/signup", async (req, res) => {
   try {
     const { user_email, user_pwd, img_url, name } = req.body;
@@ -405,12 +409,16 @@ app.post("/signup", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log("@@@signup", error);
-    res.redirect("/");
+    res.cookie("accessToken", "", { maxAge: 0 });
+    res.cookie("refreshToken", "", { maxAge: 0 });
+    res.redirect("/signup");
   }
 });
 
 app.get("/logOut", (req, res) => {
   // res.cookie("accessToken",res.session.accessToken);
+  res.cookie("accessToken", "", { maxAge: 0 });
+  res.cookie("refreshToken", "", { maxAge: 0 });
   res.redirect("/");
 });
 
@@ -439,7 +447,7 @@ async function getAllData(db, query) {
 app.post("/getNftBrands", (req, res) => {
   NftBrand.findAll({}).then((datas) => {
     const nftBrands = datas.map(({ dataValues }) => {
-      return dataValues
+      return dataValues;
     });
     res.send(nftBrands);
   });
@@ -448,7 +456,7 @@ app.post("/getNftBrands", (req, res) => {
 app.post("/getNfts", (req, res) => {
   Nft.findAll({}).then((datas) => {
     const nfts = datas.map(({ dataValues }) => {
-      return dataValues
+      return dataValues;
     });
     res.send(nfts);
   });
@@ -1041,7 +1049,6 @@ async function initDb() {
       brand_name: "피닐리아",
       brand_id: "피닐리아",
     },
-
   ]);
   await Room.bulkCreate([
     {
