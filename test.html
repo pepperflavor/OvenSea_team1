@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="ggyu"></button>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js"></script>
+  <script>
+    const makeParams = (data) => {
+      const dataObj = { ...data };
+      const params = new URLSearchParams();
+
+      for (const [key, data] of Object.entries(dataObj)) {
+        params.append(key, data);
+      }
+
+      return { params };
+    };
+
+    // 자동으로 데이터 래핑해주는 함수
+    const sendAxios = async (objData) => {
+      const { url, data } = objData;
+      const { params } = makeParams(data);
+      const headers = {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+        Accept: "*/*",
+      };
+      return axios.post(url, params, { headers });
+    };
+
+    document.getElementById("ggyu").addEventListener("click", function () {
+      sendAxios({
+        url: "http://192.168.0.206:3000/addRank",
+        data: { score: 123, user: "뀨" },
+      })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+  </script>
+</html>

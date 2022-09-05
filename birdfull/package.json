@@ -1,0 +1,34 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "MainScene.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server --open --config webpack.common.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async_hooks": "^1.0.0",
+    "babel": "^6.23.0",
+    "babel-loader": "^8.2.5",
+    "copy-webpack-plugin": "^11.0.0",
+    "express": "^4.18.1",
+    "firebase": "^9.8.4",
+    "html-webpack-plugin": "^5.5.0",
+    "phaser": "^3.55.2",
+    "phaser-matter-collision-plugin": "^1.0.0",
+    "stream-browserify": "^3.0.0",
+    "url": "^0.11.0",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.9.3",
+    "webpack-merge": "^5.8.0",
+    "axios": "^0.27.2",
+    "nodemon": "^2.0.19"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.13"
+  }
+}
