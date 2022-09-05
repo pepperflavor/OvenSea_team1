@@ -814,6 +814,15 @@ async function initDb() {
         "Decentralized gaming x NFT protocol. Created by Invariant Labs.",
       editor_uid: "user4",
     },
+    {
+      brand_id:  "META-KONGZ-DEPLOYER",
+      brand_name: "META KONGZ OFFICIAL",
+      img_url:
+      "https://i.seadn.io/gcs/files/d61c1b0215ae7b43cb4508cbdd690817.png?auto=format&dpr=1&h=300",
+      content:
+        "Metakongz, the No.1 project in the Klaytn, is now expanding globally through the Ethereum.",
+      editor_uid: "user5",
+    },
   ]);
   await Nft.bulkCreate([
     {
@@ -1139,89 +1148,7 @@ async function initDb() {
       brand_name: "펭귄조아",
       brand_id: "펭귄조아",
     },
-    {
-      nft_id: nfts[1],
-      title: "NFT제목2",
-      content: "NFT내용2",
-      img_url:
-        "https://s3.orbi.kr/data/file/united/995556963_B6vl079m_8F223DF0-FEDE-434A-9439-8DF090FC8A66-5388-000005FED6FDB041_file.gif",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "admin",
-      brand_name: "펭귄조아",
-      brand_id: "펭귄조아",
-    },
-    {
-      nft_id: nfts[2],
-      title: "NFT제목3",
-      content: "NFT내용3",
-      img_url: "https://cdn.cashfeed.co.kr/attachments/d070572048.jpg",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "admin",
-      brand_name: "펭귄조아",
-      brand_id: "펭귄조아",
-    },
-    {
-      nft_id: nfts[3],
-      title: "NFT제목4",
-      content: "NFT내용4",
-      img_url:
-        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "admin",
-      brand_name: "펭귄조아",
-      brand_id: "펭귄조아",
-
-      nft_id: userNfts[0],
-      title: "NFT제목1",
-      content: "NFT내용1",
-      img_url:
-        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "user1", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "user1",
-      brand_name: "펭귄조아",
-      brand_id: "펭귄조아",
-    },
-    {
-      nft_id: userNfts[1],
-      title: "NFT제목2",
-      content: "NFT내용2",
-      img_url:
-        "https://s3.orbi.kr/data/file/united/3076648493_6OwZD2W7_3716959146_nGmh9FkA_E46C698A-F9F6-4A54-8F9D-A2F13A450DA6-490-000000468E3E8B5D_tmp.png",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "user1", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "user1",
-      brand_name: "피닐리아",
-      brand_id: "피닐리아",
-    },
+   
   ]);
   await Room.bulkCreate([
     {
