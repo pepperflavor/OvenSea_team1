@@ -12,7 +12,14 @@ const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 // const { ERROR_CODE } = require("./config/config");
-const { initDb } = require("./util/dbManager");
+const {
+  initDb,
+  createData,
+  getAllData,
+  getData,
+  updateData,
+  deleteData,
+} = require("./util/dbManager");
 const app = express();
 
 const PORT = 3000;
@@ -548,48 +555,6 @@ app.get("/editNft", (req, res) => {
   // console.log("@@@editNft", ref);
   res.render("editNft");
 });
-
-function createData(db, input) {
-  return new Promise((resolve, reject) => {
-    db.create(input)
-      .then(() => {
-        resolve({ ok: true });
-      })
-      .catch((err) => reject({ ok: true, msg: err }));
-  });
-}
-
-function updateData(db, input, query) {
-  return new Promise((resolve, reject) => {
-    db.update(input, { where: { ...query } })
-      .then(() => {
-        resolve({ ok: true });
-      })
-      .catch((err) => reject({ ok: true, msg: err }));
-  });
-}
-
-function getData(db, query) {
-  return new Promise((resolve, reject) => {
-    db.findOne({ where: { ...query } })
-      .then((data) => {
-        if (!data) reject(err);
-        resolve(data?.dataValues);
-      })
-      .catch((err) => reject(err));
-  });
-}
-
-function getAllData(db, query) {
-  return new Promise((resolve, reject) => {
-    db.findAll({ where: { ...query } })
-      .then((datas) => {
-        if (!datas) reject(err);
-        resolve(datas.map((data) => data.dataValues));
-      })
-      .catch((err) => reject(err));
-  });
-}
 
 app.post("/getNftBrands", (req, res) => {
   NftBrand.findAll({}).then((datas) => {
