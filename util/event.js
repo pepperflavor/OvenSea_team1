@@ -8,7 +8,6 @@ myAuth.getAuth().then((myAUth) => {
     event: "online",
     user,
   });
-  log
 });
 
 eventSocket.setConnection(() => {
