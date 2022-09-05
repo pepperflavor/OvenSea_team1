@@ -6,16 +6,13 @@ const path = require("path");
 // const {authMW} = require("./middleware/authMiddleware");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
 const { sequelize, User, Post, Nft, Room, Chat, NftBrand } = require("./model");
-const fs = require("fs");
 const { createUid, createNftId } = require("./util/createRandom");
 const constant = require("./model/constants");
-const session = require("express-session");
 const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 // const { ERROR_CODE } = require("./config/config");
 const { initDb } = require("./util/dbManager");
-
 const app = express();
 
 const PORT = 3000;
@@ -28,8 +25,8 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
-
-initDb("init");
+initDb();
+// initDb("init");
 
 const io = Socketio(server);
 
@@ -114,7 +111,6 @@ chat.setConnection(() => {
 });
 
 const onlineUser = [];
-
 event.setConnection(() => {
   event.on({
     event: "online",
@@ -145,7 +141,7 @@ const authMW = (req, res, next) => {
 
     const newAccessToken = sign(refreshVerify);
     res.cookie("accessToken", newAccessToken, { maxAge: constant.ONE_DAY });
-    req.session.accessToken = newAccessToken;
+    // req.session.accessToken = newAccessToken;
     next();
   }
   next();
@@ -164,16 +160,16 @@ app.use("/static", express.static(__dirname));
 //body 객체 사용
 app.use(express.urlencoded({ extended: false }));
 
-app.use(
-  session({
-    // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
-    secret: process.env.SESSION_KEY,
-    // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
-    resave: false,
-    // 세션에 저장할 때 초기화 여부를 설정
-    saveUninitialized: true,
-  })
-);
+// app.use(
+//   session({
+//     // 세션 발급할때 사용되는 키 노출되면 안되니까 .env파일에 값을 저장해놓고 사용 process.env.SESSION_KEY
+//     secret: process.env.SESSION_KEY,
+//     // 세션을 저장하고 불러올 때 세션을 다시 저장할지 여부
+//     resave: false,
+//     // 세션에 저장할 때 초기화 여부를 설정
+//     saveUninitialized: true,
+//   })
+// );
 
 app.post("/addRank", (req, res) => {
   const { score, nickname } = req.body;
@@ -197,37 +193,10 @@ app.get("/", async (req, res) => {
   }
 });
 
-// app.get("/getDatas", async (req, res) => {
-//   const datas = await getAllData(User);
-//   res.send(datas);
-//   if (req.body.secret === "뀨") {
-//     const datas = await getAllData();
-//     console.log(datas);
-//   }
-// });
-
-// app.get("/getDatas2", async (req, res) => {
-//   const datas = await getAllData(Rank);
-//   res.send(datas);
-//   if (req.body.secret === "뀨") {
-//     const datas = await getAllData();
-//     console.log(datas);
-//   }
-// });
-// app.get("/getDatas3", async (req, res) => {
-//   const datas = await getAllData(Nft);
-//   res.send(datas);
-//   if (req.body.secret === "뀨") {
-//     const datas = await getAllData();
-//     console.log(datas);
-//   }
-// });
-
 app.get("/chat", async (req, res) => {
   const { accessToken, refreshToken } = req.cookies;
 
   const { ok, user } = verify(refreshToken, "refresh");
-  console.log(ok);
   if (ok) {
     res.render("chat", { user, isLogin: true });
   } else {
@@ -270,7 +239,7 @@ app.post("/sendChat", authMW, async (req, res) => {
   try {
     const { room_id, msg, img_content } = req.body;
 
-    const { accessToken, refreshToken } = req.cookies;
+    const { refreshToken } = req.cookies;
 
     const { user } = verify(refreshToken, "refresh");
 
@@ -466,6 +435,17 @@ app.post("/getChats", async (req, res) => {
   res.send(chats);
 });
 
+function name(params) {}
+
+async function getRooms(uid) {
+  try {
+    if (!uid) throw Error("getRooms uid = null");
+    const user = await User.findOne({ where: { uid } });
+
+    const roomsArr = JSON.parse(rooms);
+  } catch (error) {}
+}
+
 app.post("/getRooms", async (req, res) => {
   try {
     const { uid } = req.body;
@@ -569,10 +549,42 @@ app.get("/editNft", (req, res) => {
   res.render("editNft");
 });
 
-async function getAllData(db, query) {
+function createData(db, input) {
   return new Promise((resolve, reject) => {
-    db.findAll({ ...query })
+    db.create(input)
+      .then(() => {
+        resolve({ ok: true });
+      })
+      .catch((err) => reject({ ok: true, msg: err }));
+  });
+}
+
+function updateData(db, input, query) {
+  return new Promise((resolve, reject) => {
+    db.update(input, { where: { ...query } })
+      .then(() => {
+        resolve({ ok: true });
+      })
+      .catch((err) => reject({ ok: true, msg: err }));
+  });
+}
+
+function getData(db, query) {
+  return new Promise((resolve, reject) => {
+    db.findOne({ where: { ...query } })
+      .then((data) => {
+        if (!data) reject(err);
+        resolve(data?.dataValues);
+      })
+      .catch((err) => reject(err));
+  });
+}
+
+function getAllData(db, query) {
+  return new Promise((resolve, reject) => {
+    db.findAll({ where: { ...query } })
       .then((datas) => {
+        if (!datas) reject(err);
         resolve(datas.map((data) => data.dataValues));
       })
       .catch((err) => reject(err));
@@ -689,4 +701,3 @@ app.post("/nftPage", (req, res) => {});
 // io.sockets.on("connection", (socket) => {
 
 // });
-
