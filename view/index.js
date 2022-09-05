@@ -51,17 +51,17 @@ function makeBanner(data) {
 function makeNft(data) {
   const { title, img_url, onwer, content, brand_name } = data; //<div class="col">
   const tag = `
-                  <a href="#" class="img_cell text-decoration-none">
-                    <div class="card bg-secondary">
-                      <img id="img_url_example" class="p-2 my-3 rounded-4 shadow m-auto center" src="${img_url}"
-                        alt="" width="265" height="265">
-                      <div class="card-body bg-secondary">
-                        <h2 class="card-text text-white my-3">${title}</h2>
-                        <p class="card-text text-white my-3">${content}</p>
-                        
-                      </div>
-                    </div>
-                  </a>
+        <a href="#" class="img_cell text-decoration-none view overlay zoom">
+          <div class="card bg-secondary">
+            <img id="img_url_example" class="p-2 my-3 rounded-4 shadow m-auto center" src="${img_url}"
+              alt="" width="265" height="265">
+            <div class="card-body bg-secondary">
+              <h2 class="card-text text-white my-3">${title}</h2>
+              <p class="card-text text-white my-3">${content}</p>
+              
+            </div>
+          </div>
+        </a>
                 `; //</div>
 
   return tag;

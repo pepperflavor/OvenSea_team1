@@ -221,7 +221,9 @@ chatSocket.setConnection(() => {
     event: "newChat",
     callback: (data) => {
       console.log("newChat소켓 :", data);
-      chatManager.addNewChat(data, myAuth.getUid());
+      if (data.room_id === chatManager.getCurrRoomId()) {
+        chatManager.addNewChat(data, myAuth.getUid());
+      }
     },
   });
 });
@@ -245,6 +247,7 @@ myAuth.getAuth().then((myAUth) => {
         msg: msgText,
       };
       sendChat(sendChatContent);
+      msgText.value = "";
     });
   });
 
