@@ -14,8 +14,6 @@ class Auth {
     });
   };
 
-
-  
   getUser = () => this.myAuth;
   getUid = () => this.myAuth.uid;
   getImgUrl = () => this.myAuth.img_url;

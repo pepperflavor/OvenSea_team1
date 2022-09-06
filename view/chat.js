@@ -251,6 +251,7 @@ myAuth.getAuth().then((myAUth) => {
     });
   });
 
+  // console.log("online 이밋 전에 데이터 user:", user);
   eventSocket.emit({
     event: "online",
     user,
