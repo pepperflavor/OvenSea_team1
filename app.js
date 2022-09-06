@@ -337,7 +337,6 @@ app.post("/upLikeNft", async (req, res) => {
               if (data?.upLikeNft) {
                 const { like } = dataValues;
                 const result = JSON.parse(like).length;
-                // res.send(`${result}`);
               }
             });
           }
