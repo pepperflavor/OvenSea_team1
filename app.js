@@ -285,13 +285,12 @@ app.post("/sendChat", authMW, async (req, res) => {
         not_read: toStringNotRead,
       };
       // console.log("생성된createChat ", createChat);
-      Chat.create(createChat)
-        .then((result) => {
-          // console.log("newChat :", { event: "newChat", data: createChat });
-          chat.toEmit({ to: "all", event: "newChat", ...createChat });
-          chat.emit({ event: "newChat", ...createChat });
-          res.send("end");
-        })
+      Chat.create(createChat).then((result) => {
+        // console.log("newChat :", { event: "newChat", data: createChat });
+        chat.toEmit({ to: "all", event: "newChat", ...createChat });
+        chat.emit({ event: "newChat", ...createChat });
+        res.send("end");
+      });
     });
   } catch (error) {
     console.log(error);
@@ -494,11 +493,15 @@ app.post("/getRooms", async (req, res) => {
 });
 
 app.post("/existEmail", async (req, res) => {
-  const { user_email } = req.body;
-  const exist = await User.findOne({ where: { email: user_email } });
-  if (exist)
-    res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
-  else res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아" }));
+  try {
+    const { user_email } = req.body;
+
+    const user = await getData(User, { where: { email: user_email } });
+
+    user === false
+      ? res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }))
+      : res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아 가입 진행시켜" }));
+  } catch (error) {}
 });
 
 app.get("/signup", async (req, res) => {
@@ -508,7 +511,6 @@ app.get("/signup", async (req, res) => {
 app.post("/signup", async (req, res) => {
   try {
     const { user_email, user_pwd, img_url, name } = req.body;
-
     // console.log({ user_email, user_pwd, img_url, name });
     const uid = createUid();
     const user = {
@@ -533,16 +535,10 @@ app.post("/signup", async (req, res) => {
 
     user["refresh_token"] = refreshToken;
 
-    // console.log(
-    //   "refreshToken@@@@@@@@@@",
-    //   verify(refreshToken, (token_type = "refresh"))
-    // );
-    // console.log("accessToken@@@@@@@@@@", verify(accessToken));
-
     res.cookie("accessToken", accessToken, { maxAge: constant.ONE_WEEK });
     res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
 
-    await User.create(user);
+    createData(User, user);
     console.log("회원가입성공", user);
 
     res.redirect("/");
