@@ -1,17 +1,9 @@
 const { createUid, createNftId } = require("./createRandom");
-const {
-  sequelize,
-  User,
-  Post,
-  Nft,
-  Room,
-  Chat,
-  NftBrand,
-} = require("../model");
+const { sequelize, User, Nft, Room, Chat, NftBrand } = require("../model");
 const constant = require("../model/constants");
 const { sign } = require("./jwt_util");
 
-function createData(db, input) {
+async function createData(db, input) {
   return new Promise((resolve, reject) => {
     db.create(input)
       .then(() => {
@@ -21,8 +13,8 @@ function createData(db, input) {
   });
 }
 
-function updateData(db, input, query) {
-  return new Promise((resolve, reject) => {
+async function updateData(db, input, query) {
+  return new Promise((resolve) => {
     db.update(input, { ...query })
       .then(() => {
         resolve({ ok: true });
@@ -31,40 +23,36 @@ function updateData(db, input, query) {
   });
 }
 
-function deleteData(db, query) {
-  return new Promise((resolve, reject) => {
-    db.delete({ ...query })
-      .then((data) => {
-        if (!data) reject(err);
-        resolve(data?.dataValues);
-      })
-      .catch((err) => reject(err));
+async function deleteData(db, query) {
+  return new Promise((resolve) => {
+    db.delete({ ...query }).then((data) => {
+      resolve(data?.dataValues);
+    });
   });
 }
 
-function getData(db, query) {
-  return new Promise((resolve, reject) => {
-    db.findOne({ ...query })
-      .then((data) => {
-        if (!data) reject(err);
-        resolve(data?.dataValues);
-      })
-      .catch((err) => reject(err));
-  });
+async function getData(db, query) {
+  try {
+    return await db.findOne({ ...query }).then((data) => {
+      if (!data) throw new Error("데이터가 없어욤", query);
+      return data?.dataValues;
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function getAllData(db, query) {
-  return new Promise((resolve, reject) => {
+async function getAllData(db, query) {
+  return new Promise((resolve) => {
     db.findAll({ ...query })
       .then((datas) => {
-        if (!datas) reject(err);
-        resolve(datas.map((data) => data.dataValues));
+        if (datas) resolve(datas.map((data) => data.dataValues));
       })
-      .catch((err) => reject(err));
+      .catch((err) => reject({ ok: true, msg: err }));
   });
 }
 
-function initDb(option = "normal") {
+async function initDb(option = "normal") {
   const typeArr = {
     init: { force: true, switchInit: true },
     normal: { force: false, switchInit: false },

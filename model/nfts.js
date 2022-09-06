@@ -118,7 +118,7 @@ class Nft extends Sequelize.Model {
         collate: "utf8mb4_general_ci",
       }
     );
-  }
+  } 
   // 1:N (foreignKey) 외래키
   static associate(db) {
     // 1:N 관계 (hasMany, belongsTo)
@@ -135,5 +135,6 @@ class Nft extends Sequelize.Model {
     db.Nft.belongsTo(db.Report, { foreignKey: "report_id", targetKey: "id" });
   }
 }
+Nft.prototype.name = () => "Nft DB";
 
 module.exports = Nft;

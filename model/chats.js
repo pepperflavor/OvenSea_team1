@@ -33,7 +33,7 @@ class Chat extends Sequelize.Model {
           // 주민번호나 전화번호 겹치지 않는 값들 혹여나 안겹치게
           autoIncrement: true,
         },
-        msg:{
+        msg: {
           type: Sequelize.TEXT,
           allowNull: false,
         },
@@ -51,21 +51,20 @@ class Chat extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: true,
         },
-        
+
         not_read: {
           type: Sequelize.TEXT, //[{uid}]
           allowNull: true,
         },
-        
+
         cancel: {
           type: Sequelize.TINYINT, // 0, 1
         },
-        
+
         link_content: {
           type: Sequelize.TEXT,
           allowNull: true,
         },
-
 
         // 생성한 시간이 필요하다 할때 사용하면 됨 테이블 자체에 timestamps : true 도 쓸수 있음.
         // created_at: {
@@ -112,5 +111,7 @@ class Chat extends Sequelize.Model {
     db.Chat.belongsTo(db.Room, { foreignKey: "room_id", targetKey: "room_id" });
   }
 }
+
+Chat.prototype.name = () => "Chat DB";
 
 module.exports = Chat;

@@ -131,6 +131,8 @@ class User extends Sequelize.Model {
       }
     );
   }
+  
+  static name = () => "User DB";
   // 1:N (foreignKey) 외래키
   static associate(db) {
     // 1:N 관계 (hasMany, belongsTo)

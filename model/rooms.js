@@ -94,4 +94,5 @@ class Room extends Sequelize.Model {
   }
 }
 
+Room.prototype.name = () => "Room DB";
 module.exports = Room;

@@ -83,6 +83,7 @@ class NftBrand extends Sequelize.Model {
       }
     );
   }
+  
   // 1:N (foreignKey) 외래키
   static associate(db) {
     // 1:N 관계 (hasMany, belongsTo)
@@ -103,4 +104,5 @@ class NftBrand extends Sequelize.Model {
   }
 }
 
+NftBrand.prototype.name = () => "NftBrands DB";
 module.exports = NftBrand;

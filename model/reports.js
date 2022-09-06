@@ -89,7 +89,7 @@ class Report extends Sequelize.Model {
         collate: "utf8mb4_general_ci",
       }
     );
-  }
+  } 
   // 1:N (foreignKey) 외래키
   static associate(db) {
     db.Report.belongsTo(db.User, { foreignKey: "principle", targetKey: "uid" });
@@ -99,5 +99,7 @@ class Report extends Sequelize.Model {
     db.Report.hasMany(db.Chat, { foreignKey: "report_id", sourceKey: "id" });
   }
 }
+
+Report.prototype.name = () => "Report DB";
 
 module.exports = Report;
