@@ -175,14 +175,15 @@ class PlayScene extends BaseScene {
 
     rankButton.on("pointerdown", () => {
          alert("랭크버튼을 클릭하면 최고점수가 전송됩니다.");
-           const nickname = prompt("Enter your nickname for rank", "");
-          const bestScoreText = localStorage.getItem("bestScore");
-          // getAuth();
+         const bestScoreText = localStorage.getItem("bestScore");
+         // const nickname 쿠키에서 네임 받아오기
+          getAuth();
           let rankObj = {
-            nickname: nickname,
+            // 쿠키에서 받아온 이름
+            nickname: this.myAuth.name,
             //this.myAuth.name;
             score: this.bestScore,
-            // userUid : this.myAuth.uid;
+            userUid : this.myAuth.uid,
           };
 
           sendAxios({

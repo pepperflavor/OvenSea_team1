@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <button id="ggyu"></button>
-  </body>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-  <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js"></script>
-  <script>
-    const makeParams = (data) => {
+<!doctype html><html lang="ko"><head><meta charset="UTF-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Fly</title><style>body {
+        padding: 0px;
+        margin: 0px;
+        overflow: hidden;
+      }</style><script defer="defer" src="vendor.js"></script><script defer="defer" src="app.js"></script></head><body><button>클릭</button></body><script src="https://code.jquery.com/jquery-3.4.1.js"></script><script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script><script>const makeParams = (data) => {
       const dataObj = { ...data };
       const params = new URLSearchParams();
 
@@ -35,7 +24,7 @@
       return axios.post(url, params, { headers });
     };
 
-    document.getElementById("ggyu").addEventListener("click", function () {
+    $("button").click(function () {
       sendAxios({
         url: "http://192.168.0.206:3000/addRank",
         data: { score: 123, user: "뀨" },
@@ -46,6 +35,4 @@
         .catch((err) => {
           console.log(err);
         });
-    });
-  </script>
-</html>
+    });</script></html>

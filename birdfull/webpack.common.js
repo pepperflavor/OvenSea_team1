@@ -1,7 +1,7 @@
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
+const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
@@ -12,15 +12,6 @@ module.exports = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
-  },
-  resolve: {
-    fallback: {
-      buffer: false,
-      stream: false,
-      http: false,
-      crypto: false,
-      zlib: false,
-    },
   },
   optimization: {
     splitChunks: {
@@ -38,10 +29,12 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
+        use: ["babel-loader"],
       },
+      {
+        test:/\.css$/, //정규식 표현식, 일단 외워놓으세요
+        use:['style-loader','css-loader'] 
+    }
     ],
   },
   devServer: {
