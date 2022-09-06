@@ -2,8 +2,9 @@ const eventSocket = new ClientSocket("event");
 
 let onlineUserList = [];
 
-myAuth.getAuth().then((myAUth) => {
-  const user = myAUth.getUser();
+myAuth.getAuth().then((myAuth) => {
+  const user = myAuth.getUser();
+  console.log("online 이밋 전에 데이터 user:", user);
   eventSocket.emit({
     event: "online",
     user,

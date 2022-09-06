@@ -12,6 +12,7 @@ const { encrypt, compare } = require("./crypto");
 const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 // const { ERROR_CODE } = require("./config/config");
+const Json = require("./util/json_util");
 const {
   initDb,
   createData,
@@ -122,11 +123,11 @@ event.setConnection(() => {
   event.on({
     event: "online",
     callback: (newUser) => {
-      console.log("online", newUser);
+      console.log("online 이벤트", newUser);
 
-      const isSameIdx = onlineUser.find((user) => {
-        return user.uid === newUser.uid;
-      });
+      const isSameIdx = onlineUser.findIndex(
+        (user) => user.uid === newUser.uid
+      );
       console.log(isSameIdx);
 
       if (isSameIdx === undefined) {
@@ -181,7 +182,8 @@ app.use(express.urlencoded({ extended: false }));
 app.post("/addRank", (req, res) => {
   const { score, nickname } = req.body;
 
-  console.log("@", score, nickname);
+  console.log(`addRank 닉네임 : ${nickname}, 스코어 ${score}`);
+
   res.send({ score, nickname });
 });
 
@@ -255,6 +257,18 @@ app.post("/sendChat", authMW, async (req, res) => {
         dataValues: { member },
       } = room;
       const not_read = [];
+
+      const memberObj = new Json(member);
+      const { isExist } = memberObj.find(({ name }) => {
+        name === user.name;
+      });
+      const { uid, name, img_url } = user;
+
+      console.log(isExist);
+
+      if (!isExist) memberObj.push({ uid, name, img_url });
+
+
       JSON.parse(member).forEach(({ name }) => {
         if (name !== user.name) {
           not_read.push(name);
@@ -407,10 +421,11 @@ app.get("/loginpage", (req, res) => {
   res.render("login");
 });
 
-app.post("/getAuth", authMW, (req, res) => {
+app.post("/getAuth", (req, res) => {
   const { refreshToken, lightToken } = req.cookies;
   const { user } = verify(refreshToken, "refresh");
-  res.send({ ...user, lightToken });
+  console.log("/getAuth : ", user);
+  res.send({ ...user });
 });
 
 app.post("/logout"),
