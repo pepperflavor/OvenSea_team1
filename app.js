@@ -268,7 +268,6 @@ app.post("/sendChat", authMW, async (req, res) => {
 
       if (!isExist) memberObj.push({ uid, name, img_url });
 
-
       JSON.parse(member).forEach(({ name }) => {
         if (name !== user.name) {
           not_read.push(name);
@@ -286,14 +285,17 @@ app.post("/sendChat", authMW, async (req, res) => {
         not_read: toStringNotRead,
       };
       // console.log("생성된createChat ", createChat);
-      Chat.create(createChat).then((result) => {
-        // console.log("newChat :", { event: "newChat", data: createChat });
-        chat.toEmit({ to: "all", event: "newChat", ...createChat });
-        chat.emit({ event: "newChat", ...createChat });
-      });
+      Chat.create(createChat)
+        .then((result) => {
+          // console.log("newChat :", { event: "newChat", data: createChat });
+          chat.toEmit({ to: "all", event: "newChat", ...createChat });
+          chat.emit({ event: "newChat", ...createChat });
+          res.send("end");
+        })
     });
   } catch (error) {
     console.log(error);
+    res.send(error);
   }
 });
 
@@ -329,12 +331,13 @@ app.post("/upLikeNft", async (req, res) => {
         like_length++;
         Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
           (id) => {
+            res.send(`end`);
             console.log(id[0]);
             Nft.findOne({ where: { id: id[0] } }).then((data) => {
               if (data?.upLikeNft) {
                 const { like } = dataValues;
                 const result = JSON.parse(like).length;
-                res.send(`${result}`);
+                // res.send(`${result}`);
               }
             });
           }
