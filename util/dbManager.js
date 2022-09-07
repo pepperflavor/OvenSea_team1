@@ -31,18 +31,24 @@ async function deleteData(db, query) {
   });
 }
 
-async function getData(db, query) {
+async function findData(db, query) {
   try {
-    return await db.findOne({ ...query }).then((data) => {
-      if (!data) throw new Error("데이터가 없어욤", query);
-      return data?.dataValues;
-    });
+    return await db
+      .findOne({ ...query })
+      .then((data) => {
+        if (!data) throw new Error("데이터가 없어욤", query);
+        return data?.dataValues;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
   } catch (error) {
     console.log(error);
   }
 }
 
-async function getAllData(db, query) {
+async function findAllData(db, query) {
   return new Promise((resolve) => {
     db.findAll({ ...query })
       .then((datas) => {
@@ -72,9 +78,24 @@ async function initDb(option = "normal") {
 }
 
 async function initData() {
-  const nfts = [createUid(), createUid(), createUid(), createUid()];
-  const userNfts = [createUid(), createUid(), createUid(), createUid()];
-  const rooms = [createUid(), createUid(), createUid(), createUid()];
+  const nfts = [
+    { nft: createUid() },
+    { nft: createUid() },
+    { nft: createUid() },
+    { nft: createUid() },
+  ];
+  const userNfts = [
+    { nft: createUid() },
+    { nft: createUid() },
+    { nft: createUid() },
+    { nft: createUid() },
+  ];
+  const rooms = [
+    { room: createUid() },
+    { room: createUid() },
+    { room: createUid() },
+    { room: createUid() },
+  ];
 
   await User.bulkCreate([
     {
@@ -528,7 +549,7 @@ async function initData() {
   ]);
   await Room.bulkCreate([
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       event: JSON.stringify([
         {
           uid: "user1",
@@ -545,7 +566,7 @@ async function initData() {
       ]),
     },
     {
-      room_id: rooms[1],
+      room_id: rooms[1].room,
       event: JSON.stringify([
         {
           uid: "",
@@ -560,7 +581,7 @@ async function initData() {
       ]),
     },
     {
-      room_id: rooms[2],
+      room_id: rooms[2].room,
       event: JSON.stringify([
         {
           uid: "",
@@ -575,7 +596,7 @@ async function initData() {
       ]),
     },
     {
-      room_id: rooms[3],
+      room_id: rooms[3].room,
       event: JSON.stringify([
         {
           uid: "",
@@ -592,7 +613,7 @@ async function initData() {
   ]);
   await Chat.bulkCreate([
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       sender: "admin",
       name: "admin",
       img_url: "/static/image/cat.png",
@@ -600,7 +621,7 @@ async function initData() {
       not_read: JSON.stringify(["user1", "user2", "user3"]),
     },
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       sender: "user1",
       name: "user1",
       img_url: "/static/image/turn.gif",
@@ -608,7 +629,7 @@ async function initData() {
       not_read: JSON.stringify(["user1", "user2", "user3"]),
     },
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       sender: "user2",
       name: "user2",
       img_url: "/static/image/brand.gif",
@@ -616,7 +637,7 @@ async function initData() {
       not_read: JSON.stringify(["user1", "user2"]),
     },
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       sender: "user3",
       name: "user3",
       msg: "방1 테스트4",
@@ -624,7 +645,7 @@ async function initData() {
       not_read: JSON.stringify(["user1"]),
     },
     {
-      room_id: rooms[0],
+      room_id: rooms[0].room,
       sender: "user3",
       name: "user3",
       msg: "방1 테스트4",
@@ -632,7 +653,7 @@ async function initData() {
       not_read: JSON.stringify(["user1"]),
     },
     {
-      room_id: rooms[1],
+      room_id: rooms[1].room,
       sender: "admin",
       name: "admin",
       img_url: "/static/image/cat.png",
@@ -640,7 +661,7 @@ async function initData() {
       not_read: JSON.stringify(["user2"]),
     },
     {
-      room_id: rooms[1],
+      room_id: rooms[1].room,
       sender: "user2",
       name: "user2",
       img_url: "/static/image/brand.gif",
@@ -648,7 +669,7 @@ async function initData() {
       not_read: JSON.stringify(["admin"]),
     },
     {
-      room_id: rooms[2],
+      room_id: rooms[2].room,
       sender: "admin",
       name: "admin",
       img_url: "/static/image/cat.png",
@@ -656,7 +677,7 @@ async function initData() {
       not_read: JSON.stringify(["user3"]),
     },
     {
-      room_id: rooms[2],
+      room_id: rooms[2].room,
       sender: "user1",
       name: "user1",
       img_url: "/static/image/turn.gif",
@@ -669,8 +690,8 @@ async function initData() {
 module.exports = {
   initDb,
   createData,
-  getAllData,
-  getData,
+  findAllData,
+  findData,
   updateData,
   deleteData,
 };

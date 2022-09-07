@@ -22,15 +22,3 @@ class Auth {
   getGallery = () => JSON.parse(this.myAuth.gallery);
   getGrade = () => this.myAuth.grade;
 }
-
-// const myAuth = new Auth();
-// myAuth.getAuth().then(() => {
-//   console.log(
-//     myAuth.getUid(),
-//     myAuth.getImgUrl(),
-//     myAuth.getbalance(),
-//     myAuth.getName(),
-//     myAuth.getGallery(),
-//     myAuth.getGrade()
-//   );
-// });

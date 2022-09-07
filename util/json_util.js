@@ -31,12 +31,14 @@ Json.prototype.sendJson = function () {
 };
 
 Json.prototype.push = function (data) {
-  if (!data.length) {
-    this.original.push(data);
-  } else {
-    const datas = { ...data };
-    datas.forEach((data) => this.original.push(data));
-  }
+  this.original.push(data);
+  // if (!data.length) {
+  //   this.original.push(data);
+  // } else {
+  //   const datas = { data };
+  //   console.log(datas);
+  //   datas.forEach((data) => this.original.push(data));
+  // }
   return { afterLength: this.original.length, after: this.original };
 };
 
@@ -46,8 +48,9 @@ Json.prototype.push = function (data) {
  */
 Json.prototype.find = function (callback) {
   const copyObj = { ...this.obj };
-
-  const idx = this.original.findIndex(callback);
+  let idx;
+  if (!this.original.findIndex) idx = this.original.findIndex(callback);
+  else idx = this.original.indexOf(callback);
 
   const isExist = idx > -1 ? true : false;
 

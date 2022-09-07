@@ -16,8 +16,8 @@ const Json = require("./util/json_util");
 const {
   initDb,
   createData,
-  getAllData,
-  getData,
+  findAllData,
+  findData,
   updateData,
   deleteData,
 } = require("./util/dbManager");
@@ -124,7 +124,12 @@ event.setConnection(() => {
     event: "online",
     callback: (newUser) => {
       console.log("online 이벤트", newUser);
-
+      /**
+       *  {uid     : "uid" ,
+       *   name    : "userName"
+       *   status  : "접속중",
+       *   img_url : "sdf", }
+       * */
       const isSameIdx = onlineUser.findIndex(
         (user) => user.uid === newUser.uid
       );
@@ -425,7 +430,6 @@ app.get("/loginpage", (req, res) => {
 app.post("/getAuth", (req, res) => {
   const { refreshToken, lightToken } = req.cookies;
   const { user } = verify(refreshToken, "refresh");
-  console.log("/getAuth : ", user);
   res.send({ ...user });
 });
 
@@ -458,50 +462,40 @@ app.post("/getChats", async (req, res) => {
   res.send(chats);
 });
 
-function name(params) {}
-
-async function getRooms(uid) {
-  try {
-    if (!uid) throw Error("getRooms uid = null");
-    const user = await User.findOne({ where: { uid } });
-
-    const roomsArr = JSON.parse(rooms);
-  } catch (error) {}
-}
-
 app.post("/getRooms", async (req, res) => {
   try {
     const { uid } = req.body;
 
-    const {
-      dataValues: { rooms },
-    } = await User.findOne({ where: { uid } });
+    const user = await findData(User, { where: { uid } });
 
-    const roomsObj = JSON.parse(rooms || "[]");
+    const roomsObj = new Json(user.rooms);
+    // console.log(roomsObj.original);
+    if (roomsObj.length === 0) throw new Error("not chat rooms");
+    const roomList = [...roomsObj.original.map(({ room }) => room)];
+    // console.log(roomList);
 
-    const roomresult = await Room.findAll({
-      where: { room_id: [...roomsObj] },
+    const roomResult = await findAllData(Room, {
+      where: { room_id: [roomList] },
       order: [
         ["updatedAt", "ASC"], //ASC DESC
       ],
     });
-
-    res.send(roomresult);
+    
+    console.log("getRooms", roomResult);
+    res.send(roomResult);
   } catch (error) {
+    res.send();
     console.log("err-getRooms :", error);
   }
 });
 
 app.post("/existEmail", async (req, res) => {
-  try {
-    const { user_email } = req.body;
+  const { user_email } = req.body;
 
-    const user = await getData(User, { where: { email: user_email } });
-
-    user === false
-      ? res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }))
-      : res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아 가입 진행시켜" }));
-  } catch (error) {}
+  const user = await findData(User, { where: { email: user_email } });
+  user === false
+    ? res.send(JSON.stringify({ ok: true, msg: "아쥬 죠아 가입 진행시켜" }))
+    : res.send(JSON.stringify({ ok: false, msg: "아이디가 존재합니다." }));
 });
 
 app.get("/signup", async (req, res) => {

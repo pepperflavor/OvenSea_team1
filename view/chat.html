@@ -114,25 +114,26 @@
 
   <div class="container">
     <div class="container-fluid pb-3 ">
-      <div class="d-grid gap-3" style="grid-template-columns: 1fr 2fr; height: 90%; max-height:90%;">
+      <div class="d-grid gap-3" style="grid-template-columns: 1fr 3fr 1fr; height: 90%; max-height:90%;">
         <!-- Users box-->
         <div class="px-0 bg-dark">
           <div class="bg-dark">
             <div class="bg-gray py-2 bg-dark">
               <p class="h5 mb-0 py-1 text-white">채팅방</p>
             </div>
-
             <div class="messages-box">
-              <div id="userBox" class="list-group rounded-0">
-
+              <div id="userBox" class="list-group rounded-0" style="overflow-y: scroll; height: 85vh;">
+                <!--  -->
               </div>
             </div>
           </div>
         </div>
         <!-- Chat Box start-->
         <div class="bg-dark">
+          <p class="h5 mb-0 py-1 text-white">메세지 내용</p>
           <div id="chatBox" class="py-5 chat-box bg-dark d-flex flex-column" style="overflow-y: scroll; height: 85vh;">
             <h1 id="noRooms" class="text-white m-auto">채팅방을 선택해주세요.</h1>
+            <!--  -->
           </div>
 
           <!-- Chat Box end-->
@@ -153,6 +154,21 @@
             </div>
           </div>
         </div>
+        <!--  box-->
+        <div class="px-0 bg-dark">
+          <div class="bg-dark">
+            <div class="bg-gray py-2 bg-dark">
+              <p class="h5 mb-0 py-1 text-white">유저창</p>
+            </div>
+            <div class="messages-box">
+              <div id="onlineBox" class="list-group rounded-0" style="overflow-y: scroll; height: 85vh;">
+
+                <!--  -->
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -163,6 +179,7 @@
 <script src="static/util/axios_util.js"></script>
 <script src="static/util/auth.js"></script>
 <script src="static/model/dbManager.js"></script>
+<script src="static/util/json_util.js"></script>
 <script src="static/socket/client.js"></script>
 <script src="static/view/chat.js"></script>
 <script src="static/view/event.js"></script>

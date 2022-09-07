@@ -14,55 +14,60 @@ class ChatManager {
       sendAxios({
         url: "/getRooms",
         data: { uid: myUid },
-      }).then(({ data }) => {
-        data.forEach((room) => {
-          const { room_id, event, member, updatedAt } = room;
-          const memberObj = JSON.parse(member);
-          const meberImgs = memberObj.map((oneMember) => oneMember.img_url);
+      }).then(({data}) => {
+        console.log(data);
+        
+        if (data) {
+          data.forEach((room) => {
+            const { room_id, event, member, updatedAt } = room;
+            const memberObj = JSON.parse(member);
+            const meberImgs = memberObj.map((oneMember) => oneMember.img_url);
 
-          const roomTag = setRoomTag({
-            room_id,
-            meberImgs,
-            event,
-            updatedAt,
-            memberObj,
-          });
-          const boxAEl = document.createElement("a");
-
-          boxAEl.innerHTML = roomTag;
-          boxAEl.addEventListener("click", (e) => {
-            socket.emit({
-              event: "leaveChatRoom",
-              room_id: this.getCurrRoomId(),
+            const roomTag = setRoomTag({
+              room_id,
+              meberImgs,
+              event,
+              updatedAt,
+              memberObj,
             });
+            
+            const boxAEl = document.createElement("a");
 
-            this.setCurrRoomId(room_id);
+            boxAEl.innerHTML = roomTag;
+            boxAEl.addEventListener("click", (e) => {
+              socket.emit({
+                event: "leaveChatRoom",
+                room_id: this.getCurrRoomId(),
+              });
 
-            socket.emit({
-              event: "joinChatRoom",
-              my_uid: myAuth.getUid(),
-              my_name: myAuth.getName(),
-              room_id: this.getCurrRoomId(),
-            });
+              this.setCurrRoomId(room_id);
 
-            console.log("현재 RoomId :", { room_id: this.getCurrRoomId() });
-            chat_input.classList.remove("visually-hidden");
+              socket.emit({
+                event: "joinChatRoom",
+                my_uid: myAuth.getUid(),
+                my_name: myAuth.getName(),
+                room_id: this.getCurrRoomId(),
+              });
 
-            data.forEach((room_target) => {
+              console.log("현재 RoomId :", { room_id: this.getCurrRoomId() });
+              chat_input.classList.remove("visually-hidden");
+
+              data.forEach((room_target) => {
+                document
+                  .getElementById(`${room_target.room_id}`)
+                  .classList.remove("active");
+              });
               document
-                .getElementById(`${room_target.room_id}`)
-                .classList.remove("active");
+                .getElementById(`${this.getCurrRoomId()}`)
+                .classList.add("active");
+              this.getChat(room_id, myUid);
             });
-            document
-              .getElementById(`${this.getCurrRoomId()}`)
-              .classList.add("active");
-            this.getChat(room_id, myUid);
-          });
 
-          this.roomElements[data[0].room_id] = boxAEl;
-          userBox.appendChild(boxAEl);
-        });
-        resolve(this.roomElements);
+            this.roomElements[data[0].room_id] = boxAEl;
+            userBox.appendChild(boxAEl);
+          });
+          resolve(this.roomElements);
+        }
       });
     });
   };
