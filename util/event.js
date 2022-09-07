@@ -18,7 +18,6 @@ eventSocket.setConnection(() => {
       event: "online",
       callback: ({users}) => {
         console.log("online", users);
-        console.log("onlineUserList@@@@@@@@@@@@@@@@@@@", onlineUserList);
       },
     })
     .on({

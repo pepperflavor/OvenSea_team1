@@ -213,7 +213,7 @@ async function initData() {
       brand_img:
         "https://lh3.googleusercontent.com/13g3FRwKuCmawyeH_rN5VwYbQZ8KrWdN8IZf4_uKJ3IeLjligIY7ZZ_HR7b48RKUJuUfevFTMzxFJcBWdn51TyZVoAXNPqh1TCIprw=h600",
       content:
-        "펭귄만 그림 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 귀여웡 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아 펭귄조아",
+        "펭귄만그림 내용",
       editor_uid: "user2",
     },
     {
@@ -222,7 +222,7 @@ async function initData() {
       brand_img:
         "https://lh3.googleusercontent.com/2yxEzSzTzCzRwhi9HE5vZMI-2seqe0koChnBkuTBZ4q-N8O5whASxH0U2Y92ISrcc_wBqYR8usrFSoJ0QnRvKg8fM1UAyf4l3ArULQ=h600",
       content:
-        "피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡 피닐리아 귀여웡",
+        "피닐리아 내용",
       editor_uid: "user3",
     },
     {
