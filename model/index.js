@@ -13,9 +13,9 @@ const Room = require("./rooms")
 
 // console.log(config);
 
-const { database, username, password } = config.dev;
+const { database, username, password } = config.prod;
 
-const sequelize = new Sequelize(database, username, password, config.dev);
+const sequelize = new Sequelize(database, username, password, config.prod);
 
 // 내보내기 위한 빈객체
 const db = {};
