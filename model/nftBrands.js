@@ -37,7 +37,7 @@ class NftBrand extends Sequelize.Model {
           type: Sequelize.STRING(255),
           unique: true,
         },
-        img_url: {
+        brand_img: {
           type: Sequelize.STRING(255),
           allowNull: false,
         },

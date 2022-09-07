@@ -14,9 +14,7 @@ class ChatManager {
       sendAxios({
         url: "/getRooms",
         data: { uid: myUid },
-      }).then(({data}) => {
-        console.log(data);
-        
+      }).then(({ data }) => {
         if (data) {
           data.forEach((room) => {
             const { room_id, event, member, updatedAt } = room;
@@ -30,7 +28,68 @@ class ChatManager {
               updatedAt,
               memberObj,
             });
-            
+
+            const boxAEl = document.createElement("a");
+
+            boxAEl.innerHTML = roomTag;
+            boxAEl.addEventListener("click", (e) => {
+              socket.emit({
+                event: "leaveChatRoom",
+                room_id: this.getCurrRoomId(),
+              });
+
+              this.setCurrRoomId(room_id);
+
+              socket.emit({
+                event: "joinChatRoom",
+                my_uid: myAuth.getUid(),
+                my_name: myAuth.getName(),
+                room_id: this.getCurrRoomId(),
+              });
+
+              console.log("현재 RoomId :", { room_id: this.getCurrRoomId() });
+              chat_input.classList.remove("visually-hidden");
+
+              data.forEach((room_target) => {
+                document
+                  .getElementById(`${room_target.room_id}`)
+                  .classList.remove("active");
+              });
+              document
+                .getElementById(`${this.getCurrRoomId()}`)
+                .classList.add("active");
+              this.getChat(room_id, myUid);
+            });
+
+            this.roomElements[data[0].room_id] = boxAEl;
+            userBox.appendChild(boxAEl);
+          });
+          resolve(this.roomElements);
+        }
+      });
+    });
+  };
+
+  setUser = () => {
+    return new Promise((resolve, reject) => {
+      sendAxios({
+        url: "/getRooms",
+        data: { uid: myUid },
+      }).then(({ data }) => {
+        if (data) {
+          data.forEach((room) => {
+            const { room_id, event, member, updatedAt } = room;
+            const memberObj = JSON.parse(member);
+            const meberImgs = memberObj.map((oneMember) => oneMember.img_url);
+
+            const roomTag = setRoomTag({
+              room_id,
+              meberImgs,
+              event,
+              updatedAt,
+              memberObj,
+            });
+
             const boxAEl = document.createElement("a");
 
             boxAEl.innerHTML = roomTag;
@@ -214,7 +273,6 @@ function setMyChatTag(data) {
 </div>`;
 }
 
-const myAuth = new Auth();
 const chatManager = new ChatManager();
 const chatSocket = new ClientSocket("chat");
 const eventSocket = new ClientSocket("event");
@@ -233,9 +291,37 @@ chatSocket.setConnection(() => {
   });
 });
 
+function getOnlineUser() {
+  sendAxios({
+    url: "/getOnlineUser",
+    data: { user: true },
+  }).then((users) => {
+    const json = new Json(users);
+    if (!json.isEmpty()) {
+      onlineBox.innerHTML = "";
+      json.original.forEach((user) => {
+        const newEl = document.createElement("div");
+        newEl.innerHTML += setUserTag(user);
+        onlineBox.appendChild(newEl);
+      });
+
+      json.original.forEach((user) => {
+        const onlineDiv = document.getElementById(`${user.uid}`);
+        onlineDiv.addEventListener("click", () => {
+          const user1 = new Json();
+          user1.initJson(myAuth.getUser());
+          user1.push(user);
+        });
+      });
+    }
+  });
+}
+
 myAuth.getAuth().then((myAUth) => {
   console.log("chat myAuth Uid :", myAUth.getUid());
   const user = myAuth.getUser();
+
+  getOnlineUser();
 
   chatManager.getRooms(myAUth.getUid(), chatSocket).then(() => {
     sendMsg_btn.addEventListener("click", () => {
@@ -263,16 +349,44 @@ myAuth.getAuth().then((myAUth) => {
   });
 });
 
+const onlineBox = document.getElementById("onlineBox");
+
 eventSocket.setConnection(() => {
   console.log("이벤트 connect");
 
   eventSocket
     .on({
       event: "online",
-      callback: (data) => {
-        console.log("online", data);
-        onlineUserList = data;
-        console.log("onlineUserList", onlineUserList);
+      callback: ({ users }) => {
+        const json = new Json(users);
+        console.log("online", json);
+        onlineBox.innerHTML = "";
+        json.original.forEach((user) => {
+          const newEl = document.createElement("div");
+          newEl.innerHTML += setUserTag(user);
+          onlineBox.appendChild(newEl);
+        });
+
+        json.original.forEach((user) => {
+          const onlineDiv = document.getElementById(`${user.uid}`);
+          onlineDiv.addEventListener("click", () => {
+            const user1 = new Json();
+            user1.initJson(myAuth.getUser());
+            user1.push(user);
+
+            console.log(user1.jsontoString());
+
+            console.log({
+              member: user1.jsontoString(),
+            });
+            sendAxios({
+              url: "/createRoom",
+              data: { member: user1.jsontoString() },
+            }).then(({ data }) => {
+              console.log("@@완료", data);
+            });
+          });
+        });
       },
     })
     .on({
@@ -290,3 +404,18 @@ eventSocket.setConnection(() => {
       },
     });
 });
+
+function setUserTag(data) {
+  const { img_url, name, uid } = data;
+
+  return `<a id=${uid} href="#" class="list-group-item list-group-item-action list-group-item-dark  text-white rounded my-1">
+      <div class="media">
+        <div class="media-body ml-4">
+          <img src="${img_url}" alt="user" width="50" height="50" class="rounded-circle mx-3" />
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <h6 class="mb-0">${name}</h6>
+        </div>
+        </div>
+      </div>
+    </a>`;
+}

@@ -7,30 +7,39 @@ class Json {
     else if (typeof initJSON === "object") this.original = initJSON;
   }
 }
+
+Json.prototype.bind = function (callback) {
+  return callback(this);
+};
+
+Json.prototype.isEmpty = function () {
+  if (this.original.length === 1) {
+    const result = Object.values(this.original[0]).map((value) => {
+      if (value == "") return true;
+    });
+    return result[0];
+  }
+  return false;
+};
+
 /**
  * @param {string[]}
  * @returns {this}
  */
-Json.prototype.initJson = function (columnArr) {
-  const arr = [];
-  columnArr.forEach((column) => {
-    const obj = {};
-    const defaultValue = "";
-    obj[column] = defaultValue;
-    arr.push(obj);
-  });
-  this.original = arr;
+Json.prototype.initJson = function (obj) {
+  this.original = [obj];
   return this;
 };
 
 /**
  * @returns {String}
  */
-Json.prototype.sendJson = function () {
+Json.prototype.jsontoString = function () {
   return JSON.stringify(this.original);
 };
 
 Json.prototype.push = function (data) {
+  console.log(this.original);
   this.original.push(data);
   // if (!data.length) {
   //   this.original.push(data);
@@ -49,8 +58,7 @@ Json.prototype.push = function (data) {
 Json.prototype.find = function (callback) {
   const copyObj = { ...this.obj };
   let idx;
-  if (!this.original.findIndex) idx = this.original.findIndex(callback);
-  else idx = this.original.indexOf(callback);
+  if (this.original.findIndex) idx = this.original.findIndex(callback);
 
   const isExist = idx > -1 ? true : false;
 
@@ -81,30 +89,6 @@ Json.prototype.delete = function (input_data) {
   }
   return { isDelete, idx: sameIdx, after: [...this.original] };
 };
-Json.prototype.toJson = function (input_data) {
-  this.original = [...input_data];
-  return this;
+Json.prototype.length = function () {
+  return this.original.length;
 };
-
-// const test = new Json(
-//   '[{"user":"Ab01r19240"},{"user":"G5EtD19240"},{"user":"eEMfJ19240"},{"user":"eEMfJ19240"}]'
-// );
-// const test1 = new Json([
-//   { user: "Ab01r19240" },
-//   { user: "G5EtD19240" },
-//   { user: "eEMfJ19240" },
-//   { user: "eEMfJ19240" },
-// ]);
-
-// // console.log();
-// test1.toJson(testObj);
-// console.log(test1.delete({ user: "eEMfJ19240" }));
-// console.log(test1.push({ user: "Ab01r19240" }));
-// console.log(test1.push({ user: "Ab01r19240" }));
-// console.log(test1.push({ user: "Ab01r19240" }));
-
-// console.log(test1.push({ user: "Ab01r19240" }));
-// console.log(test1.delete({ user: "Ab01r19240" }));
-// console.log(test1.push({ user: "Ab01r19240" }));
-// console.log(typeof test1.sendJson(), test1, test1.sendJson());
-// console.log(test1.search(({ user }) => user === "G5E219240"));

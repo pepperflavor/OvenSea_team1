@@ -1,5 +1,4 @@
 const eventSocket = new ClientSocket("event");
-
 let onlineUserList = [];
 
 myAuth.getAuth().then((myAuth) => {
@@ -17,10 +16,9 @@ eventSocket.setConnection(() => {
   eventSocket
     .on({
       event: "online",
-      callback: (data) => {
-        console.log("online", data);
-        onlineUserList = data;
-        console.log("onlineUserList", onlineUserList);
+      callback: ({users}) => {
+        console.log("online", users);
+        console.log("onlineUserList@@@@@@@@@@@@@@@@@@@", onlineUserList);
       },
     })
     .on({

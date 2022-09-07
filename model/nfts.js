@@ -57,7 +57,7 @@ class Nft extends Sequelize.Model {
           type: Sequelize.TEXT,
         },
 
-        img_url: {
+        nft_img: {
           type: Sequelize.STRING(255),
           allowNull: false,
         },

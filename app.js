@@ -13,7 +13,7 @@ const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 // const { ERROR_CODE } = require("./config/config");
 const Json = require("./util/json_util");
-const EventManager = require("./util/eventManager")
+const EventManager = require("./util/eventManager");
 const {
   initDb,
   createData,
@@ -22,7 +22,11 @@ const {
   updateData,
   deleteData,
 } = require("./util/dbManager");
+const { Op } = require("sequelize");
+const { send } = require("process");
 const app = express();
+
+const onlineUser = new Json([{ uid: "", name: "", state: "", img_url: "" }]);
 
 const PORT = 3000;
 
@@ -35,7 +39,7 @@ const server = app.listen(PORT, () => {
 });
 
 initDb();
-// initDb("init");
+//initDb("init");
 
 const io = Socketio(server);
 
@@ -119,27 +123,29 @@ chat.setConnection(() => {
     });
 });
 
-const onlineUser = [];
 event.setConnection(() => {
   event.on({
     event: "online",
-    callback: (newUser) => {
-      console.log("online 이벤트", newUser);
+    callback: ({ user }) => {
       /**
        *  {uid     : "uid" ,
        *   name    : "userName"
        *   status  : "접속중",
        *   img_url : "sdf", }
        * */
-      const isSameIdx = onlineUser.findIndex(
-        (user) => user.uid === newUser.uid
-      );
 
-      if (isSameIdx === undefined) {
-        onlineUser.push(newUser);
+      if (user !== {}) {
+        if (onlineUser.isEmpty()) onlineUser.initJson(user);
+        const { isExist } = onlineUser.find(({ uid }) => uid === user.uid);
+
+        console.log(isExist);
+        if (!isExist) onlineUser.push(user);
+
+        console.log("온라인 리스트", onlineUser);
+        const json = onlineUser.jsontoString();
+        console.log("온라인 리스트", json);
+        event.toEmit({ to: "all", event: "online", users: `${json}` });
       }
-      console.log(onlineUser);
-      event.toEmit({ to: "all", event: "online", onlineUser });
     },
   });
 });
@@ -184,6 +190,49 @@ app.use(express.urlencoded({ extended: false }));
 //   })
 // );
 
+app.post("/getOnlineUser",  (req, res) => {
+  res.send({ users: onlineUser.jsontoString() });
+});
+
+app.post("/createRoom", async (req, res) => {
+  const { member } = req.body; //member : {uid, name, img_url, msg}
+
+  const members = new Json(member);
+
+  const room_id = createNftId();
+  const event = {
+    uid: members.original[0].uid,
+    name: members.original[0].name,
+    img_url: members.original[0].img_url,
+    msg: "",
+  };
+  const _member = members.original.map(({ uid, name, img_url }) => {
+    return { uid, name, img_url };
+  });
+  const _event = new Json().initJson(event);
+  const _memberJson = new Json(_member);
+
+  const data = await createData(Room, {
+    room_id,
+    event: _event.jsontoString(),
+    member: _memberJson.jsontoString(),
+  });
+
+  const uids = members.original.map(({ uid }) => uid);
+
+  await uids.forEach(async (uid) => {
+    const user = await findData(User, { where: { uid } });
+    const json = new Json(user.rooms);
+    json.push({ room: room_id });
+    const users = await updateData(
+      User,
+      { rooms: json.jsontoString() },
+      { where: { uid } }
+    );
+  });
+  res.send(data);
+});
+
 app.post("/addRank", (req, res) => {
   const { score, nickname } = req.body;
 
@@ -193,12 +242,11 @@ app.post("/addRank", (req, res) => {
 });
 
 app.get("/", async (req, res) => {
-  const { accessToken, refreshToken, lightToken } = req.cookies;
-
+  const { accessToken, refreshToken, viewToken } = req.cookies;
   const { ok, user } = verify(refreshToken, "refresh");
 
-  if (!lightToken)
-    res.cookie("lightToken", createUid(), { maxAge: constant.ONE_DAY });
+  if (!viewToken)
+    res.cookie(" viewToken", createUid(), { maxAge: constant.ONE_DAY });
 
   if (ok) {
     res.render("index", { user, isLogin: true });
@@ -209,8 +257,8 @@ app.get("/", async (req, res) => {
 
 app.get("/chat", async (req, res) => {
   const { accessToken, refreshToken } = req.cookies;
-
   const { ok, user } = verify(refreshToken, "refresh");
+
   if (ok) {
     res.render("chat", { user, isLogin: true });
   } else {
@@ -303,82 +351,84 @@ app.post("/sendChat", authMW, async (req, res) => {
   }
 });
 
+app.post("/search", async (req, res) => {
+  const { searchWord } = req.body;
+  const data = await findAllData(Nft, {
+    where: {
+      title: {
+        [Op.like]: "%" + searchWord + "%",
+      },
+    },
+  });
+  res.send(data);
+});
+
 app.post("/upLikeNft", async (req, res) => {
   try {
-    let isSame;
-    let like_length;
-    let likeArr;
+    let likeLength;
+
     const { id } = req.body;
 
     const { refreshToken } = req.cookies;
 
     const { ok, user } = verify(refreshToken, "refresh");
 
+    const { like } = await findData(Nft, { where: { id } });
+
     if (ok) {
-      const nft = await Nft.findOne({ where: { id } });
+      // const nft = await Nft.findOne({ where: { id } });
+      //const { like } = nft.dataValues;
 
-      const { like } = nft.dataValues;
-      console.log(like);
-      likeArr = Json(like);
+      const likeJson = new Json(like);
+      likeJson.bind(async (like) => {
+        const isEmpty = like.isEmpty();
+        const { isExist } = like.find(({ name }) => name == user.name);
 
-      console.log("@@@@@@@@@@@@", likeArr);
-
-      like_length = likeArr[0].name === "" ? 0 : likeArr.length;
-
-      if (like_length !== 0) {
-        likeArr = likeArr.map((value) => value);
-        likeArr.push();
-      } else {
-        likeArr = [{ name: `${user.name}` }];
-      }
-
-      isSame = likeArr.find((name) => name === user.name);
-
-      if (isSame === undefined) {
-        like_length++;
-        const update = await Nft.update(
-          { like: JSON.stringify(likeArr) },
-          { where: { id } }
-        );
-        console.log("@@@@@@@@@@@",update);
-        res.send("1")
-        // Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
-        //   (id) => {
-        //     res.status(200).send(1);
-        //     // res.send(`end`);
-        //     // console.log(id[0]);
-        //     // Nft.findOne({ where: { id: id[0] } }).then((data) => {
-        //     //   if (data.upLikeNft) {
-        //     //     const { like } = dataValues;
-        //     //     const result = JSON.parse(like).length;
-        //     //     res.send("1")
-        //     //   }
-        //     // });
-        //   }
-        // );
-      }
+        if (isEmpty) {
+          like.initJson({ name: user.name });
+          await updateData(
+            Nft,
+            { like: like.jsontoString() },
+            { where: { id } }
+          );
+          likeLength = like.length();
+          res.send(`${likeLength}`);
+        } else {
+          if (!isExist) {
+            like.push({ name: user.name });
+            likeLength = like.length();
+            await updateData(
+              Nft,
+              { like: like.jsontoString() },
+              { where: { id } }
+            );
+            res.send(`${likeLength}`);
+          } else {
+            likeLength = like.length();
+            res.send(`${likeLength}`);
+          }
+        }
+      });
     } else {
-      res.status(400).send("-1");
+      res.send(`${likeLength}`);
     }
   } catch (err) {
     console.log(err);
-    res.status(400).send("-1");
+    res.send(`${likeLength}`);
   }
 });
 
 app.get("/nftPage/:id", async (req, res) => {
   try {
-    let isSame;
-    let view_length;
-    let like_length;
-    let viewArr;
-    let likeArr;
+    let viewLength;
+    let likeLength = 0;
+
     const { id } = req.params;
 
-    const { refreshToken, lightToken } = req.cookies;
+    const { refreshToken, viewToken } = req.cookies;
 
-    if (!lightToken)
-      res.cookie("lightToken", createUid(), { maxAge: constant.ONE_DAY });
+    if (!viewToken)
+      res.cookie(" viewToken", createUid(), { maxAge: constant.ONE_DAY });
 
     const { ok, user } = verify(refreshToken, "refresh");
 
@@ -386,38 +436,42 @@ app.get("/nftPage/:id", async (req, res) => {
 
     const nft = await Nft.findOne({ where: { id } });
 
-    if (nft.dataValues) {
-      const { view, like, id } = nft.dataValues;
-      viewArr = JSON.parse(view);
-      likeArr = JSON.parse(like);
-      const isLike = likeArr.indexOf(user.name) > 0 ? true : false;
+    if (nft?.dataValues) {
+      const { view, like, id } = nft?.dataValues;
+      const viewJson = new Json(view);
+      viewJson.bind((view) => {
+        const isEmpty = view.isEmpty();
+        const { isExist } = view.find(({ name }) => name === viewToken);
 
-      //console.log(JSON.stringify(viewArr));
-      //console.log(typeof viewArr, viewArr);
-      //console.log("isSame :", isSame, viewArr);
+        if (isEmpty) {
+          view.initJson({ name: viewToken });
+        } else {
+          if (!isExist) view.push({ name: viewToken });
+        }
 
-      // console.log("viewArr[0]", viewArr, viewArr[0], viewArr[0].name);
+        viewLength = view.length();
+      });
+      const view1 = await updateData(
+        Nft,
+        { view: viewJson.jsontoString() },
+        { where: { id } }
+      );
 
-      like_length = likeArr[0].name === "" ? 0 : likeArr.length;
+      const likeJson = new Json(like);
+      const { isExist } = likeJson.find(({ name }) => name === user?.name);
+      if (isExist) likeLength = likeJson.length();
+      console.log(isExist);
 
-      view_length = viewArr[0].name === "" ? 0 : viewArr.length;
-
-      if (view_length !== 0) {
-        viewArr = viewArr.map((value) => value);
-      } else {
-        viewArr = [{ name: `${lightToken}` }];
-      }
-
-      isSame = viewArr.find((name) => name === lightToken);
-
-      if (isSame == undefined) {
-        view_length++;
-        Nft.update({ view: JSON.stringify(viewArr) }, { where: { id } });
-      }
-
-      const nftData = { view_length, like_length, isLike, ...nft.dataValues };
+      const nftData = {
+        viewLength,
+        likeLength,
+        isLike: false,
+        ...nft.dataValues,
+      };
       // console.log({ user, ...nftData, isLogin: true });
+
       if (ok) {
+        console.log({ user, ...nftData, isLogin: true });
         res.render("nftPage", { user, ...nftData, isLogin: true });
       } else {
         res.render("nftPage", { ...nftData, img_url: "", isLogin: false });
@@ -439,7 +493,7 @@ app.get("/loginpage", (req, res) => {
 });
 
 app.post("/getAuth", (req, res) => {
-  const { refreshToken, lightToken } = req.cookies;
+  const { refreshToken, viewToken } = req.cookies;
   const { user } = verify(refreshToken, "refresh");
   res.send({ ...user });
 });
@@ -487,7 +541,7 @@ app.post("/getRooms", async (req, res) => {
       ],
     });
 
-    console.log("@@getRooms :", roomResult);
+    //console.log("@@getRooms :", roomResult);
     res.send(roomResult);
   } catch (error) {
     res.send();
@@ -554,6 +608,7 @@ app.get("/logOut", (req, res) => {
   // res.cookie("accessToken",res.session.accessToken);
   res.cookie("accessToken", "", { maxAge: 0 });
   res.cookie("refreshToken", "", { maxAge: 0 });
+  res.cookie("viewToken", "", { maxAge: 0 });
   res.redirect("/");
 });
 
@@ -588,8 +643,6 @@ app.post("/getNfts", (req, res) => {
 });
 
 app.post("/getMyNfts", (req, res) => {});
-
-app.post("/nftPage", (req, res) => {});
 
 // app.post("/create", (req, res) => {
 //   // create이 함수를 사용하면 해당 테이블에 컬럼을 추가할 수 이다.

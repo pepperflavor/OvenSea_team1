@@ -13,7 +13,7 @@ class Auth {
       });
     });
   };
-
+  isLogin = () => (this.myAuth.uid ? true : false);
   getUser = () => this.myAuth;
   getUid = () => this.myAuth.uid;
   getImgUrl = () => this.myAuth.img_url;
@@ -22,3 +22,5 @@ class Auth {
   getGallery = () => JSON.parse(this.myAuth.gallery);
   getGrade = () => this.myAuth.grade;
 }
+
+const myAuth = new Auth();

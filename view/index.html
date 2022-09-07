@@ -61,58 +61,10 @@
 </head>
 
 <body class="bg-dark">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fs-5">
-    <div class="container-fluid fs-5">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
-        aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <div id="navbar">
+    
+  </div>
 
-      <img class="rounded-circle m-auto center me-3 ms-1" src="/static/image/brand.gif" alt="" width="55" height="55" />
-      <a class="navbar-brand fs-2 fw-bold" href="/">Ovensea</a>
-      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-
-        <input class="form-control container-sm w-50 mx-auto bg-dark text-white fs-5 fw-bold" type="search"
-          placeholder="Search" aria-label="Search"></input>
-      </div>
-      <ul class="navbar-nav mb-2 mb-lg-0 fs-5 fw-bold d-none d-lg-flex">
-        <li class="nav-item ms-4">
-          <a class="nav-link active " aria-current="page" href="/">메인페이지</a>
-        </li>
-        <li class="nav-item ms-4">
-          <a class="nav-link " href="/gallery">갤러리</a>
-        </li>
-        <li class="nav-item ms-4">
-          <a class="nav-link" href="/auction">경매</a>
-        </li>
-        <li class="nav-item ms-4">
-          <a class="nav-link" href="/chat">채팅</a>
-        </li>
-        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
-          <a href="/loginPage" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">로그인</a>
-        </li>
-        <li class="nav-item <%=isLogin &&'visually-hidden'%>" id="loginDiv">
-          <a href="/signup" class="btn btn-outline-light ms-4 mt-1 fs-6 fw-bold" id="login_btn">회원가임</a>
-        </li>
-      </ul>
-      <div class="dropdown text-end ms-4 me-1 float-end <%= !isLogin &&'visually-hidden'%>" id="userDiv">
-        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle text-white" data-bs-toggle="dropdown"
-          aria-expanded="false">
-          <img src="<%=user.img_url%>" id="my_imgUrl" alt="mdo" width="32" height="32" class="rounded-circle">
-        </a>
-        <ul class="dropdown-menu text-small" style="transition: 1s all ease-in-out;">
-          <li><a class="dropdown-item" href="/profile">내정보</a></li>
-          <li><a class="dropdown-item" href="/collection">내컬랙션</a></li>
-          <li><a class="dropdown-item" href="/editNft">NFT발행하기</a></li>
-          <li><a class="dropdown-item" href="/chat">채팅창</a></li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
 
   <div class="container">
 
@@ -158,11 +110,12 @@
 </body>
 
 <script src="static/util/client_createRandom.js"></script>
+<script src="static/util/axios_util.js"></script>
 <script src="static/socket/client.js"></script>
+<script src="static/util/auth.js"></script>
 <script src="static/util/event.js"></script>
 <script src="static/util/chat.js"></script>
-<script src="static/util/auth.js"></script>
-<script src="static/util/axios_util.js"></script>
 <script src="static/view/index.js"></script>
+<script src="static/view/navBar.js"></script>
 
 </html>
