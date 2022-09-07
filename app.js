@@ -444,11 +444,6 @@ app.post("/getAuth", (req, res) => {
   res.send({ ...user });
 });
 
-app.post("/logout"),
-  (req, res) => {
-    res.render("index");
-  };
-
 app.post("/main", authMW, async (req, res) => {
   const { user_email, user_pwd } = req.body;
   const user = await User.findOne({ where: { email: user_email } });
