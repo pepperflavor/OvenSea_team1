@@ -89,29 +89,22 @@ Json.prototype.toJson = function (input_data) {
 // const test = new Json(
 //   '[{"user":"Ab01r19240"},{"user":"G5EtD19240"},{"user":"eEMfJ19240"},{"user":"eEMfJ19240"}]'
 // );
-const test1 = new Json([
-  { user: "Ab01r19240" },
-  { user: "G5EtD19240" },
-  { user: "eEMfJ19240" },
-  { user: "eEMfJ19240" },
-]);
+// const test1 = new Json([
+//   { user: "Ab01r19240" },
+//   { user: "G5EtD19240" },
+//   { user: "eEMfJ19240" },
+//   { user: "eEMfJ19240" },
+// ]);
 
 // // console.log();
 // test1.toJson(testObj);
-console.log(test1.delete({ user: "eEMfJ19240" }));
-console.log(test1.push({ user: "Ab01r19240" }));
-console.log(test1.push({ user: "Ab01r19240" }));
-console.log(test1.push({ user: "Ab01r19240" }));
-console.log(test1.find(({user})=>{}));
+// console.log(test1.delete({ user: "eEMfJ19240" }));
+// console.log(test1.push({ user: "Ab01r19240" }));
+// console.log(test1.push({ user: "Ab01r19240" }));
+// console.log(test1.push({ user: "Ab01r19240" }));
 
 // console.log(test1.push({ user: "Ab01r19240" }));
 // console.log(test1.delete({ user: "Ab01r19240" }));
 // console.log(test1.push({ user: "Ab01r19240" }));
 // console.log(typeof test1.sendJson(), test1, test1.sendJson());
-// console.log(test1.find(({ user }) => user === "G5E219240"));
-
-
-
-
-
-// module.exports = Json;
+// console.log(test1.search(({ user }) => user === "G5E219240"));

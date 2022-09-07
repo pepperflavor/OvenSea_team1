@@ -5,7 +5,7 @@ const ejs = require("ejs");
 const path = require("path");
 // const {authMW} = require("./middleware/authMiddleware");
 // 이렇게 폴더 경로까지만 잡으면 index 탐색 찾은 index파일을 가져옴.
-const { sequelize, User, Post, Nft, Room, Chat, NftBrand } = require("./model");
+const { User, Nft, Room, Chat, NftBrand } = require("./model");
 const { createUid, createNftId } = require("./util/createRandom");
 const constant = require("./model/constants");
 const { encrypt, compare } = require("./util/crypto");
@@ -13,6 +13,7 @@ const cookie = require("cookie-parser");
 const { sign, verify } = require("./util/jwt_util");
 // const { ERROR_CODE } = require("./config/config");
 const Json = require("./util/json_util");
+const EventManager = require("./util/eventManager")
 const {
   initDb,
   createData,
@@ -133,7 +134,6 @@ event.setConnection(() => {
       const isSameIdx = onlineUser.findIndex(
         (user) => user.uid === newUser.uid
       );
-      console.log(isSameIdx);
 
       if (isSameIdx === undefined) {
         onlineUser.push(newUser);
@@ -145,10 +145,10 @@ event.setConnection(() => {
 });
 
 const authMW = (req, res, next) => {
-  const accessVerify = verify(req.cookies?.accessToken);
+  const accessVerify = verify(req.cookies.accessToken);
 
   if (!accessVerify.ok) {
-    const refreshVerify = verify(req.cookies?.refreshToken, "refresh");
+    const refreshVerify = verify(req.cookies.refreshToken, "refresh");
 
     if (!refreshVerify.ok) res.render("login");
 
@@ -226,7 +226,7 @@ app.post("/login", async (req, res) => {
 
     //console.log("@@@@@@@@@@로그인", user.dataValues, user_email, user_pwd);
 
-    const compareOk = await compare(user_pwd, user.dataValues?.pwd);
+    const compareOk = await compare(user_pwd, user.dataValues.pwd);
 
     if (!compareOk) throw Error("아이디나 비밀번호가 잘못됨");
 
@@ -237,7 +237,7 @@ app.post("/login", async (req, res) => {
     res.cookie("accessToken", accessToken, { maxAge: constant.ONE_DAY });
     res.cookie("refreshToken", refreshToken, { maxAge: constant.ONE_WEEK });
 
-    //req.session.uid = user?.dataValues.uid;
+    //req.session.uid = user.dataValues.uid;
     //req.session.accessToken = accessToken;
     //req.session.refreshToken = refreshToken;
 
@@ -318,9 +318,12 @@ app.post("/upLikeNft", async (req, res) => {
       const nft = await Nft.findOne({ where: { id } });
 
       const { like } = nft.dataValues;
-      likeArr = JSON.parse(like);
+      console.log(like);
+      likeArr = Json(like);
 
-      like_length = likeArr[0]?.name === "" ? 0 : likeArr.length;
+      console.log("@@@@@@@@@@@@", likeArr);
+
+      like_length = likeArr[0].name === "" ? 0 : likeArr.length;
 
       if (like_length !== 0) {
         likeArr = likeArr.map((value) => value);
@@ -333,25 +336,33 @@ app.post("/upLikeNft", async (req, res) => {
 
       if (isSame === undefined) {
         like_length++;
-        Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
-          (id) => {
-            res.send(`end`);
-            console.log(id[0]);
-            Nft.findOne({ where: { id: id[0] } }).then((data) => {
-              if (data?.upLikeNft) {
-                const { like } = dataValues;
-                const result = JSON.parse(like).length;
-              }
-            });
-          }
+        const update = await Nft.update(
+          { like: JSON.stringify(likeArr) },
+          { where: { id } }
         );
+        console.log("@@@@@@@@@@@",update);
+        res.send("1")
+        // Nft.update({ like: JSON.stringify(likeArr) }, { where: { id } }).then(
+        //   (id) => {
+        //     res.status(200).send(1);
+        //     // res.send(`end`);
+        //     // console.log(id[0]);
+        //     // Nft.findOne({ where: { id: id[0] } }).then((data) => {
+        //     //   if (data.upLikeNft) {
+        //     //     const { like } = dataValues;
+        //     //     const result = JSON.parse(like).length;
+        //     //     res.send("1")
+        //     //   }
+        //     // });
+        //   }
+        // );
       }
     } else {
-      res.send("-1");
+      res.status(400).send("-1");
     }
   } catch (err) {
     console.log(err);
-    res.send("-1");
+    res.status(400).send("-1");
   }
 });
 
@@ -375,11 +386,11 @@ app.get("/nftPage/:id", async (req, res) => {
 
     const nft = await Nft.findOne({ where: { id } });
 
-    if (nft?.dataValues) {
+    if (nft.dataValues) {
       const { view, like, id } = nft.dataValues;
       viewArr = JSON.parse(view);
       likeArr = JSON.parse(like);
-      const isLike = likeArr.indexOf(user?.name) > 0 ? true : false;
+      const isLike = likeArr.indexOf(user.name) > 0 ? true : false;
 
       //console.log(JSON.stringify(viewArr));
       //console.log(typeof viewArr, viewArr);
@@ -387,9 +398,9 @@ app.get("/nftPage/:id", async (req, res) => {
 
       // console.log("viewArr[0]", viewArr, viewArr[0], viewArr[0].name);
 
-      like_length = likeArr[0]?.name === "" ? 0 : likeArr.length;
+      like_length = likeArr[0].name === "" ? 0 : likeArr.length;
 
-      view_length = viewArr[0]?.name === "" ? 0 : viewArr.length;
+      view_length = viewArr[0].name === "" ? 0 : viewArr.length;
 
       if (view_length !== 0) {
         viewArr = viewArr.map((value) => value);
@@ -441,10 +452,10 @@ app.post("/logout"),
 app.post("/main", authMW, async (req, res) => {
   const { user_email, user_pwd } = req.body;
   const user = await User.findOne({ where: { email: user_email } });
-  const { pwd, img_url } = user?.dataValues;
+  const { pwd, img_url } = user.dataValues;
   const ok = await compare(user_pwd, pwd);
   if (ok) {
-    res.render("main", { user: user?.dataValues });
+    res.render("main", { user: user.dataValues });
   } else {
     res.redirect("/");
   }
@@ -469,19 +480,19 @@ app.post("/getRooms", async (req, res) => {
     const user = await findData(User, { where: { uid } });
 
     const roomsObj = new Json(user.rooms);
-    // console.log(roomsObj.original);
+    console.log(roomsObj.original);
     if (roomsObj.length === 0) throw new Error("not chat rooms");
     const roomList = [...roomsObj.original.map(({ room }) => room)];
-    // console.log(roomList);
+    console.log("roomList", roomList);
 
     const roomResult = await findAllData(Room, {
-      where: { room_id: [roomList] },
+      where: { room_id: roomList },
       order: [
         ["updatedAt", "ASC"], //ASC DESC
       ],
     });
-    
-    console.log("getRooms", roomResult);
+
+    console.log("@@getRooms :", roomResult);
     res.send(roomResult);
   } catch (error) {
     res.send();
@@ -552,7 +563,7 @@ app.get("/logOut", (req, res) => {
 });
 
 app.get("/main", authMW, (req, res) => {
-  const ref = verify(req.cookies?.accessToken);
+  const ref = verify(req.cookies.accessToken);
   // console.log("@@@main", ref);
   // res.cookie("accessToken",res.session.accessToken);
   res.render("main");

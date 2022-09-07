@@ -4,31 +4,51 @@ const constant = require("../model/constants");
 const { sign } = require("./jwt_util");
 
 async function createData(db, input) {
-  return new Promise((resolve, reject) => {
-    db.create(input)
+  try {
+    return await db
+      .create(input)
       .then(() => {
         resolve({ ok: true });
       })
-      .catch((err) => reject({ ok: true, msg: err }));
-  });
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function updateData(db, input, query) {
-  return new Promise((resolve) => {
-    db.update(input, { ...query })
-      .then(() => {
-        resolve({ ok: true });
+  try {
+    return await db
+      .update(input, { ...query })
+      .then((data) => {
+        resolve(data?.dataValues);
       })
-      .catch((err) => reject({ ok: true, msg: err }));
-  });
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function deleteData(db, query) {
-  return new Promise((resolve) => {
-    db.delete({ ...query }).then((data) => {
-      resolve(data?.dataValues);
-    });
-  });
+  try {
+    return await db
+      .delete({ ...query })
+      .then((data) => {
+        resolve(data?.dataValues);
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function findData(db, query) {
@@ -49,13 +69,23 @@ async function findData(db, query) {
 }
 
 async function findAllData(db, query) {
-  return new Promise((resolve) => {
-    db.findAll({ ...query })
-      .then((datas) => {
-        if (datas) resolve(datas.map((data) => data.dataValues));
+  try {
+    return await db
+      .findAll({ ...query })
+      .then((data) => {
+        console.log("@@@@@@@@@@@in findAllData");
+        console.log(data);
+        if (!data) throw new Error("데이터가 없어욤", query);
+        data?.map(({ dataValues }) => dataValues)
+        return data?.map(({ dataValues }) => dataValues)
       })
-      .catch((err) => reject({ ok: true, msg: err }));
-  });
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function initDb(option = "normal") {
@@ -97,7 +127,7 @@ async function initData() {
     { room: createUid() },
   ];
 
-  await User.bulkCreate([
+   User.bulkCreate([
     {
       uid: "admin",
       pwd: "$2b$10$3q1d0sraTQ6OUOuCXP4yjOqHdZBiSqiciyIwXHbAQksu956Hio/zS",
@@ -175,7 +205,7 @@ async function initData() {
       gallery: JSON.stringify([]),
     },
   ]);
-  await NftBrand.bulkCreate([
+   NftBrand.bulkCreate([
     {
       brand_id: "PartyPenguinsContract",
       brand_name: "Party Penguins",
@@ -222,7 +252,7 @@ async function initData() {
       editor_uid: "user5",
     },
   ]);
-  await Nft.bulkCreate([
+   Nft.bulkCreate([
     {
       nft_id: createNftId(),
       view: JSON.stringify([{ name: "" }]),
@@ -547,7 +577,7 @@ async function initData() {
       brand_id: "펭귄조아",
     },
   ]);
-  await Room.bulkCreate([
+   Room.bulkCreate([
     {
       room_id: rooms[0].room,
       event: JSON.stringify([
@@ -611,7 +641,7 @@ async function initData() {
       ]),
     },
   ]);
-  await Chat.bulkCreate([
+   Chat.bulkCreate([
     {
       room_id: rooms[0].room,
       sender: "admin",
