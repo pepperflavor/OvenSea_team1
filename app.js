@@ -38,8 +38,8 @@ const server = app.listen(PORT, () => {
   console.log(PORT, "포트 연결");
 });
 
-initDb();
-//initDb("init");
+// initDb();
+initDb("init");
 
 const io = Socketio(server);
 

@@ -119,6 +119,7 @@ async function initData() {
     { room: createUid() },
   ];
 
+  console.log(rooms);
   User.bulkCreate([
     {
       uid: "admin",
@@ -206,24 +207,6 @@ async function initData() {
       content:
         "Party Penguins is an NFT collection of 9,999 unique and flippin' cool penguins. They’ve moved from Antarctica to the Ethereum blockchain, because that’s where the real party is! Visit www.partypenguins.club to learn more.",
       editor_uid: "user1",
-    },
-    {
-      brand_id: "펭귄조아",
-      brand_name: "펭귄조아",
-      brand_img:
-        "https://lh3.googleusercontent.com/13g3FRwKuCmawyeH_rN5VwYbQZ8KrWdN8IZf4_uKJ3IeLjligIY7ZZ_HR7b48RKUJuUfevFTMzxFJcBWdn51TyZVoAXNPqh1TCIprw=h600",
-      content:
-        "펭귄만그림 내용",
-      editor_uid: "user2",
-    },
-    {
-      brand_id: "피닐리아",
-      brand_name: "피닐리아",
-      brand_img:
-        "https://lh3.googleusercontent.com/2yxEzSzTzCzRwhi9HE5vZMI-2seqe0koChnBkuTBZ4q-N8O5whASxH0U2Y92ISrcc_wBqYR8usrFSoJ0QnRvKg8fM1UAyf4l3ArULQ=h600",
-      content:
-        "피닐리아 내용",
-      editor_uid: "user3",
     },
     {
       brand_id: "B5348D",
@@ -549,25 +532,6 @@ async function initData() {
       brand_name: "Monkey Bet DAO",
       brand_id: "B5348D",
     },
-    {
-      nft_id: createNftId(),
-      view: JSON.stringify([{ name: "" }]),
-      like: JSON.stringify([{ name: "" }]),
-      title: "NFT제목1",
-      content: "NFT내용1",
-      nft_img:
-        "https://trboard.game.onstove.com/Data/TR/20170718/20/636360060838331309.jpg",
-      history: JSON.stringify([
-        { prev_owner: createUid(), curr_owner: "admin", price: 999999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 9999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 999999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 99999 },
-        { prev_owner: createUid(), curr_owner: createUid(), price: 10000 },
-      ]),
-      onwer: "admin",
-      brand_name: "펭귄조아",
-      brand_id: "펭귄조아",
-    },
   ]);
   Room.bulkCreate([
     {
@@ -633,80 +597,81 @@ async function initData() {
       ]),
     },
   ]);
-  Chat.bulkCreate([
-    {
-      room_id: rooms[0].room,
-      sender: "admin",
-      name: "admin",
-      img_url: "/static/image/cat.png",
-      msg: "방1 테스트1",
-      not_read: JSON.stringify(["user1", "user2", "user3"]),
-    },
-    {
-      room_id: rooms[0].room,
-      sender: "user1",
-      name: "user1",
-      img_url: "/static/image/turn.gif",
-      msg: "방1 테스트2",
-      not_read: JSON.stringify(["user1", "user2", "user3"]),
-    },
-    {
-      room_id: rooms[0].room,
-      sender: "user2",
-      name: "user2",
-      img_url: "/static/image/brand.gif",
-      msg: "방1 테스트3",
-      not_read: JSON.stringify(["user1", "user2"]),
-    },
-    {
-      room_id: rooms[0].room,
-      sender: "user3",
-      name: "user3",
-      msg: "방1 테스트4",
-      img_url: "/static/image/turn.gif",
-      not_read: JSON.stringify(["user1"]),
-    },
-    {
-      room_id: rooms[0].room,
-      sender: "user3",
-      name: "user3",
-      msg: "방1 테스트4",
-      img_url: "/static/image/turn.gif",
-      not_read: JSON.stringify(["user1"]),
-    },
-    {
-      room_id: rooms[1].room,
-      sender: "admin",
-      name: "admin",
-      img_url: "/static/image/cat.png",
-      msg: "방1 테스트2",
-      not_read: JSON.stringify(["user2"]),
-    },
-    {
-      room_id: rooms[1].room,
-      sender: "user2",
-      name: "user2",
-      img_url: "/static/image/brand.gif",
-      msg: "방1 테스트3",
-      not_read: JSON.stringify(["admin"]),
-    },
-    {
-      room_id: rooms[2].room,
-      sender: "admin",
-      name: "admin",
-      img_url: "/static/image/cat.png",
-      msg: "방1 테스트3",
-      not_read: JSON.stringify(["user3"]),
-    },
-    {
-      room_id: rooms[2].room,
-      sender: "user1",
-      name: "user1",
-      img_url: "/static/image/turn.gif",
-      msg: "방1 테스트4",
-      not_read: JSON.stringify(["admin"]),
-    },
-  ]);
+  
+  // Chat.bulkCreate([
+  //   {
+  //     room_id: rooms[0].room,
+  //     sender: "admin",
+  //     name: "admin",
+  //     img_url: "/static/image/cat.png",
+  //     msg: "방1 테스트1",
+  //     not_read: JSON.stringify(["user1", "user2", "user3"]),
+  //   },
+  //   {
+  //     room_id: rooms[0].room,
+  //     sender: "user1",
+  //     name: "user1",
+  //     img_url: "/static/image/turn.gif",
+  //     msg: "방1 테스트2",
+  //     not_read: JSON.stringify(["user1", "user2", "user3"]),
+  //   },
+  //   {
+  //     room_id: rooms[0].room,
+  //     sender: "user2",
+  //     name: "user2",
+  //     img_url: "/static/image/brand.gif",
+  //     msg: "방1 테스트3",
+  //     not_read: JSON.stringify(["user1", "user2"]),
+  //   },
+  //   {
+  //     room_id: rooms[0].room,
+  //     sender: "user3",
+  //     name: "user3",
+  //     msg: "방1 테스트4",
+  //     img_url: "/static/image/turn.gif",
+  //     not_read: JSON.stringify(["user1"]),
+  //   },
+  //   {
+  //     room_id: rooms[0].room,
+  //     sender: "user3",
+  //     name: "user3",
+  //     msg: "방1 테스트4",
+  //     img_url: "/static/image/turn.gif",
+  //     not_read: JSON.stringify(["user1"]),
+  //   },
+  //   {
+  //     room_id: rooms[1].room,
+  //     sender: "admin",
+  //     name: "admin",
+  //     img_url: "/static/image/cat.png",
+  //     msg: "방1 테스트2",
+  //     not_read: JSON.stringify(["user2"]),
+  //   },
+  //   {
+  //     room_id: rooms[1].room,
+  //     sender: "user2",
+  //     name: "user2",
+  //     img_url: "/static/image/brand.gif",
+  //     msg: "방1 테스트3",
+  //     not_read: JSON.stringify(["admin"]),
+  //   },
+  //   {
+  //     room_id: rooms[2].room,
+  //     sender: "admin",
+  //     name: "admin",
+  //     img_url: "/static/image/cat.png",
+  //     msg: "방1 테스트3",
+  //     not_read: JSON.stringify(["user3"]),
+  //   },
+  //   {
+  //     room_id: rooms[2].room,
+  //     sender: "user1",
+  //     name: "user1",
+  //     img_url: "/static/image/turn.gif",
+  //     msg: "방1 테스트4",
+  //     not_read: JSON.stringify(["admin"]),
+  //   },
+  // ]);
 }
 
 module.exports = {
