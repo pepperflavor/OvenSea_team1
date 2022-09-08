@@ -23,7 +23,7 @@ module.exports = {
       expiresIn,
     });
   },
-
+  
   verify: (token, token_type = "access") => {
     const secretKey = token_type === "access" ? ACCESS_TOKEN : REFRESH_TOKEN;
     try {

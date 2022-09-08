@@ -151,7 +151,7 @@ event.setConnection(() => {
 });
 
 const authMW = (req, res, next) => {
-  const accessVerify = verify(req.cookies.accessToken);
+  const accessVerify = verify(req.cookies.accessToken);  //user
 
   if (!accessVerify.ok) {
     const refreshVerify = verify(req.cookies.refreshToken, "refresh");
